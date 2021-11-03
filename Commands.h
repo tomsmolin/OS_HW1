@@ -8,8 +8,7 @@
 
 class Command {
 // TODO: Add your data members
- char** args;
- int argv;
+ 
  const char* cmd;
  public:
   Command(const char* cmd_line);
@@ -22,6 +21,8 @@ class Command {
 
 class BuiltInCommand : public Command {
  public:
+  char** args;
+  int argv;
   BuiltInCommand(const char* cmd_line);
   virtual ~BuiltInCommand() {}
 };

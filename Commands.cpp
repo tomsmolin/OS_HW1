@@ -78,19 +78,19 @@ void _removeBackgroundSign(char* cmd_line) {
 
 // TODO: Add your implementation for classes in Commands.h 
 
-Command::Command(const char* cmd_line) {
-  Command::cmd = cmd_line;
-  
-  Command::argv = _parseCommandLine(cmd_line,Command::args); 
+Command::Command(const char* cmd_line) : cmd(cmd_line) {}
+
+BuiltInCommand::BuiltInCommand(const char* cmd_line) : Command(cmd_line) {
+  argv = _parseCommandLine(cmd_line,args);
 }
 
-
-
-
+ShowPidCommand::ShowPidCommand(const char* cmd_line) : BuiltInCommand(cmd_line) {}
 
 void ShowPidCommand::execute() {
   cout << getpid() << endl;
 }
+
+GetCurrDirCommand::GetCurrDirCommand(const char* cmd_line) : BuiltInCommand(cmd_line) {}
 
 void GetCurrDirCommand::execute() {
   char cwd[MAX_CWD_LENGTH];
@@ -126,12 +126,12 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
   else if (firstWord.compare("showpid") == 0) {
     return new ShowPidCommand(cmd_line);
   }
-  else if (firstWord.compare("cat") == 0) {
-    return new CatCommand(cmd_line);
-  }
-  else {
-    return new ExternalCommand(cmd_line);
-  }
+  // else if (firstWord.compare("cat") == 0) {
+  //   return new CatCommand(cmd_line);
+  // }
+  // else {
+  //   return new ExternalCommand(cmd_line);
+  // }
   
   return nullptr;
 }
