@@ -8,9 +8,9 @@
 
 class Command {
 // TODO: Add your data members
- std::vector<std::string> args;
+ char** args;
  int argv;
- char* cmd;
+ const char* cmd;
  public:
   Command(const char* cmd_line);
   virtual ~Command();

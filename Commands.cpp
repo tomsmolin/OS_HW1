@@ -80,6 +80,7 @@ void _removeBackgroundSign(char* cmd_line) {
 
 Command::Command(const char* cmd_line) {
   Command::cmd = cmd_line;
+  
   Command::argv = _parseCommandLine(cmd_line,Command::args); 
 }
 
