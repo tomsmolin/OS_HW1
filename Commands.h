@@ -8,7 +8,7 @@
 
 class Command {
 // TODO: Add your data members
- std::vector<string> args;
+ std::vector<std::string> args;
  int argv;
  std::string cmd;
  public:
