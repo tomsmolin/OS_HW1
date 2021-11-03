@@ -10,7 +10,7 @@ class Command {
 // TODO: Add your data members
  std::vector<std::string> args;
  int argv;
- std::string cmd;
+ char* cmd;
  public:
   Command(const char* cmd_line);
   virtual ~Command();
