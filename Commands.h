@@ -8,9 +8,9 @@
 
 class Command {
 // TODO: Add your data members
- vector<string> args;
+ std::vector<string> args;
  int argv;
- string cmd;
+ std::string cmd;
  public:
   Command(const char* cmd_line);
   virtual ~Command();
@@ -162,4 +162,4 @@ class SmallShell {
   // TODO: add extra methods as needed
 };
 
-#endif //SMASH_COMMAND_H_
+#endif SMASH_COMMAND_H_

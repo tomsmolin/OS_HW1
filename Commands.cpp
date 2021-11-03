@@ -8,6 +8,7 @@
 #include "Commands.h"
 
 using namespace std;
+#define WHITESPACE " "
 #define MAX_CWD_LENGTH 256
 #if 0
 #define FUNC_ENTRY()  \
@@ -77,19 +78,19 @@ void _removeBackgroundSign(char* cmd_line) {
 
 // TODO: Add your implementation for classes in Commands.h 
 
-Command::Command(const char* cmd_line) : cmd(cmd_line) {
-  argv = _parseCommandLine(cmd_line,args); 
+Command::Command(const char* cmd_line) : Command::cmd(cmd_line) {
+  Command::argv = _parseCommandLine(cmd_line,Command::args); 
 }
 
 
 
 
 
-ShowPidCommand::execute() {
+void ShowPidCommand::execute() {
   cout << getpid() << endl;
 }
 
-GetCurrDirCommand::execute() {
+void GetCurrDirCommand::execute() {
   char cwd[MAX_CWD_LENGTH];
   if(getcwd(cwd, MAX_CWD_LENGTH) == NULL){
     perror("getcwd() error");
@@ -112,8 +113,8 @@ SmallShell::~SmallShell() {
 Command * SmallShell::CreateCommand(const char* cmd_line) {
 	// For example:
 
-  string cmd_s = _trim(string(cmd_line));
-  string firstWord = cmd_s.substr(0, cmd_s.find_first_of(" \n"));
+  std::string cmd_s = _trim(string(cmd_line));
+  std::string firstWord = cmd_s.substr(0, cmd_s.find_first_of(" \n"));
   if (firstWord.compare("chprompt") == 0) {
     //TODO: add implementation
   }
