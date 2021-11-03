@@ -8,6 +8,9 @@
 
 class Command {
 // TODO: Add your data members
+ vector<string> args;
+ int argv;
+ string cmd;
  public:
   Command(const char* cmd_line);
   virtual ~Command();
