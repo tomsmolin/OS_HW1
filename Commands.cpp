@@ -122,16 +122,15 @@ void ChangeDirCommand::execute() {
   }
   if(args[1]!=LAST_CD) {
     std::cout<<"DGB"<<endl;
-    (*plastPwd)=args[1];
+    chdir_return=chdir(args[1]);
   }
   else{
     if(plastPwd==NULL) {
       perror("smash error: cd: OLDPWD not set");
       return;
     }
+    chdir_return=chdir(*plastPwd);
   }
-  std::cout<<"DGB1"<<endl;
-  chdir_return=chdir(*plastPwd);
 
   if(chdir_return==ERROR){
     perror("Need to be changed");
