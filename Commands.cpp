@@ -8,7 +8,6 @@
 #include "Commands.h"
 
 using namespace std;
-#define WHITESPACE " "
 #define MAX_CWD_LENGTH 256
 #if 0
 #define FUNC_ENTRY()  \
@@ -20,6 +19,8 @@ using namespace std;
 #define FUNC_ENTRY()
 #define FUNC_EXIT()
 #endif
+
+const std::string WHITESPACE = " \n\r\t\f\v";
 
 string _ltrim(const std::string& s)
 {
@@ -78,11 +79,17 @@ void _removeBackgroundSign(char* cmd_line) {
 
 // TODO: Add your implementation for classes in Commands.h 
 
-Command::Command(const char* cmd_line) : cmd(cmd_line) {}
-
-BuiltInCommand::BuiltInCommand(const char* cmd_line) : Command(cmd_line) {
+Command::Command(const char* cmd_line) : cmd(cmd_line) {
   argv = _parseCommandLine(cmd_line,args);
 }
+
+Command::~Command() {
+  for(int i=0;i<argv;i++){
+    delete args[i];
+  }
+}
+
+BuiltInCommand::BuiltInCommand(const char* cmd_line) : Command(cmd_line) {}
 
 ShowPidCommand::ShowPidCommand(const char* cmd_line) : BuiltInCommand(cmd_line) {}
 
@@ -117,13 +124,14 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
 
   std::string cmd_s = _trim(string(cmd_line));
   std::string firstWord = cmd_s.substr(0, cmd_s.find_first_of(" \n"));
-  if (firstWord.compare("chprompt") == 0) {
-    //TODO: add implementation
-  }
+  // if (firstWord.compare("chprompt") == 0) {
+  //   //TODO: add implementation
+    
+  // }
   if (firstWord.compare("pwd") == 0) {
     return new GetCurrDirCommand(cmd_line);
   }
-  else if (firstWord.compare("showpid") == 0) {
+  if (firstWord.compare("showpid") == 0) {
     return new ShowPidCommand(cmd_line);
   }
   // else if (firstWord.compare("cat") == 0) {
@@ -139,6 +147,7 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
 void SmallShell::executeCommand(const char *cmd_line) {
   // TODO: Add your implementation here
   // for example:
+
   Command* cmd = CreateCommand(cmd_line);
   cmd->execute();
   // Please note that you must fork smash process for some commands (e.g., external commands....)
