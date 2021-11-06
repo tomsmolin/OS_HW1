@@ -80,8 +80,8 @@ void _removeBackgroundSign(char* cmd_line) {
 // TODO: Add your implementation for classes in Commands.h 
 
 Command::Command(const char* cmd_line) : cmd(cmd_line) {
-  argv = _parseCommandLine(cmd_line,args);
   std::cout << "DGB:command\n";
+  argv = _parseCommandLine(cmd_line,args);
 }
 
 Command::~Command() {
