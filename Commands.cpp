@@ -114,9 +114,10 @@ void GetCurrDirCommand::execute() {
 ChangeDirCommand::ChangeDirCommand(const char* cmd_line, char** plastPwd) : BuiltInCommand(cmd_line) {
   std::cout<<argv<<endl;
   std::cout<<args[1]<<endl;
+  
 }
 
-ChangeDirCommand::
+
 
 
 SmallShell::SmallShell() {

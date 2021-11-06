@@ -146,11 +146,10 @@ class CatCommand : public BuiltInCommand {
 
 
 class SmallShell {
- private:
   // TODO: Add your data members
   char** plastPwd;
- public:
   SmallShell();
+ public:
   Command *CreateCommand(const char* cmd_line);
   SmallShell(SmallShell const&)      = delete; // disable copy ctor
   void operator=(SmallShell const&)  = delete; // disable = operator
