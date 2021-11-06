@@ -130,7 +130,7 @@ void ChangeDirCommand::execute() {
     }
   }
   chdir_return=chdir(*plastPwd);
-  if(chdir==ERROR){
+  if(chdir_return==ERROR){
     perror(errno);
   }
 }
