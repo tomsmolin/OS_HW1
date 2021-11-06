@@ -121,7 +121,7 @@ void ChangeDirCommand::execute() {
     return;
   }
   if(args[1]!=LAST_CD) {
-    std::cout<<"args[1]"<<endl;
+    std::cout<<args[1]<<endl;
     chdir_return=chdir(args[1]);
   }
   else{
