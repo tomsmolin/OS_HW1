@@ -129,9 +129,11 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
     
   // }
   if (firstWord.compare("pwd") == 0) {
+    printf("DGB:pwd");
     return new GetCurrDirCommand(cmd_line);
   }
   if (firstWord.compare("showpid") == 0) {
+    printf("DGB:showpid");
     return new ShowPidCommand(cmd_line);
   }
   // else if (firstWord.compare("cat") == 0) {
