@@ -53,12 +53,11 @@ class RedirectionCommand : public Command {
 };
 
 class ChangeDirCommand : public BuiltInCommand {
-  public:
 // TODO: Add your data members
-
-    ChangeDirCommand(const char* cmd_line, char** plastPwd);
-    virtual ~ChangeDirCommand() {}
-    void execute() override;
+ public:
+  ChangeDirCommand(const char* cmd_line, char** plastPwd);
+  virtual ~ChangeDirCommand() {}
+  void execute() override;
 };
 
 class GetCurrDirCommand : public BuiltInCommand {
