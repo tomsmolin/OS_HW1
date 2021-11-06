@@ -129,11 +129,11 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
     
   // }
   if (firstWord.compare("pwd") == 0) {
-    printf("DGB:pwd");
+    std::cout << "DGB:pwd\n";
     return new GetCurrDirCommand(cmd_line);
   }
   if (firstWord.compare("showpid") == 0) {
-    printf("DGB:showpid");
+    std::cout << "DGB:show pid\n";
     return new ShowPidCommand(cmd_line);
   }
   // else if (firstWord.compare("cat") == 0) {
@@ -149,6 +149,7 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
 void SmallShell::executeCommand(const char *cmd_line) {
   // TODO: Add your implementation here
   // for example:
+  std::cout << "DGB:execute\n";
   printf("DGB:execute");
   Command* cmd = CreateCommand(cmd_line);
   cmd->execute();
