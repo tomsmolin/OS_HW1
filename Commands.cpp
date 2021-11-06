@@ -116,6 +116,7 @@ ChangeDirCommand::ChangeDirCommand(const char* cmd_line, char** plastPwd) : Buil
   std::cout<<args[1]<<endl;
 }
 
+ChangeDirCommand::
 
 
 SmallShell::SmallShell() {
