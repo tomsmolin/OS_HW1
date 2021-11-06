@@ -82,7 +82,7 @@ void _removeBackgroundSign(char* cmd_line) {
 
 Command::Command(const char* cmd_line) : cmd(cmd_line), argv(0) {
   std::cout << "DGB:command\n";
-  args = new char**;
+  args = new char*(NULL);
   argv = _parseCommandLine(cmd_line,args);
   std::cout << "DGB:parse2\n";
 }
@@ -91,6 +91,7 @@ Command::~Command() {
   for(int i=0;i<argv;i++){
     delete args[i];
   }
+  delete args;
 }
 
 BuiltInCommand::BuiltInCommand(const char* cmd_line) : Command(cmd_line) {}
