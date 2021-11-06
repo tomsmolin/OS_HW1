@@ -125,7 +125,7 @@ void ChangeDirCommand::execute() {
     chdir_return=chdir(args[1]);
   }
   else{
-    if(plastPwd==NULL) {
+    if(*plastPwd==NULL) {
       perror("smash error: cd: OLDPWD not set");
       return;
     }
