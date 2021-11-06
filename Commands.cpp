@@ -9,6 +9,7 @@
 
 using namespace std;
 #define MAX_CWD_LENGTH 256
+#define ERROR -1
 #define LAST_CD "-"
 #if 0
 #define FUNC_ENTRY()  \
@@ -114,19 +115,24 @@ void GetCurrDirCommand::execute() {
 ChangeDirCommand::ChangeDirCommand(const char* cmd_line, char** plastPwd) : BuiltInCommand(cmd_line) , plastPwd(plastPwd) {}
 
 void ChangeDirCommand::execute() {
+  int chdir_return;
   if(argv>2) {
     perror("smash error: cd: too many arguments");
     return;
   }
-  if(args[1]==LAST_CD) {
+  if(args[1]!=LAST_CD) {
+    *plastPwd=args[1];
+  }
+  else{
     if(plastPwd==NULL) {
       perror("smash error: cd: OLDPWD not set");
       return;
     }
-    std::cout<<chdir(*plastPwd)<<endl;
-    return;
   }
-  std::cout<<chdir(args[1])<<endl;
+  chdir_return=chdir(*plastPwd);
+  if(chdir==ERROR){
+    perror(errno);
+  }
 }
 
 
