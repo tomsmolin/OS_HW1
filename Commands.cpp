@@ -42,7 +42,6 @@ string _trim(const std::string& s)
 int _parseCommandLine(const char* cmd_line, char** args) {
   FUNC_ENTRY()
   int i = 0;
-  std::cout << "DGB:parse1\n";
   std::istringstream iss(_trim(string(cmd_line)).c_str()); //making iss a stream 
   for(std::string s; iss >> s; ) { //iterate all the args one by one 
     args[i] = (char*)malloc(s.length()+1);
@@ -111,12 +110,22 @@ void GetCurrDirCommand::execute() {
   cout << cwd << endl;  
 }
 
-ChangeDirCommand::ChangeDirCommand(const char* cmd_line, char** plastPwd) : BuiltInCommand(cmd_line) {}
+ChangeDirCommand::ChangeDirCommand(const char* cmd_line, char** plastPwd) : BuiltInCommand(cmd_line) , plastPwd(plastPwd) {}
 
 void ChangeDirCommand::execute() {
-
-  std::cout<<argv<<endl;
-  std::cout<<args[1]<<endl;
+  if(argv>2) {
+    perror("smash error: cd: too many arguments");
+    return;
+  }
+  if(argv[1]=="-") {
+    if(plastPwd==NULL) {
+      perror("smash error: cd: OLDPWD not set");
+      return;
+    }
+    std::cout<<chdir(*plastPwd)<<endl;
+    return;
+  }
+  std::cout<<chdir(argv[1])<<endl;
 }
 
 
@@ -160,7 +169,6 @@ void SmallShell::executeCommand(const char *cmd_line) {
   // TODO: Add your implementation here
   // for example:
   Command* cmd = CreateCommand(cmd_line);
-  std::cout << "DGB:execute\n";
   cmd->execute();
   // Please note that you must fork smash process for some commands (e.g., external commands....)
 }
