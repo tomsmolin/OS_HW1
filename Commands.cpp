@@ -9,6 +9,7 @@
 
 using namespace std;
 #define MAX_CWD_LENGTH 256
+#define LAST_CD "-"
 #if 0
 #define FUNC_ENTRY()  \
   cout << __PRETTY_FUNCTION__ << " --> " << endl;
@@ -117,7 +118,7 @@ void ChangeDirCommand::execute() {
     perror("smash error: cd: too many arguments");
     return;
   }
-  if(args[1]=="-") {
+  if(args[1]==LAST_CD) {
     if(plastPwd==NULL) {
       perror("smash error: cd: OLDPWD not set");
       return;
