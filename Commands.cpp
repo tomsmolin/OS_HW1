@@ -81,6 +81,7 @@ void _removeBackgroundSign(char* cmd_line) {
 
 Command::Command(const char* cmd_line) : cmd(cmd_line) {
   argv = _parseCommandLine(cmd_line,args);
+  std::cout << "DGB:command\n";
 }
 
 Command::~Command() {
@@ -149,6 +150,7 @@ void SmallShell::executeCommand(const char *cmd_line) {
   // TODO: Add your implementation here
   // for example:
   Command* cmd = CreateCommand(cmd_line);
+  std::cout << "DGB:execute\n";
   cmd->execute();
   // Please note that you must fork smash process for some commands (e.g., external commands....)
 }
