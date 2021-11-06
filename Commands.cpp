@@ -81,10 +81,8 @@ void _removeBackgroundSign(char* cmd_line) {
 // TODO: Add your implementation for classes in Commands.h 
 
 Command::Command(const char* cmd_line) : cmd(cmd_line), argv(0) {
-  std::cout << "DGB:command\n";
   args = new char*(NULL);
   argv = _parseCommandLine(cmd_line,args);
-  std::cout << "DGB:parse2\n";
 }
 
 Command::~Command() {
@@ -113,6 +111,13 @@ void GetCurrDirCommand::execute() {
   cout << cwd << endl;  
 }
 
+ChangeDirCommand::ChangeDirCommand(const char* cmd_line, char** plastPwd) : BuiltInCommand(cmd_line) {
+  std::cout<<argv<<endl;
+  std::cout<<args[1]<<endl;
+}
+
+
+
 SmallShell::SmallShell() {
 // TODO: add your implementation
 }
@@ -133,16 +138,15 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
     
   // }
   if (firstWord.compare("pwd") == 0) {
-    std::cout << "DGB:pwd\n";
     return new GetCurrDirCommand(cmd_line);
   }
   if (firstWord.compare("showpid") == 0) {
-    std::cout << "DGB:show pid\n";
     return new ShowPidCommand(cmd_line);
   }
-  // else if (firstWord.compare("cat") == 0) {
-  //   return new CatCommand(cmd_line);
-  // }
+  if (firstWord.compare("cd") == 0) {
+    return new ChangeDirCommand(cmd_line,plastPwd);
+  }
+  std::cout<<"ssss";
   // else {
   //   return new ExternalCommand(cmd_line);
   // }

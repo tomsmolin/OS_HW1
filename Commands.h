@@ -8,9 +8,10 @@
 
 class Command {
 // TODO: Add your data members
- char** args;
- const char* cmd;
- int argv;
+protected:
+  char** args;
+  const char* cmd;
+  int argv;
  public:
   Command(const char* cmd_line);
   virtual ~Command();
@@ -146,6 +147,7 @@ class CatCommand : public BuiltInCommand {
 class SmallShell {
  private:
   // TODO: Add your data members
+  char** plastPwd;
   SmallShell();
  public:
   Command *CreateCommand(const char* cmd_line);
