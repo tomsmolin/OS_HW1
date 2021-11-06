@@ -42,6 +42,7 @@ string _trim(const std::string& s)
 int _parseCommandLine(const char* cmd_line, char** args) {
   FUNC_ENTRY()
   int i = 0;
+  std::cout << "DGB:parse1\n";
   std::istringstream iss(_trim(string(cmd_line)).c_str()); //making iss a stream 
   for(std::string s; iss >> s; ) { //iterate all the args one by one 
     args[i] = (char*)malloc(s.length()+1);
@@ -81,8 +82,9 @@ void _removeBackgroundSign(char* cmd_line) {
 
 Command::Command(const char* cmd_line) : cmd(cmd_line), argv(0) {
   std::cout << "DGB:command\n";
-  _parseCommandLine(cmd_line,args);
-  std::cout << "DGB:parse\n";
+  args = new char**;
+  argv = _parseCommandLine(cmd_line,args);
+  std::cout << "DGB:parse2\n";
 }
 
 Command::~Command() {
