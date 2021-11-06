@@ -117,7 +117,7 @@ void ChangeDirCommand::execute() {
     perror("smash error: cd: too many arguments");
     return;
   }
-  if(argv[1]=="-") {
+  if(args[1]=="-") {
     if(plastPwd==NULL) {
       perror("smash error: cd: OLDPWD not set");
       return;
@@ -125,7 +125,7 @@ void ChangeDirCommand::execute() {
     std::cout<<chdir(*plastPwd)<<endl;
     return;
   }
-  std::cout<<chdir(argv[1])<<endl;
+  std::cout<<chdir(args[1])<<endl;
 }
 
 
