@@ -121,7 +121,8 @@ void ChangeDirCommand::execute() {
     return;
   }
   if(args[1]!=LAST_CD) {
-    *plastPwd=args[1];
+    std::cout<<"DGB"<<endl;
+    (*plastPwd)=args[1];
   }
   else{
     if(plastPwd==NULL) {
@@ -129,7 +130,9 @@ void ChangeDirCommand::execute() {
       return;
     }
   }
+  std::cout<<"DGB1"<<endl;
   chdir_return=chdir(*plastPwd);
+
   if(chdir_return==ERROR){
     perror("Need to be changed");
   }
