@@ -123,7 +123,9 @@ void ChangeDirCommand::execute() {
     std::cout<<args[1]<<endl;
     char cwd[MAX_CWD_LENGTH];
     getcwd(cwd, MAX_CWD_LENGTH);
+    std::cout<<cwd<<endl;
     strcpy(plastPwd,cwd);
+    std::cout<<plastPwd<<endl;
     if(chdir(args[1])==ERROR) {
       perror("Need to be changed");
       return;
