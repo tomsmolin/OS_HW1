@@ -120,22 +120,27 @@ void ChangeDirCommand::execute() {
     perror("smash error: cd: too many arguments");
     return;
   }
-  else if(strcmp(args[1],"-")) {
+  if(strcmp(args[1],"-")) {
     std::cout<<args[1]<<endl;
-    chdir_return=chdir(args[1]);
+    char cwd[MAX_CWD_LENGTH];
+    getcwd(cwd, MAX_CWD_LENGTH);
+    strcpy(plastPwd,cwd);
+    if(chdir(args[1])==ERROR) {
+      perror("Need to be changed");
+      return;
+    }
+
   }
   else {
-    std::cout<<"DGB2:-";
-    if(*plastPwd==NULL) {
+    std::cout<<"DGB22222222:-"<<endl;
+    if(plastPwd==NULL) {
       perror("smash error: cd: OLDPWD not set");
       return;
     }
     std::cout<<"DGB3:-";
-    chdir_return=chdir(*plastPwd);
-  }
-
-  if(chdir_return==ERROR){
-    perror("Need to be changed");
+    if(chdir(*plastPwd)==ERROR) {
+      perror("Need to be changed");
+    }
   }
 }
 
