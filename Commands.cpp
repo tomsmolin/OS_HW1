@@ -177,7 +177,7 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
   }
   if (firstWord.compare("cd") == 0) {
 
-    return new ChangeDirCommand(cmd_line,getCurrPwd());
+    return new ChangeDirCommand(cmd_line,NULL);
   }
   std::cout<<"ssss";
   // else {
