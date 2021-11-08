@@ -123,14 +123,15 @@ void ChangeDirCommand::execute() {
   if(strcmp(args[1],"-")) {
     std::cout<<args[1]<<endl;
     chdir_return=chdir(args[1]);
+    std::cout<<"DGB1:-";
   }
-  std::cout<<"DGB1:-";
   else{
+    std::cout<<"DGB2:-";
     if(*plastPwd==NULL) {
       perror("smash error: cd: OLDPWD not set");
       return;
     }
-    std::cout<<"DGB2:-";
+    std::cout<<"DGB3:-";
     chdir_return=chdir(*plastPwd);
   }
 
