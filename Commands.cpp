@@ -123,7 +123,7 @@ void ChangeDirCommand::execute() {
   if(strcmp(args[1],"-")) {
     std::cout<<args[1]<<endl;
     chdir_return=chdir(args[1]);
-    std::cout<<"DGB1:-";
+    std::cout<<chdir_return;
   }
   else{
     std::cout<<"DGB2:-";
