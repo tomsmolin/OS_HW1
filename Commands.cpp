@@ -121,13 +121,13 @@ void ChangeDirCommand::execute() {
   }
   if(strcmp(args[1],"-")) {
     std::cout<<args[1]<<endl;
-    getcwd(plastPwd, MAX_CWD_LENGTH);
-    std::cout<<plastPwd<<endl;
+
     if(chdir(args[1])==ERROR) {
       perror("Need to be changed");
       return;
     }
-
+    getcwd(plastPwd, MAX_CWD_LENGTH);
+    std::cout<<plastPwd<<endl;
   }
   else {
     std::cout<<"DGB22222222:-"<<endl;
@@ -144,6 +144,7 @@ void ChangeDirCommand::execute() {
 
 
 SmallShell::SmallShell() {
+  
 // TODO: add your implementation
 }
 

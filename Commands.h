@@ -54,7 +54,7 @@ class RedirectionCommand : public Command {
 
 class ChangeDirCommand : public BuiltInCommand {
 // TODO: Add your data members
-  char* plastPwd;
+  char plastPwd[MAX_CWD_LENGTH];
  public:
   ChangeDirCommand(const char* cmd_line, char* plastPwd);
   virtual ~ChangeDirCommand() {}
@@ -148,7 +148,7 @@ class CatCommand : public BuiltInCommand {
 
 class SmallShell {
   // TODO: Add your data members
-  char* plastPwd;
+  char plastPwd[MAX_CWD_LENGTH];
   SmallShell();
  public:
   Command *CreateCommand(const char* cmd_line);
