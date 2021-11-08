@@ -129,7 +129,7 @@ void ChangeDirCommand::execute() {
       perror("smash error: cd: OLDPWD not set");
       return;
     }
-    std::cout<<"DGB:-"
+    std::cout<<"DGB:-";
     chdir_return=chdir(*plastPwd);
   }
 
