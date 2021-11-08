@@ -5,7 +5,7 @@
 
 #define COMMAND_ARGS_MAX_LENGTH (200)
 #define COMMAND_MAX_ARGS (20)
-
+#define MAX_CWD_LENGTH (256)
 class Command {
 // TODO: Add your data members
 protected:
