@@ -111,26 +111,29 @@ void GetCurrDirCommand::execute() {
   cout << cwd << endl;  
 }
 
-static char* getCurrPwd() {
-  char cwd[MAX_CWD_LENGTH];
-  getcwd(cwd, MAX_CWD_LENGTH);
-  return cwd;
+static void getCurrPwd(char* buff) {
+  getcwd(buff, MAX_CWD_LENGTH);
 }
 
-ChangeDirCommand::ChangeDirCommand(const char* cmd_line, char* plastPwd) : BuiltInCommand(cmd_line) , plastPwd(plastPwd) {}
+ChangeDirCommand::ChangeDirCommand(const char* cmd_line, char* plastPwd) : BuiltInCommand(cmd_line) {}
 
 void ChangeDirCommand::execute() {
   if(argv>2) {
     perror("smash error: cd: too many arguments");
     return;
   }
+  char* lastPwd=plastPwd;
+  getCurrPwd(plastPwd);
   if(strcmp(args[1],"-")) {
     std::cout<<args[1]<<endl;
 
     if(chdir(args[1])==ERROR) {
+      plastPwd=lastPwd;
       perror("Need to be changed");
       return;
     }
+    getCurrPwd(plastPwd);
+    std::cout<<plastPwd<<endl;
   }
   else {
     std::cout<<"DGB22222222:-"<<endl;
