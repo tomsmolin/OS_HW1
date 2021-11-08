@@ -8,7 +8,6 @@
 #include "Commands.h"
 
 using namespace std;
-#define MAX_CWD_LENGTH 256
 #define ERROR -1
 #define LAST_CD "-"
 #if 0
