@@ -120,7 +120,7 @@ void ChangeDirCommand::execute() {
     perror("smash error: cd: too many arguments");
     return;
   }
-  if(std::strcmp(args[1],"-")) {
+  if(strcmp(args[1],"-")) {
     std::cout<<args[1]<<endl;
     chdir_return=chdir(args[1]);
   }
