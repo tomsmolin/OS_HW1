@@ -111,6 +111,12 @@ void GetCurrDirCommand::execute() {
   cout << cwd << endl;  
 }
 
+static char* getCurrPwd() {
+  char cwd[MAX_CWD_LENGTH];
+  getcwd(cwd, MAX_CWD_LENGTH);
+  return cwd;
+}
+
 ChangeDirCommand::ChangeDirCommand(const char* cmd_line, char* plastPwd) : BuiltInCommand(cmd_line) , plastPwd(plastPwd) {}
 
 void ChangeDirCommand::execute() {
@@ -125,8 +131,6 @@ void ChangeDirCommand::execute() {
       perror("Need to be changed");
       return;
     }
-    getcwd(plastPwd, MAX_CWD_LENGTH);
-    std::cout<<plastPwd<<endl;
   }
   else {
     std::cout<<"DGB22222222:-"<<endl;
@@ -169,7 +173,8 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
     return new ShowPidCommand(cmd_line);
   }
   if (firstWord.compare("cd") == 0) {
-    return new ChangeDirCommand(cmd_line,plastPwd);
+
+    return new ChangeDirCommand(cmd_line,getCurrPwd());
   }
   std::cout<<"ssss";
   // else {

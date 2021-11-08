@@ -5,7 +5,7 @@
 
 #define COMMAND_ARGS_MAX_LENGTH (200)
 #define COMMAND_MAX_ARGS (20)
-#define MAX_CWD_LENGTH (256)
+#define MAX_CWD_LENGTH 256
 class Command {
 // TODO: Add your data members
 protected:
@@ -54,7 +54,7 @@ class RedirectionCommand : public Command {
 
 class ChangeDirCommand : public BuiltInCommand {
 // TODO: Add your data members
-  char plastPwd[MAX_CWD_LENGTH];
+  char* plastPwd;
  public:
   ChangeDirCommand(const char* cmd_line, char* plastPwd);
   virtual ~ChangeDirCommand() {}
@@ -148,7 +148,6 @@ class CatCommand : public BuiltInCommand {
 
 class SmallShell {
   // TODO: Add your data members
-  char plastPwd[MAX_CWD_LENGTH];
   SmallShell();
  public:
   Command *CreateCommand(const char* cmd_line);
