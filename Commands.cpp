@@ -112,10 +112,9 @@ void GetCurrDirCommand::execute() {
   cout << cwd << endl;  
 }
 
-ChangeDirCommand::ChangeDirCommand(const char* cmd_line, char** plastPwd) : BuiltInCommand(cmd_line) , plastPwd(plastPwd) {}
+ChangeDirCommand::ChangeDirCommand(const char* cmd_line, char* plastPwd) : BuiltInCommand(cmd_line) , plastPwd(plastPwd) {}
 
 void ChangeDirCommand::execute() {
-  int chdir_return;
   if(argv>2) {
     perror("smash error: cd: too many arguments");
     return;
@@ -138,7 +137,7 @@ void ChangeDirCommand::execute() {
       return;
     }
     std::cout<<"DGB3:-";
-    if(chdir(*plastPwd)==ERROR) {
+    if(chdir(plastPwd)==ERROR) {
       perror("Need to be changed");
     }
   }
