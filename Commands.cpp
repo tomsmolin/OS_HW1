@@ -174,7 +174,6 @@ void ChangeDirCommand::execute() {
       return;
     }
     // getCurrPwd(plastPwd);
-    std::cout<<"cccccc"<<endl;
   }
   else {
     if(plastPwd==NULL) {
@@ -188,7 +187,7 @@ void ChangeDirCommand::execute() {
       return;
     }
   }
-  *plastPwd=*newPwd;
+  plastPwd=newPwd;
   std::cout<<"aaaa"<<endl;
   delete newPwd;
 }
