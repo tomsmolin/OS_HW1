@@ -160,18 +160,18 @@ void ChangeDirCommand::execute() {
     perror("smash error: cd: too many arguments");
     return;
   }
-  char* lastPwd=plastPwd;
-  getCurrPwd(plastPwd);
+  // char* lastPwd=plastPwd;
+  // getCurrPwd(plastPwd);
   if(strcmp(args[1],"-")) {
     std::cout<<args[1]<<endl;
 
     if(chdir(args[1])==ERROR) {
-      plastPwd=lastPwd;
+      // plastPwd=lastPwd;
       perror("Need to be changed");
       return;
     }
-    getCurrPwd(plastPwd);
-    std::cout<<plastPwd<<endl;
+    // getCurrPwd(plastPwd);
+    // std::cout<<plastPwd<<endl;
   }
   else {
     std::cout<<"DGB22222222:-"<<endl;
@@ -216,7 +216,6 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
   if (firstWord.compare("cd") == 0) {
     return new ChangeDirCommand(cmd_line,NULL);
   }
-  std::cout<<"external commands";
   // else {
   //   return new ExternalCommand(cmd_line);
   // }
