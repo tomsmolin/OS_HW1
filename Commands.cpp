@@ -168,12 +168,13 @@ void ChangeDirCommand::execute() {
   if(strcmp(args[1],"-")) {
     if(chdir(args[1])==ERROR) {
       // plastPwd=lastPwd;
+      
       perror("Need to be changed");
       delete newPwd;
       return;
     }
     // getCurrPwd(plastPwd);
-    std::cout<<plastPwd<<endl;
+    std::cout<<"cccccc"<<endl;
   }
   else {
     if(plastPwd==NULL) {
@@ -188,6 +189,7 @@ void ChangeDirCommand::execute() {
     }
   }
   *plastPwd=*newPwd;
+  std::cout<<"aaaa"<<endl;
   delete newPwd;
 }
 
