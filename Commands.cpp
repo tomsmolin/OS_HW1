@@ -186,7 +186,7 @@ void ChangeDirCommand::execute() {
       return;
     }
   }
-  plastPwd=newPwd;
+  SmallShell::plastPwd=newPwd;
   std::cout<<plastPwd<<endl;
 }
 
