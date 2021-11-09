@@ -95,18 +95,39 @@ Command::~Command() {
 ExternalCommand::ExternalCommand(const char* cmd_line) : Command(cmd_line) {}
 
 void ExternalCommand::execute() {
-  char* cmd_line_char  = (char*)cmd;
-  const char *new_args[] = {
+  int pid = fork();
+    if (pid == -1)
+    {
+        perror("smash error: fork failed");
+        return;
+    }
+    if(pid == 0)//child
+    {
+        if(setpgrp() == -1) {
+            perror("smash error: setpgrp failed");
+            return;
+        }
+        char* cmd_line_char  = (char*)this->cmd_line;
+        _removeBackgroundSign(cmd_line_char);
+        const char *new_args[] = {
                 "/bin/bash",
                 "-c",
                 cmd_line_char,
                 NULL
-  };
-  int result = execvp(new_args[0], (char**)new_args);
-      if(result == -1) {
-          perror("smash error: execvp failed");
-          return;
-      }
+        };
+
+        int result = execvp(new_args[0], (char**)new_args);
+        if(result == -1)
+        {
+            perror("smash error: execvp failed");
+            return;
+        }
+    }
+    /////father
+    else{ 
+      wait(NULL);
+
+    }
 }
 
 BuiltInCommand::BuiltInCommand(const char* cmd_line) : Command(cmd_line) {}
