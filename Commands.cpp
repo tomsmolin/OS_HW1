@@ -218,7 +218,7 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
     return new ShowPidCommand(cmd_line);
   }
   if (firstWord.compare("cd") == 0) {
-    return new ChangeDirCommand(cmd_line,plastPwd&);
+    return new ChangeDirCommand(cmd_line,plastPwd);
   }
   // else {
   //   return new ExternalCommand(cmd_line);
