@@ -96,7 +96,7 @@ ExternalCommand::ExternalCommand(const char* cmd_line) : Command(cmd_line) {}
 
 void ExternalCommand::execute() {
   char* cmd_line_char  = (char*)this->cmd;
-  execv("/bin/bash",cmd_line_char);
+  execvp("/bin/bash",cmd_line_char);
 }
 
 BuiltInCommand::BuiltInCommand(const char* cmd_line) : Command(cmd_line) {}
