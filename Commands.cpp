@@ -173,7 +173,7 @@ void ChangeDirCommand::execute() {
       return;
     }
     // getCurrPwd(plastPwd);
-    // std::cout<<plastPwd<<endl;
+    std::cout<<plastPwd<<endl;
   }
   else {
     if(plastPwd==NULL) {
