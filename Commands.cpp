@@ -218,6 +218,9 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
     return new ShowPidCommand(cmd_line);
   }
   if (firstWord.compare("cd") == 0) {
+    if(plastPwd!=NULL){
+      std::cout<<plastPwd<<endl;
+    }
     return new ChangeDirCommand(cmd_line,plastPwd);
   }
   // else {
