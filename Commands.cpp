@@ -95,8 +95,18 @@ Command::~Command() {
 ExternalCommand::ExternalCommand(const char* cmd_line) : Command(cmd_line) {}
 
 void ExternalCommand::execute() {
-  char* cmd_line_char  = (char*)this->cmd;
-  execvp("/bin/bash",cmd_line_char);
+  char* cmd_line_char  = (char*)cmd;
+  const char *new_args[] = {
+                "/bin/bash",
+                "-c",
+                cmd_line_char,
+                NULL
+  };
+  int result = execvp(new_args[0], (char**)new_args);
+      if(result == -1) {
+          perror("smash error: execvp failed");
+          return;
+      }
 }
 
 BuiltInCommand::BuiltInCommand(const char* cmd_line) : Command(cmd_line) {}
