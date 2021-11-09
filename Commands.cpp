@@ -160,9 +160,9 @@ void ChangeDirCommand::execute() {
     perror("smash error: cd: too many arguments");
     return;
   }
+  std::cout<<plastPwd<<endl;
   char* newPwd=new char(NULL);
   getCurrPwd(newPwd);
-  std::cout<<newPwd<<endl;
   // char* lastPwd=plastPwd;
   // getCurrPwd(plastPwd);
   if(strcmp(args[1],"-")) {
