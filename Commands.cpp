@@ -187,7 +187,7 @@ void ChangeDirCommand::execute() {
       return;
     }
   }
-  plastPwd=newPwd;
+  plastPwd=&newPwd;
   std::cout<<"aaaa"<<endl;
 }
 
