@@ -92,6 +92,12 @@ Command::~Command() {
   delete args;
 }
 
+ExternalCommand::ExternalCommand(const char* cmd_line) : Command(cmd_line) {}
+
+void ExternalCommand::execute() {
+  execv("/bin/bash",cmd);
+}
+
 BuiltInCommand::BuiltInCommand(const char* cmd_line) : Command(cmd_line) {}
 
 ShowPidCommand::ShowPidCommand(const char* cmd_line) : BuiltInCommand(cmd_line) {}
@@ -176,13 +182,14 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
     return new ShowPidCommand(cmd_line);
   }
   if (firstWord.compare("cd") == 0) {
-
     return new ChangeDirCommand(cmd_line,NULL);
   }
-  std::cout<<"ssss";
+  std::cout<<"external commands";
   // else {
   //   return new ExternalCommand(cmd_line);
   // }
+  /////external commands:
+  return new ExternalCommand(cmd_line);
   
   return nullptr;
 }
