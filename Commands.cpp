@@ -107,16 +107,16 @@ void ExternalCommand::execute() {
             perror("smash error: setpgrp failed");
             return;
         }
-        _removeBackgroundSign(cmd);
+        char* cmd_line_char  = (char*)cmd;
         _removeBackgroundSign(cmd_line_char);
-        char *new_args[] = {
+        const char *new_args[] = {
                 "/bin/bash",
                 "-c",
-                (char*)cmd,
+                cmd_line_char,
                 NULL
         };
 
-        int result = execv(new_args[0],new_args);
+        int result = execv(new_args[0], (char**)new_args);
         if(result == -1)
         {
             perror("smash error: execvp failed");
