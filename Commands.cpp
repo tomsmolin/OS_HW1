@@ -92,6 +92,10 @@ Command::~Command() {
   delete args;
 }
 
+const char* Command::getCmd() {
+  return cmd;
+}
+
 ExternalCommand::ExternalCommand(const char* cmd_line) : Command(cmd_line) {}
 
 void ExternalCommand::execute() {
@@ -153,6 +157,10 @@ static void getCurrPwd(char* buff) {
   getcwd(buff, MAX_CWD_LENGTH);
 }
 
+static int getCurrPid() {
+  return getpid();
+}
+
 ChangeDirCommand::ChangeDirCommand(const char* cmd_line, char* plastPwd) : BuiltInCommand(cmd_line) {}
 
 void ChangeDirCommand::execute() {
@@ -190,6 +198,56 @@ void ChangeDirCommand::execute() {
   // std::cout<<plastPwd<<endl;
 }
 
+/////////////////////////////joblist//////////////////////
+
+JobsList::JobEntry::JobEntry(int pid, int job_pid,JobStatus status,time_t insert,const char* cmd) : pid(pid),job_pid(job_pid),
+                                                                                                          status(status),insert(insert),cmd(cmd) {}
+
+JobsList::JobsList() {}
+
+void JobsList::addJob(Command* cmd, bool isStopped = false) {
+  JobStatus curr_status = (isStopped) ?  Stopped : Background;
+  jobsDict[jobs_num++] = JobEntry(getCurrPid(),jobs_num,curr_status,time(NULL),cmd->getCmd());
+}
+
+void JobsList::printJobsList() {
+  
+  for (const auto& [key, value] : jobsDict) {
+    std::string id = "[" << value.jobs_num << "]";
+    std::string end = (value.status==Stopped) ? "(Stopped)"<<std::endl : std::endl;
+    double time_diff = difftime(value.insert,time(NULL));
+    std::cout << string_id << value.cmd << ":" << value.pid << time_diff << end;
+  }
+  std::cout << "\n";
+}
+
+void JobsList::killAllJobs() {
+  jobsDict.clear();
+  jobs_num=0;
+}
+
+JobEntry* JobsList::getJobById(int jobId){
+  int i=0;
+  for (const auto& [key, value] : jobsDict) {
+    if(i==jobId){
+      return &(value);
+      
+    }
+    i++;
+  }
+  return NULL;
+}
+void JobsList::removeJobById(int jobId){
+  jobsDict.erase(jobId);
+  jobs_num--;
+}
+JobEntry* JobsList::getLastJob(int* lastJobId) {
+  
+
+}
+JobEntry* JobsList::getLastStoppedJob(int* jobId){
+
+}
 
 SmallShell::SmallShell() {
   

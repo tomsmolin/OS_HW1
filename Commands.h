@@ -2,7 +2,7 @@
 #define SMASH_COMMAND_H_
 
 #include <vector>
-
+#include <map>
 #define COMMAND_ARGS_MAX_LENGTH (200)
 #define COMMAND_MAX_ARGS (20)
 #define MAX_CWD_LENGTH 256
@@ -16,6 +16,7 @@ protected:
   Command(const char* cmd_line);
   virtual ~Command();
   virtual void execute() = 0;
+  const char* getCmd();
   //virtual void prepare();
   //virtual void cleanup();
   // TODO: Add your extra methods if needed
@@ -84,14 +85,25 @@ class QuitCommand : public BuiltInCommand {
 };
 
 
-
+enum JobStatus {Background, Stopped};
 
 class JobsList {
  public:
   class JobEntry {
+    public:
+      int pid;
+      int job_pid;
+      JobStatus status;
+      time_t insert;
+      const char* cmd;
+      JobEntry(int pid, int job_pid,JobStatus status,time_t insert,const char* cmd);
    // TODO: Add your data members
   };
+    int jobs_num;
+    std::map<int, JobEntry> jobsDict;
  // TODO: Add your data members
+
+ 
  public:
   JobsList();
   ~JobsList();
