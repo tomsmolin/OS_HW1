@@ -213,10 +213,10 @@ void JobsList::addJob(Command* cmd, bool isStopped = false) {
 void JobsList::printJobsList() {
   
   for (const auto& [key, value] : jobsDict) {
-    std::string id = "[" << value.jobs_num << "]";
-    std::string end = (value.status==Stopped) ? "(Stopped)"<<std::endl : std::endl;
+    std::string id = "[" << value.job_id << "]";
+    std::string end = (value.status==Stopped) ? "(Stopped)"<<"\n": "\n";
     double time_diff = difftime(value.insert,time(NULL));
-    std::cout << string_id << value.cmd << ":" << value.pid << time_diff << end;
+    std::cout << id << value.cmd << ":" << value.pid << time_diff << end;
   }
   std::cout << "\n";
 }
@@ -226,7 +226,7 @@ void JobsList::killAllJobs() {
   jobs_num=0;
 }
 
-JobEntry* JobsList::getJobById(int jobId){
+JobList::JobEntry* JobsList::getJobById(int jobId){
   int i=0;
   for (const auto& [key, value] : jobsDict) {
     if(i==jobId){
@@ -241,11 +241,11 @@ void JobsList::removeJobById(int jobId){
   jobsDict.erase(jobId);
   jobs_num--;
 }
-JobEntry* JobsList::getLastJob(int* lastJobId) {
-  
+JobList::JobEntry* JobsList::getLastJob(int* lastJobId) {
+
 
 }
-JobEntry* JobsList::getLastStoppedJob(int* jobId){
+JobList::JobEntry* JobsList::getLastStoppedJob(int* jobId){
 
 }
 
