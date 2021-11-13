@@ -200,8 +200,7 @@ void ChangeDirCommand::execute() {
 
 /////////////////////////////joblist//////////////////////
 
-JobsList::JobEntry::JobEntry(int pid, int job_pid,JobStatus status,time_t insert,const char* cmd) : pid(pid),job_pid(job_pid),
-                                                                                                          status(status),insert(insert),cmd(cmd) {}
+JobsList::JobEntry::JobEntry(int pid, int job_pid,JobStatus status,time_t insert,const char* cmd) : pid(pid),job_pid(job_pid),status(status),insert(insert),cmd(cmd) {}
 
 JobsList::JobsList() {}
 
