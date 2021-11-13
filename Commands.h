@@ -92,11 +92,11 @@ class JobsList {
   class JobEntry {
     public:
       int pid;
-      int job_pid;
+      int job_id;
       JobStatus status;
       time_t insert;
       const char* cmd;
-      JobEntry(int pid, int job_pid,JobStatus status,time_t insert,const char* cmd);
+      JobEntry(int pid, int job_id,JobStatus status,time_t insert,const char* cmd);
    // TODO: Add your data members
   };
     int jobs_num;

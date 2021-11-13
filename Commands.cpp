@@ -214,7 +214,7 @@ void JobsList::printJobsList() {
   
   for (const auto& [key, value] : jobsDict) {
     std::string id = "[" << value.job_id << "]";
-    std::string end = (value.status==Stopped) ? "(Stopped)"<<"\n": "\n";
+    std::string end = (value.status==Stopped) ? "(Stopped)\n": "\n";
     double time_diff = difftime(value.insert,time(NULL));
     std::cout << id << value.cmd << ":" << value.pid << time_diff << end;
   }
@@ -226,7 +226,7 @@ void JobsList::killAllJobs() {
   jobs_num=0;
 }
 
-JobList::JobEntry* JobsList::getJobById(int jobId){
+JobsList::JobEntry* JobsList::getJobById(int jobId){
   int i=0;
   for (const auto& [key, value] : jobsDict) {
     if(i==jobId){
@@ -241,11 +241,11 @@ void JobsList::removeJobById(int jobId){
   jobsDict.erase(jobId);
   jobs_num--;
 }
-JobList::JobEntry* JobsList::getLastJob(int* lastJobId) {
+JobsList::JobEntry* JobsList::getLastJob(int* lastJobId) {
 
 
 }
-JobList::JobEntry* JobsList::getLastStoppedJob(int* jobId){
+JobsList::JobEntry* JobsList::getLastStoppedJob(int* jobId){
 
 }
 
