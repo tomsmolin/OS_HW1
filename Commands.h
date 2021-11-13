@@ -2,17 +2,21 @@
 #define SMASH_COMMAND_H_
 
 #include <vector>
+#include <string.h> //moved it from cpp file
 
 #define COMMAND_ARGS_MAX_LENGTH (200)
 #define COMMAND_MAX_ARGS (20)
 #define MAX_CWD_LENGTH 256
+#define COMMAND_MAX_LENGTH (80)
+
 class Command {
 // TODO: Add your data members
 protected:
-  char** args;
   const char* cmd;
   int argv;
+
  public:
+  char** args; // move back to protected and add relevant get method --chprompt context
   Command(const char* cmd_line);
   virtual ~Command();
   virtual void execute() = 0;
@@ -52,13 +56,23 @@ class RedirectionCommand : public Command {
   //void cleanup() override;
 };
 
+class ChangePromptCommand : public BuiltInCommand {
+    std::string* prompt;
+public:
+    ChangePromptCommand(const char* cmd_line, std::string* prompt);
+    virtual ~ChangePromptCommand() {}
+    void execute() override;
+};
+
 class ChangeDirCommand : public BuiltInCommand {
-// TODO: Add your data members
-  char* plastPwd;
+// TODO: Add your data members public:
  public:
-  ChangeDirCommand(const char* cmd_line, char* plastPwd);
-  virtual ~ChangeDirCommand() {}
+  bool cd_succeeded;
+  char* classPlastPwd;
+  ChangeDirCommand(const char* cmd_line, char** plastPwd);
+  virtual ~ChangeDirCommand() {} // ============ implement this destructor??
   void execute() override;
+
 };
 
 class GetCurrDirCommand : public BuiltInCommand {
@@ -149,8 +163,11 @@ class CatCommand : public BuiltInCommand {
 class SmallShell {
   // TODO: Add your data members
   SmallShell();
+  char** plastPwd;
+  bool first_legal_cd;
+  std::string prompt;
+
  public:
-  char* plastPwd;
   Command *CreateCommand(const char* cmd_line);
   SmallShell(SmallShell const&)      = delete; // disable copy ctor
   void operator=(SmallShell const&)  = delete; // disable = operator
@@ -163,6 +180,11 @@ class SmallShell {
   ~SmallShell();
   void executeCommand(const char* cmd_line);
   // TODO: add extra methods as needed
+  void setPLastPwd(Command* cmd);
+  std::string* getPPrompt()
+  {
+      return &prompt;
+  }
 };
 
 #endif SMASH_COMMAND_H_

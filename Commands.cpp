@@ -1,5 +1,4 @@
 #include <unistd.h>
-#include <string.h>
 #include <iostream>
 #include <vector>
 #include <sstream>
@@ -132,72 +131,104 @@ void ExternalCommand::execute() {
 
 BuiltInCommand::BuiltInCommand(const char* cmd_line) : Command(cmd_line) {}
 
+ChangePromptCommand::ChangePromptCommand(const char* cmd_line, string* prompt) : BuiltInCommand(cmd_line), prompt(prompt) {}
+
+void ChangePromptCommand::execute() {
+    string def("smash> ");
+    if (argv == 1)
+        *prompt = def;
+    else
+    {
+        *prompt = args[1];
+        (*prompt).append("> ");
+    }
+}
+
 ShowPidCommand::ShowPidCommand(const char* cmd_line) : BuiltInCommand(cmd_line) {}
 
 void ShowPidCommand::execute() {
-  cout << getpid() << endl;
+  cout << args[0] << " pid is " << getpid() << endl;
 }
 
 GetCurrDirCommand::GetCurrDirCommand(const char* cmd_line) : BuiltInCommand(cmd_line) {}
 
 void GetCurrDirCommand::execute() {
-  char cwd[MAX_CWD_LENGTH];
+  char cwd[MAX_CWD_LENGTH]; // make sure it's not suppose to be 80
   if(getcwd(cwd, MAX_CWD_LENGTH) == NULL){
-    perror("getcwd() error");
+    perror("smash error: getcwd failed");
     return;
   }
   cout << cwd << endl;  
 }
 
-static void getCurrPwd(char* buff) {
-  getcwd(buff, MAX_CWD_LENGTH);
+static char* getCurrPwd() {
+    char* cwd = new char[COMMAND_MAX_LENGTH];
+    if (getcwd(cwd, COMMAND_MAX_LENGTH) == NULL)
+    {
+        perror("smash error: getcwd failed");
+        return NULL;
+    }
+
+    return cwd;
 }
 
-ChangeDirCommand::ChangeDirCommand(const char* cmd_line, char* plastPwd) : BuiltInCommand(cmd_line) {}
+ChangeDirCommand::ChangeDirCommand(const char* cmd_line, char** plastPwd) : BuiltInCommand(cmd_line), cd_succeeded(false), classPlastPwd(*plastPwd) {}
 
 void ChangeDirCommand::execute() {
-  if(argv>2) {
-    perror("smash error: cd: too many arguments");
-    return;
-  }
-  char* newPwd=new char(NULL);
-  getCurrPwd(newPwd);
-  // char* lastPwd=plastPwd;
-  // getCurrPwd(plastPwd);
-  if(strcmp(args[1],"-")) {
-    if(chdir(args[1])==ERROR) {
-      // plastPwd=lastPwd;
-      
-      perror("Need to be changed");
-      delete newPwd;
-      return;
+    if (argv > 2)
+    {
+        perror("smash error: cd: too many arguments");
+        return;
     }
-    // getCurrPwd(plastPwd);
-  }
-  else {
-    if(plastPwd==NULL) {
-      perror("smash error: cd: OLDPWD not set");
-      delete newPwd;
-      return;
+
+    char* cwd = getCurrPwd();
+    if (cwd == NULL)
+    {
+        return;
     }
-    if(chdir(plastPwd)==ERROR) {
-      perror("Need to be changed");
-      delete newPwd;
-      return;
+
+    char* path = args[1];
+    if (strcmp(path, "-") == 0)
+    {
+        if (!classPlastPwd)
+        {
+            perror("smash error: cd: OLDPWD not set");
+            return;
+        }
+        else
+        {
+            if (chdir(classPlastPwd) == -1)
+            {
+                perror("smash error: chdir failed");
+                return;
+            }
+        }
     }
-  }
-  // SmallShell::plastPwd=newPwd;
-  // std::cout<<plastPwd<<endl;
+    else
+    {
+        if (chdir(path) == -1)
+        {
+            perror("smash error: chdir failed");
+            return;
+        }
+    }
+    cd_succeeded = true;
+    classPlastPwd = cwd;
 }
 
+SmallShell::SmallShell() : plastPwd(NULL), first_legal_cd(true), prompt("smash> ") {
+    // TODO: add your implementation
+    plastPwd = new char* ();
+    *plastPwd = NULL;
 
-SmallShell::SmallShell() {
-  
-// TODO: add your implementation
 }
 
 SmallShell::~SmallShell() {
-// TODO: add your implementation
+    // TODO: add your implementation
+    if (*plastPwd)
+        delete[] * plastPwd;
+
+    delete plastPwd;
 }
 
 /**
@@ -207,18 +238,19 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
 	// For example:
   std::string cmd_s = _trim(string(cmd_line));
   std::string firstWord = cmd_s.substr(0, cmd_s.find_first_of(" \n"));
-  // if (firstWord.compare("chprompt") == 0) {
-  //   //TODO: add implementation
-    
-  // }
-  if (firstWord.compare("pwd") == 0) {
+   
+  if (firstWord.compare("chprompt") == 0) {
+     //TODO: add implementation
+    return new ChangePromptCommand(cmd_line, getPPrompt());
+   }
+  else if (firstWord.compare("pwd") == 0) {
     return new GetCurrDirCommand(cmd_line);
   }
-  if (firstWord.compare("showpid") == 0) {
+  else if (firstWord.compare("showpid") == 0) {
     return new ShowPidCommand(cmd_line);
   }
-  if (firstWord.compare("cd") == 0) {
-    return new ChangeDirCommand(cmd_line,plastPwd);
+  else if (firstWord.compare("cd") == 0) {
+    return new ChangeDirCommand(cmd_line, plastPwd);
   }
   // else {
   //   return new ExternalCommand(cmd_line);
@@ -229,10 +261,34 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
   return nullptr;
 }
 
-void SmallShell::executeCommand(const char *cmd_line) {
-  // TODO: Add your implementation here
-  // for example:
-  Command* cmd = CreateCommand(cmd_line);
-  cmd->execute();
-  // Please note that you must fork smash process for some commands (e.g., external commands....)
+void SmallShell::setPLastPwd(Command* cmd) {
+
+    if (strcmp(cmd->args[0], "cd") == 0)
+    {
+        ChangeDirCommand* temp = (ChangeDirCommand*)cmd;
+        if (temp->cd_succeeded)
+        {
+            if (first_legal_cd)
+            {
+                *plastPwd = NULL;
+                first_legal_cd = false;
+                delete[] temp->classPlastPwd;
+            }
+            else
+            {
+                if (*plastPwd)
+                    delete[] * plastPwd;
+
+                *plastPwd = (temp->classPlastPwd);
+            }
+        }
+    }
+}
+
+void SmallShell::executeCommand(const char* cmd_line) {
+    // TODO: Add your implementation here
+    Command* cmd = CreateCommand(cmd_line);
+    cmd->execute();
+    setPLastPwd(cmd);
+    // Please note that you must fork smash process for some commands (e.g., external commands....)
 }
