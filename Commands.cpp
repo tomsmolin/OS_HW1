@@ -131,6 +131,7 @@ void ExternalCommand::execute() {
       if(_isBackgroundComamnd(cmd)){
         
         jobs->addJob(this);
+        jobs->printJobsList();
       }
       else
         {
