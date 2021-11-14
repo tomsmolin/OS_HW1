@@ -341,15 +341,16 @@ void JobsList::removeFinishedJobs() {
       if(jobsDict.size()== 1){
         jobs_list_empty=true;
         jobsDict.erase(iter->first);
-        max_job_id=0;
+        maxIdUpdate();
         return;
       }
       
       jobsDict.erase(iter->first);
+      maxIdUpdate();
+      std::cout<<"DGB:update"<<std::endl;
     }
   }
-  std::cout<<"DGB:update"<<std::endl;
-  maxIdUpdate();
+  
 }
 
 // }
