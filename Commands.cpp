@@ -133,7 +133,6 @@ void ExternalCommand::execute() {
         // *curr_cmd = *(cmd);
         std::string curr_cmd = cmd;
         jobs->addJob(pid,curr_cmd);
-        jobs->printJobsList();
       }
       else
         {
@@ -255,7 +254,7 @@ JobsList::JobsList() {
 }
 
 JobsList::JobEntry::JobEntry(int pid, int job_id, JobStatus status, time_t insert, std::string cmd): 
-pid(pid),job_id(job_id),status(status),insert(insert),cmd(cmd) { std::cout<<cmd<<std::endl;};
+pid(pid),job_id(job_id),status(status),insert(insert),cmd(cmd) {};
 
 void JobsList::removeJobById(int jobId){
   jobsDict.erase(jobId);
