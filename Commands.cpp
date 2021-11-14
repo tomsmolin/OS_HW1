@@ -329,7 +329,7 @@ JobsList::JobEntry* JobsList::getJobById(int jobId){
 // JobsList::JobEntry* JobsList::getLastJob(int* lastJobId) {
 void JobsList::removeFinishedJobs() {
   std::cout<<"DGB:remove2" << std::endl;
-  if((jobsDict == nullptr) || (jobsDict.empty())) {
+  if((jobsDict == NULL) || (jobsDict.empty())) {
     std::cout<<"DGB:empty" << std::endl;
     return;
   }
