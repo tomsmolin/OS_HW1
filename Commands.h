@@ -127,7 +127,7 @@ class JobsList {
  public:
   JobsList();
   ~JobsList() = default;
-  void addJob(Command* cmd, bool isStopped = false);
+  void addJob(int pid, const char* cmd,bool isStopped=false);
   void printJobsList();
   void killAllJobs();
   void removeFinishedJobs();
