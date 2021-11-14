@@ -232,12 +232,12 @@ void ChangeDirCommand::execute() {
 
 /////////////////////////////joblist//////////////////////
 
-JobsList::JobEntry(int pid, int job_id, JobStatus status, time_t insert, const char* cmd) : 
+JobsList::JobEntry::JobEntry(int pid, int job_id, JobStatus status, time_t insert, const char* cmd) : 
 pid(pid),job_id(job_id),status(status),insert(insert),cmd(cmd) {}
 
 JobsList::JobsList() {}
 
-void JobsList::addJob(Command* cmd, bool isStopped = false) {
+void JobsList::addJob(Command* cmd, bool isStopped) {
   JobStatus curr_status = (isStopped) ?  Stopped : Background;
   jobsDict[jobs_num++] = JobEntry(getCurrPid(),jobs_num,curr_status,time(NULL),cmd->getCmd());
 }
@@ -260,7 +260,7 @@ void JobsList::killAllJobs() {
 JobsList::JobEntry* JobsList::getJobById(int jobId){
   for (const auto& [key, value] : jobsDict) {
     if(value.job_id==jobId){
-      return &(value);
+      return &value;
       
     }
   }
@@ -288,7 +288,7 @@ SmallShell::SmallShell() : plastPwd(NULL), first_legal_cd(true), prompt("smash> 
     // TODO: add your implementation
     plastPwd = new char* ();
     *plastPwd = NULL;
-
+}
 /////////////////////////////joblist//////////////////////
 
 JobsList::JobEntry::JobEntry(int pid, int job_id, JobStatus status, time_t insert, const char* cmd) : 
