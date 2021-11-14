@@ -132,7 +132,7 @@ void ExternalCommand::execute() {
         // char* curr_cmd  = new char;
         // *curr_cmd = *(cmd);
         std::string curr_cmd = cmd;
-        jobs->removeFinishedJobs();
+        //jobs->removeFinishedJobs(); =========== Added in the beginning of addJob
         jobs->addJob(pid,curr_cmd);
       }
       else
@@ -249,7 +249,7 @@ void JobsCommand::execute() {
 
 ForegroundCommand::ForegroundCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(cmd_line), jobs(jobs) {}
 
-void ForegroundCommand::execute() {
+void ForegroundCommand::execute() { //ERROR HANDLING NOT FINISH! =========== NOT FINISHED
     int job_id = 0;
     if (argv == 1)
         job_id = jobs->max_job_id;
@@ -270,6 +270,57 @@ void ForegroundCommand::execute() {
     jobs->removeJobById(job_id);
 }
 
+BackgroundCommand::BackgroundCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(cmd_line), jobs(jobs) {}
+
+// Better implement first sending STOP SIGNAL =========== NOT FINISHED
+void BackgroundCommand::execute() {
+    int job_id = 0;
+    if (argv == 1)
+    {
+        if (jobs->getLastStoppedJob(&job_id) == nullptr)
+        {
+            perror("smash error: bg: there is no stopped jobs to resume");
+            return;
+        }
+    }
+    else if (argv > 2)
+    {
+        perror("smash error: bg: invalid arguments");
+        return;
+    }
+    else
+    {
+        job_id = stoi(args[1]); // invalid argument handling
+        map<int, JobsList::JobEntry>::iterator it = jobs->jobsDict.find(job_id);
+        if (it == jobs->jobsDict.end())
+        {
+            //perror("smash error: bg: job-id %d doen not exist", job_id); ==== dealing with the integer in the char*
+            return;
+        }
+        else
+        {
+            if (it->second.status == Background)
+            {
+                //perror("smash error: bg: job-id %d is already running in the background", job_id); ==== dealing with the integer in the char*
+                return;
+            }
+        }
+    }
+    JobsList::JobEntry* j = jobs->getJobById(job_id);
+    int pid = j->pid;
+    string job_cmd = j->cmd;
+    cout << job_cmd << ": " << pid << endl;
+
+    if (kill(pid, SIGCONT) == ERROR)
+    {
+        perror("smash error: kill failed");
+        return;
+    }
+    jobs->removeJobById(job_id);
+    job_cmd.append("&");
+    jobs->addJob(pid, job_cmd);
+}
+
 /////////////////////////////joblist//////////////////////
 
 JobsList::JobsList() {
@@ -287,6 +338,7 @@ void JobsList::removeJobById(int jobId){
 }
 
 void JobsList::addJob(int pid,std::string cmd, bool isStopped) {
+  removeFinishedJobs();
   JobStatus curr_status = (isStopped) ?  Stopped : Background;
   jobs_list_empty=false;
   max_job_id++;
@@ -413,10 +465,13 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
   {
     return new JobsCommand(cmd_line,&job_list);
   }
-
   else if (firstWord.compare("fg") == 0)
   {
       return new ForegroundCommand(cmd_line, &job_list);
+  }
+  else if (firstWord.compare("bg") == 0)
+  {
+      return new BackgroundCommand(cmd_line, &job_list);
   }
   // else {
   //   return new ExternalCommand(cmd_line);
