@@ -310,7 +310,6 @@ void JobsList::maxIdUpdate() {
 }
 
 void JobsList::printJobsList() {
-  std::cout<<"DGB:print"<<std::endl;
   if(jobsDict.empty()){
     return;
   }
@@ -333,9 +332,7 @@ JobsList::JobEntry* JobsList::getJobById(int jobId){
 
 // JobsList::JobEntry* JobsList::getLastJob(int* lastJobId) {
 void JobsList::removeFinishedJobs() {
-  std::cout<<jobs_list_empty << std::endl;
   if(jobs_list_empty) {
-    std::cout<<"DGB:empty" << std::endl;
     return;
   }
   map<int, JobEntry>::iterator iter;
@@ -348,14 +345,10 @@ void JobsList::removeFinishedJobs() {
         jobsDict.erase(iter->first);
         return;
       }
-      std::cout<<"DGB"<<jobsDict.size()<<std::endl;
       jobsDict.erase(iter->first);
-      std::cout<<"DGB:erase"<<jobsDict.size()<<std::endl;
     }
   }
-  std::cout<<"DGB:update"<<jobsDict.size()<<std::endl;
   maxIdUpdate();
-  std::cout<<"DGB:update"<<jobsDict.size()<<std::endl;
 }
 
 // }
