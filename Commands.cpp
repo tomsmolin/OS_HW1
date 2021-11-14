@@ -350,6 +350,7 @@ void JobsList::removeFinishedJobs() {
     }
   }
   maxIdUpdate();
+  std::cout<<"DGB:update"<<jobsDict.size()<<std::endl;
 }
 
 // }
