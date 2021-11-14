@@ -133,7 +133,6 @@ void ExternalCommand::execute() {
         // *curr_cmd = *(cmd);
         std::string curr_cmd = cmd;
         jobs->addJob(pid,curr_cmd);
-        jobs->printJobsList();
       }
       else
         {
@@ -247,6 +246,29 @@ void JobsCommand::execute() {
   jobs->printJobsList();
 }
 
+ForegroundCommand::ForegroundCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(cmd_line), jobs(jobs) {}
+
+void ForegroundCommand::execute() {
+    int job_id = 0;
+    if (argv == 1)
+        job_id = jobs->max_job_id;
+    else
+        job_id = stoi(args[1]);
+    
+    JobsList::JobEntry* j = jobs->getJobById(job_id);
+    int pid = j->pid;
+    string job_cmd = j->cmd;
+    cout << job_cmd << ": " << pid << endl;
+
+    if (kill(pid, SIGCONT) == ERROR)
+    {
+        perror("smash error: kill failed");
+        return;
+    }
+    waitpid(pid, NULL, WUNTRACED); // not sure about the optins here
+    jobs->removeJobById(job_id);
+}
+
 /////////////////////////////joblist//////////////////////
 
 JobsList::JobsList() {
@@ -255,7 +277,7 @@ JobsList::JobsList() {
 }
 
 JobsList::JobEntry::JobEntry(int pid, int job_id, JobStatus status, time_t insert, std::string cmd): 
-pid(pid),job_id(job_id),status(status),insert(insert),cmd(cmd) { std::cout<<cmd<<std::endl;};
+pid(pid),job_id(job_id),status(status),insert(insert),cmd(cmd) {};
 
 void JobsList::removeJobById(int jobId){
   jobsDict.erase(jobId);
@@ -265,7 +287,8 @@ void JobsList::removeJobById(int jobId){
 void JobsList::addJob(int pid,std::string cmd, bool isStopped) {
 
   JobStatus curr_status = (isStopped) ?  Stopped : Background;
-  jobsDict[++max_job_id] = JobEntry(pid,max_job_id,curr_status,time(NULL),cmd);
+  max_job_id++;
+  jobsDict[max_job_id] = JobEntry(pid, max_job_id,curr_status,time(NULL),cmd);
 }
 
 void JobsList::maxIdUpdate() {
@@ -307,7 +330,6 @@ void JobsList::removeFinishedJobs() {
     int status_2 = waitpid(iter->second.pid, &status, WNOHANG | WUNTRACED | WCONTINUED);
     if((WIFEXITED(status) || WIFSIGNALED(status)) && status_2 == iter->second.pid) { //the procces terminated normally or terminated by a signal.
       jobsDict.erase(iter->first);
-      std::cout << "erase" << std::endl;
     }
   }
   maxIdUpdate();
@@ -328,9 +350,6 @@ JobsList::JobEntry *JobsList::getLastStoppedJob(int *jobId) {
     }
     return nullptr;
 }
-
-
-
 
 
 SmallShell::SmallShell() : plastPwd(NULL), first_legal_cd(true), prompt("smash> "), job_list(JobsList()) {
@@ -373,6 +392,11 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
   else if (firstWord.compare("jobs") == 0)
   {
     return new JobsCommand(cmd_line,&job_list);
+  }
+
+  else if (firstWord.compare("fg") == 0)
+  {
+      return new ForegroundCommand(cmd_line, &job_list);
   }
   // else {
   //   return new ExternalCommand(cmd_line);

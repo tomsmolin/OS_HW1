@@ -158,6 +158,7 @@ class KillCommand : public BuiltInCommand {
 
 class ForegroundCommand : public BuiltInCommand {
  // TODO: Add your data members
+    JobsList* jobs;
  public:
   ForegroundCommand(const char* cmd_line, JobsList* jobs);
   virtual ~ForegroundCommand() {}
