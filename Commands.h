@@ -125,7 +125,7 @@ class JobsList {
  
  public:
   JobsList();
-  ~JobsList()=default;
+  ~JobsList();
   void addJob(Command* cmd, bool isStopped = false);
   void printJobsList();
   void killAllJobs();
@@ -196,7 +196,7 @@ class SmallShell {
     // Instantiated on first use.
     return instance;
   }
-  ~SmallShell()=default;
+  ~SmallShell();
   void executeCommand(const char* cmd_line);
   // TODO: add extra methods as needed
   void setPLastPwd(Command* cmd);
