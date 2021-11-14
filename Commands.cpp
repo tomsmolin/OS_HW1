@@ -252,7 +252,7 @@ JobsList::JobsList() {
 }
 
 JobsList::JobEntry::JobEntry(int pid, int job_id, JobStatus status, time_t insert, const char* cmd): 
-pid(pid),job_id(job_id),status(status),insert(insert),cmd(cmd) {};
+pid(pid),job_id(job_id),status(status),insert(insert),cmd(cmd) { std::cout<<cmd<<std::endl;};
 
 void JobsList::removeJobById(int jobId){
   jobsDict.erase(jobId);
@@ -262,8 +262,8 @@ void JobsList::removeJobById(int jobId){
 void JobsList::addJob(int pid,const char* cmd, bool isStopped) {
 
   JobStatus curr_status = (isStopped) ?  Stopped : Background;
-  max_job_id++;
-  jobsDict[max_job_id] = JobEntry(pid,max_job_id,curr_status,time(NULL),cmd);
+  std::cout<<"DGB:jobentry"<<std::endl
+  jobsDict[++max_job_id] = JobEntry(pid,max_job_id,curr_status,time(NULL),cmd);
 }
 
 void JobsList::maxIdUpdate() {
