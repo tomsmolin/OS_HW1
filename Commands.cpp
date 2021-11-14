@@ -441,8 +441,8 @@ void SmallShell::setPLastPwd(Command* cmd) {
 void SmallShell::executeCommand(const char* cmd_line) {
     // TODO: Add your implementation here
     Command* cmd = CreateCommand(cmd_line);
-    job_list.removeFinishedJobs();
     std::cout<<"DGB:execute" << std::endl;
+    job_list.removeFinishedJobs();
     cmd->execute();
     setPLastPwd(cmd);
     // Please note that you must fork smash process for some commands (e.g., external commands....)
