@@ -307,6 +307,7 @@ void JobsList::maxIdUpdate() {
     }
   }
   max_job_id=curr_max;
+  std::cout<<"DGB:max id:"<< max_job_id<<std::endl;
 }
 
 void JobsList::printJobsList() {
@@ -343,6 +344,7 @@ void JobsList::removeFinishedJobs() {
       if(jobsDict.size()== 1){
         jobs_list_empty=true;
         jobsDict.erase(iter->first);
+        max_job_id=0;
         return;
       }
       jobsDict.erase(iter->first);
@@ -450,7 +452,6 @@ void SmallShell::setPLastPwd(Command* cmd) {
 void SmallShell::executeCommand(const char* cmd_line) {
     // TODO: Add your implementation here
     Command* cmd = CreateCommand(cmd_line);
-    std::cout<<"DGB:execute" << std::endl;
     job_list.removeFinishedJobs();
     cmd->execute();
     setPLastPwd(cmd);
