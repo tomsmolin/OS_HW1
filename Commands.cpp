@@ -353,7 +353,7 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
   //   return new ExternalCommand(cmd_line);
   // }
   /////external commands:
-  return new ExternalCommand(cmd_line);
+  return new ExternalCommand(cmd_line,&job_list);
   
   return nullptr;
 }
