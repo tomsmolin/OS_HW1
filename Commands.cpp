@@ -129,7 +129,6 @@ void ExternalCommand::execute() {
     /////father
     else{ 
       if(_isBackgroundComamnd(cmd)){
-        std::cout << cmd << std::endl;
         jobs->addJob(pid,cmd);
         jobs->printJobsList();
       }
@@ -263,7 +262,8 @@ void JobsList::removeJobById(int jobId){
 void JobsList::addJob(int pid,const char* cmd, bool isStopped) {
 
   JobStatus curr_status = (isStopped) ?  Stopped : Background;
-  jobsDict[++max_job_id] = JobEntry(pid,max_job_id,curr_status,time(NULL),cmd);
+  max_job_id++;
+  jobsDict[max_job_id] = JobEntry(pid,max_job_id,curr_status,time(NULL),cmd);
 }
 
 void JobsList::maxIdUpdate() {
