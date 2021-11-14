@@ -310,6 +310,7 @@ void JobsList::removeFinishedJobs() {
       std::cout << "erase" << std::endl;
     }
   }
+  maxIdUpdate();
 }
 
 // }
