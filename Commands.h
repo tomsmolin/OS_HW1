@@ -119,7 +119,6 @@ class JobsList {
   };
   int max_job_id;
   std::map<int, JobEntry> jobsDict;
-  void maxIdUpdate();
  // TODO: Add your data members
 
  
@@ -135,6 +134,7 @@ class JobsList {
   JobEntry * getLastJob(int* lastJobId);
   JobEntry *getLastStoppedJob(int *jobId);
   // TODO: Add extra methods or modify exisitng ones as needed
+  void maxIdUpdate();
 };
 
 class JobsCommand : public BuiltInCommand {
