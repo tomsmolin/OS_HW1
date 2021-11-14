@@ -129,8 +129,8 @@ void ExternalCommand::execute() {
     /////father
     else{ 
       if(_isBackgroundComamnd(cmd)){
-        
-        jobs->addJob(pid,cmd_line);
+        std::cout << cmd << std::endl;
+        jobs->addJob(pid,cmd);
         jobs->printJobsList();
       }
       else
