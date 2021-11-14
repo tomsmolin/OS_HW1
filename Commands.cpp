@@ -244,6 +244,7 @@ JobsCommand::JobsCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(
 
 void JobsCommand::execute() {
   jobs->removeFinishedJobs();
+  std::cout<<"DGB"<<std::endl;
   jobs->printJobsList();
 }
 
@@ -303,6 +304,7 @@ void JobsList::maxIdUpdate() {
 }
 
 void JobsList::printJobsList() {
+  std::cout<<"DGB:print"<<std::endl;
   if(jobsDict.empty()){
     return;
   }
@@ -312,7 +314,6 @@ void JobsList::printJobsList() {
     double time_diff = difftime(time(NULL),iter->second.insert);
     std::cout << "[" << iter->second.job_id << "]" << iter->second.cmd << ":" << iter->second.pid <<" "<< time_diff << " secs"<< end;
   }
-  std::cout << "\n";
 }
 
 void JobsList::killAllJobs() {
