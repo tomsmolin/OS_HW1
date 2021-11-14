@@ -242,6 +242,17 @@ void JobsList::addJob(Command* cmd, bool isStopped) {
   jobsDict[++max_job_id] = JobEntry(getCurrPid(),max_job_id,curr_status,time(NULL),cmd->getCmd());
 }
 
+void JobsList::maxIdUpdate() {
+  int curr_max=0;
+  map<int, JobEntry>::iterator iter;
+  for (iter = jobsDict.begin(); iter != jobsDict.end(); iter++) {
+    if(iter->first>curr_max) {
+      curr_max=iter->first;
+    }
+  }
+  max_job_id=curr_max;
+}
+
 void JobsList::printJobsList() {
   
   map<int, JobEntry>::iterator iter;
@@ -255,7 +266,7 @@ void JobsList::printJobsList() {
 
 void JobsList::killAllJobs() {
   jobsDict.clear();
-  max_job_id=0;
+  maxIdUpdate();
 }
 
 JobsList::JobEntry* JobsList::getJobById(int jobId){
@@ -263,8 +274,8 @@ JobsList::JobEntry* JobsList::getJobById(int jobId){
 }
 
 void JobsList::removeJobById(int jobId){
-  jobsDict.erase();
-  jobs_num--;
+  jobsDict.erase(jobId);
+  maxIdUpdate();
 }
 // JobsList::JobEntry* JobsList::getLastJob(int* lastJobId) {
   

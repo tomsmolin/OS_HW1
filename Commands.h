@@ -119,6 +119,7 @@ class JobsList {
   };
   int max_job_id;
   std::map<int, JobEntry> jobsDict;
+  void maxIdUpdate();
  // TODO: Add your data members
 
  
