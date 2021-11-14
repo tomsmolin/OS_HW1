@@ -277,6 +277,7 @@ void ForegroundCommand::execute() {
 JobsList::JobsList() {
   jobsDict = {};
   max_job_id=0;
+  jobs_list_empty=true;
 }
 
 JobsList::JobEntry::JobEntry(int pid, int job_id, JobStatus status, time_t insert, std::string cmd): 
@@ -289,6 +290,7 @@ void JobsList::removeJobById(int jobId){
 
 void JobsList::addJob(int pid,std::string cmd, bool isStopped) {
   JobStatus curr_status = (isStopped) ?  Stopped : Background;
+  jobs_list_empty=false;
   max_job_id++;
   jobsDict[max_job_id] = JobEntry(pid, max_job_id,curr_status,time(NULL),cmd);
 }
@@ -329,15 +331,18 @@ JobsList::JobEntry* JobsList::getJobById(int jobId){
 // JobsList::JobEntry* JobsList::getLastJob(int* lastJobId) {
 void JobsList::removeFinishedJobs() {
   std::cout<<"DGB:remove2" << std::endl;
-  if(jobsDict) {
+  if(jobs_list_empty) {
     std::cout<<"DGB:empty" << std::endl;
-    
+    return;
   }
   map<int, JobEntry>::iterator iter;
   for (iter = jobsDict.begin(); iter != jobsDict.end(); iter++) {
     int status;
     int status_2 = waitpid(iter->second.pid, &status, WNOHANG | WUNTRACED | WCONTINUED);
     if((WIFEXITED(status) || WIFSIGNALED(status)) && status_2 == iter->second.pid) { //the procces terminated normally or terminated by a signal.
+      if(jobsDict.size()==1){
+
+      }
       jobsDict.erase(iter->first);
     }
   }
