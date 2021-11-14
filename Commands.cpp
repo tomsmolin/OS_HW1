@@ -263,7 +263,8 @@ void JobsList::removeJobById(int jobId){
 void JobsList::addJob(Command* cmd, bool isStopped) {
 
   JobStatus curr_status = (isStopped) ?  Stopped : Background;
-  jobsDict[++max_job_id] = JobEntry(getCurrPid(),max_job_id,curr_status,time(NULL),cmd->getCmd());
+  max_job_id++;
+  jobsDict[max_job_id] = JobEntry(getCurrPid(),max_job_id,curr_status,time(NULL),cmd->getCmd());
 }
 
 void JobsList::maxIdUpdate() {
@@ -305,6 +306,7 @@ void JobsList::removeFinishedJobs() {
     int status_2 = waitpid(iter->second.pid, &status, WNOHANG | WUNTRACED | WCONTINUED);
     if((WIFEXITED(status) || WIFSIGNALED(status)) && status_2 == iter->second.pid) { //the procces terminated normally or terminated by a signal.
       jobsDict.erase(iter->first);
+      std::cout << "erase" << std::endl;
     }
   }
 }
