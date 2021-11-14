@@ -130,7 +130,7 @@ void ExternalCommand::execute() {
     else{ 
       if(_isBackgroundComamnd(cmd)){
         
-        jobs->addJob(pid,cmd);
+        jobs->addJob(pid,cmd_line);
         jobs->printJobsList();
       }
       else
@@ -283,7 +283,7 @@ void JobsList::printJobsList() {
   for (iter = jobsDict.begin(); iter != jobsDict.end(); iter++) {
     std::string end = (iter->second.status==Stopped) ? "(Stopped)\n": "\n";
     double time_diff = difftime(time(NULL),iter->second.insert);
-    std::cout << "[" << iter->second.job_id << "]" << iter->second.cmd << ":" << iter->second.pid <<" "<< time_diff << " seconds"<< end;
+    std::cout << "[" << iter->second.job_id << "]" << iter->second.cmd << ":" << iter->second.pid <<" "<< time_diff << " secs"<< end;
   }
   std::cout << "\n";
 }
