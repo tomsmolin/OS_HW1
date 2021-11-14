@@ -344,6 +344,7 @@ void JobsList::removeFinishedJobs() {
         jobs_list_empty=true;
         std::cout<<"DGB:true";
       }
+      std::cout<<"DGB"<<jobsDict.size()<<std::endl;
       jobsDict.erase(iter->first);
     }
   }
