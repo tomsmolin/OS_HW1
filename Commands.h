@@ -114,9 +114,9 @@ class JobsList {
       int job_id;
       JobStatus status;
       time_t insert;
-      const char* cmd;
+      std::string cmd;
       JobEntry()=default;
-      JobEntry(int pid, int job_id,JobStatus status,time_t insert,const char* cmd);
+      JobEntry(int pid, int job_id,JobStatus status,time_t insert,std::string cmd);
    // TODO: Add your data members
   };
   int max_job_id;
@@ -127,7 +127,7 @@ class JobsList {
  public:
   JobsList();
   ~JobsList() = default;
-  void addJob(int pid, const char* cmd,bool isStopped=false);
+  void addJob(int pid, std::string cmd,bool isStopped=false);
   void printJobsList();
   void killAllJobs();
   void removeFinishedJobs();
