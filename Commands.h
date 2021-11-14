@@ -117,7 +117,7 @@ class JobsList {
       JobEntry(int pid, int job_id,JobStatus status,time_t insert,const char* cmd);
    // TODO: Add your data members
   };
-  int jobs_num;
+  int max_job_id;
   std::map<int, JobEntry> jobsDict;
  // TODO: Add your data members
 
