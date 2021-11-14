@@ -129,8 +129,9 @@ void ExternalCommand::execute() {
     /////father
     else{ 
       if(_isBackgroundComamnd(cmd)){
-        char* cmd_line_char  = (char*)cmd;
-        jobs->addJob(pid,cmd_line_char);
+        char* curr_cmd  = new char;
+        *curr_cmd = *(cmd);
+        jobs->addJob(pid,curr_cmd);
         jobs->printJobsList();
       }
       else
