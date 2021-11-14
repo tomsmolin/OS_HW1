@@ -264,7 +264,7 @@ void JobsList::printJobsList() {
   for (iter = jobsDict.begin(); iter != jobsDict.end(); iter++) {
     std::string end = (iter->second.status==Stopped) ? "(Stopped)\n": "\n";
     double time_diff = difftime(iter->second.insert,time(NULL));
-    std::cout << "[" << iter->second.job_id << "]" << iter->second.cmd << ":" << iter->second.pid << time_diff << end;
+    std::cout << "[" << iter->second.job_id << "]" << iter->second.cmd << ":" << iter->second.pid <<" "<< time_diff << "seconds"<< end;
   }
   std::cout << "\n";
 }
@@ -371,6 +371,8 @@ void SmallShell::executeCommand(const char* cmd_line) {
 
     job_list.addJob(cmd);
     job_list.printJobsList();
+    job_list.killAllJobs();
+     job_list.printJobsList();
     
     cmd->execute();
     setPLastPwd(cmd);
