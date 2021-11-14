@@ -130,7 +130,7 @@ void ExternalCommand::execute() {
     else{ 
       if(_isBackgroundComamnd(cmd)){
         
-        jobs->addJob(cmd,false);
+        jobs->addJob(this);
       }
       else
         {
