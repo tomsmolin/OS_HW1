@@ -35,7 +35,7 @@ class BuiltInCommand : public Command {
   BuiltInCommand(const char* cmd_line);
   virtual ~BuiltInCommand() {}
 };
-
+class JobsList;
 class ExternalCommand : public Command {
   JobsList* jobs;
  public:
@@ -187,7 +187,7 @@ class SmallShell {
   bool first_legal_cd;
   std::string prompt;
   JobsList job_list;
-  
+
 
  public:
   Command *CreateCommand(const char* cmd_line);
