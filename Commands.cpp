@@ -232,13 +232,15 @@ void ChangeDirCommand::execute() {
 
 /////////////////////////////joblist//////////////////////
 
-JobsList::JobEntry::JobEntry(int pid, int job_id, JobStatus status, time_t insert, const char* cmd): 
-pid(pid),job_id(job_id),status(status),insert(insert),cmd(cmd) {};
-
 JobsList::JobsList() {
   jobsDict = {};
   max_job_id=0;
 }
+
+JobsList::JobEntry::JobEntry(int pid, int job_id, JobStatus status, time_t insert, const char* cmd): 
+pid(pid),job_id(job_id),status(status),insert(insert),cmd(cmd) {}
+
+
 
 void JobsList::addJob(Command* cmd, bool isStopped) {
   JobStatus curr_status = (isStopped) ?  Stopped : Background;
