@@ -345,10 +345,13 @@ void JobsList::removeFinishedJobs() {
         std::cout<<"DGB:update3"<<std::endl;
         return;
       }
-      
+      bool last_iter = (++iter==jobsDict.end()) ? true : false;
+      iter--;  
       jobsDict.erase(iter->first);
       maxIdUpdate();
-      std::cout<<"DGB:update"<<std::endl;
+      if(last_iter){
+        return;
+      }
     }
   }
   std::cout<<"DGB:update2"<<std::endl;
