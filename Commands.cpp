@@ -238,7 +238,7 @@ JobsList::JobsList() {
 }
 
 JobsList::JobEntry::JobEntry(int pid, int job_id, JobStatus status, time_t insert, const char* cmd): 
-pid(pid),job_id(job_id),status(status),insert(insert),cmd(cmd) {}
+pid(pid),job_id(job_id),status(status),insert(insert),cmd(cmd) {};
 
 
 
