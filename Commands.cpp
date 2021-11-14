@@ -235,7 +235,10 @@ void ChangeDirCommand::execute() {
 JobsList::JobEntry::JobEntry(int pid, int job_id, JobStatus status, time_t insert, const char* cmd): 
 pid(pid),job_id(job_id),status(status),insert(insert),cmd(cmd) {};
 
-JobsList::JobsList() {}
+JobsList::JobsList() {
+  jobsDict = {};
+  max_job_id=0;
+}
 
 void JobsList::addJob(Command* cmd, bool isStopped) {
   JobStatus curr_status = (isStopped) ?  Stopped : Background;
