@@ -243,6 +243,7 @@ void ChangeDirCommand::execute() {
 JobsCommand::JobsCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(cmd_line), jobs(jobs) {}
 
 void JobsCommand::execute() {
+  std::cout<<"DGB"<<std::endl;
   jobs->removeFinishedJobs();
   std::cout<<"DGB"<<std::endl;
   jobs->printJobsList();
@@ -327,6 +328,9 @@ JobsList::JobEntry* JobsList::getJobById(int jobId){
 
 // JobsList::JobEntry* JobsList::getLastJob(int* lastJobId) {
 void JobsList::removeFinishedJobs() {
+  if(jobsDict.empty()){
+    return;
+  }
   map<int, JobEntry>::iterator iter;
   for (iter = jobsDict.begin(); iter != jobsDict.end(); iter++) {
     int status;
