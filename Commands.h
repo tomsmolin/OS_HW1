@@ -114,6 +114,7 @@ class JobsList {
       JobStatus status;
       time_t insert;
       const char* cmd;
+      JobEntry()=default;
       JobEntry(int pid, int job_id,JobStatus status,time_t insert,const char* cmd);
    // TODO: Add your data members
   };
