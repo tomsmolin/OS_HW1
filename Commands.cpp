@@ -132,6 +132,7 @@ void ExternalCommand::execute() {
         // char* curr_cmd  = new char;
         // *curr_cmd = *(cmd);
         std::string curr_cmd = cmd;
+        jobs->removeFinishedJobs();
         jobs->addJob(pid,curr_cmd);
       }
       else
@@ -285,7 +286,6 @@ void JobsList::removeJobById(int jobId){
 }
 
 void JobsList::addJob(int pid,std::string cmd, bool isStopped) {
-
   JobStatus curr_status = (isStopped) ?  Stopped : Background;
   max_job_id++;
   jobsDict[max_job_id] = JobEntry(pid, max_job_id,curr_status,time(NULL),cmd);
