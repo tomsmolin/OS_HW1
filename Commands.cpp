@@ -308,7 +308,7 @@ SmallShell::~SmallShell() {
         delete[] * plastPwd;
 
     delete plastPwd;
-    ~JobsList();
+    
 }
 
 /**
