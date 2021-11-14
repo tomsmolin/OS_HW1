@@ -302,8 +302,8 @@ void JobsList::removeFinishedJobs() {
   map<int, JobEntry>::iterator iter;
   for (iter = jobsDict.begin(); iter != jobsDict.end(); iter++) {
     int status;
-    int status_2 = waitpid(iter->first->pid, &status, WNOHANG | WUNTRACED | WCONTINUED);
-    if((WIFEXITED(status) || WIFSIGNALED(status)) && status_2 == iter->first->pid) { //the procces terminated normally or terminated by a signal.
+    int status_2 = waitpid(iter->second->pid, &status, WNOHANG | WUNTRACED | WCONTINUED);
+    if((WIFEXITED(status) || WIFSIGNALED(status)) && status_2 == iter->second->pid) { //the procces terminated normally or terminated by a signal.
       jobsDict.erase(iter->first);
     }
   }
