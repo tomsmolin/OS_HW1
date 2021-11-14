@@ -256,7 +256,6 @@ JobsList::JobEntry::JobEntry(int pid, int job_id, JobStatus status, time_t inser
 pid(pid),job_id(job_id),status(status),insert(insert),cmd(cmd) {};
 
 void JobsList::removeJobById(int jobId){
-  jobs->removeFinishedJobs();
   jobsDict.erase(jobId);
   maxIdUpdate();
 }
@@ -303,7 +302,7 @@ void JobsList::removeFinishedJobs() {
   map<int, JobEntry>::iterator iter;
   for (iter = jobsDict.begin(); iter != jobsDict.end(); iter++) {
     int status;
-    _pid_t status_2 = waitpid(iter->first->pid, &status, WNOHANG | WUNTRACED | WCONTINUED);
+    int status_2 = waitpid(iter->first->pid, &status, WNOHANG | WUNTRACED | WCONTINUED);
     if((WIFEXITED(status) || WIFSIGNALED(status)) && status_2 == iter->first->pid) { //the procces terminated normally or terminated by a signal.
       jobsDict.erase(iter->first);
     }
