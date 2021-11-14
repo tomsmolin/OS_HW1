@@ -296,6 +296,9 @@ void JobsList::addJob(int pid,std::string cmd, bool isStopped) {
 }
 
 void JobsList::maxIdUpdate() {
+  if(jobs_list_empty){
+    max_job_id=0;
+  }
   int curr_max=0;
   map<int, JobEntry>::iterator iter;
   for (iter = jobsDict.begin(); iter != jobsDict.end(); iter++) {
