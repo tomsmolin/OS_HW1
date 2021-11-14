@@ -232,10 +232,10 @@ void ChangeDirCommand::execute() {
 
 /////////////////////////////joblist//////////////////////
 
-JobsList::JobEntry::JobEntry(int pid, int job_id, JobStatus status, time_t insert, const char* cmd) : 
+JobsList::JobEntry(int pid, int job_id, JobStatus status, time_t insert, const char* cmd) : 
 pid(pid),job_id(job_id),status(status),insert(insert),cmd(cmd) {}
 
-JobsList::JobsList() : jobs_num(0) {}
+JobsList::JobsList() {}
 
 void JobsList::addJob(Command* cmd, bool isStopped = false) {
   JobStatus curr_status = (isStopped) ?  Stopped : Background;
@@ -245,10 +245,9 @@ void JobsList::addJob(Command* cmd, bool isStopped = false) {
 void JobsList::printJobsList() {
   
   for (const auto& [key, value] : jobsDict) {
-    std::string id = "[" << value.job_id << "]";
     std::string end = (value.status==Stopped) ? "(Stopped)\n": "\n";
     double time_diff = difftime(value.insert,time(NULL));
-    std::cout << id << value.cmd << ":" << value.pid << time_diff << end;
+    std::cout << "[" << value.job_id << "]" << value.cmd << ":" << value.pid << time_diff << end;
   }
   std::cout << "\n";
 }
@@ -285,7 +284,7 @@ void JobsList::removeJobById(int jobId){
 
 
 
-SmallShell::SmallShell() : plastPwd(NULL), first_legal_cd(true), prompt("smash> ") {
+SmallShell::SmallShell() : plastPwd(NULL), first_legal_cd(true), prompt("smash> "), job_list(JobsList()) {
     // TODO: add your implementation
     plastPwd = new char* ();
     *plastPwd = NULL;
@@ -408,8 +407,9 @@ void SmallShell::setPLastPwd(Command* cmd) {
 void SmallShell::executeCommand(const char* cmd_line) {
     // TODO: Add your implementation here
     Command* cmd = CreateCommand(cmd_line);
-    JobsList::addJob(cmd);
-    JobsList::printJobsList();
+
+    job_list.addJob(cmd);
+    job_list.printJobsList();
     
     // cmd->execute();
     // setPLastPwd(cmd);

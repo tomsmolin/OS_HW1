@@ -182,6 +182,7 @@ class SmallShell {
   char** plastPwd;
   bool first_legal_cd;
   std::string prompt;
+  JobsList job_list;
 
  public:
   Command *CreateCommand(const char* cmd_line);
