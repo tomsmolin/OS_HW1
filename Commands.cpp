@@ -329,9 +329,9 @@ JobsList::JobEntry* JobsList::getJobById(int jobId){
 // JobsList::JobEntry* JobsList::getLastJob(int* lastJobId) {
 void JobsList::removeFinishedJobs() {
   std::cout<<"DGB:remove2" << std::endl;
-  if((!jobsDict) || (jobsDict.empty())) {
+  if(jobsDict) {
     std::cout<<"DGB:empty" << std::endl;
-    return;
+    
   }
   map<int, JobEntry>::iterator iter;
   for (iter = jobsDict.begin(); iter != jobsDict.end(); iter++) {
