@@ -243,9 +243,7 @@ void ChangeDirCommand::execute() {
 JobsCommand::JobsCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(cmd_line), jobs(jobs) {}
 
 void JobsCommand::execute() {
-  std::cout<<"DGB"<<std::endl;
   jobs->removeFinishedJobs();
-  std::cout<<"DGB"<<std::endl;
   jobs->printJobsList();
 }
 
@@ -307,7 +305,6 @@ void JobsList::maxIdUpdate() {
     }
   }
   max_job_id=curr_max;
-  std::cout<<"DGB:max id:"<< max_job_id<<std::endl;
 }
 
 void JobsList::printJobsList() {
@@ -347,6 +344,7 @@ void JobsList::removeFinishedJobs() {
         max_job_id=0;
         return;
       }
+      std::cout<<"DGB:erase"<<std::endl;
       jobsDict.erase(iter->first);
     }
   }
