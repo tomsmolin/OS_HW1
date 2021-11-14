@@ -232,7 +232,7 @@ void ChangeDirCommand::execute() {
 
 /////////////////////////////joblist//////////////////////
 
-JobsList::JobEntry::JobEntry(int pid, int job_id, JobStatus status, time_t insert, const char* cmd) : 
+JobEntry::JobEntry(int pid, int job_id, JobStatus status, time_t insert, const char* cmd) : 
 pid(pid),job_id(job_id),status(status),insert(insert),cmd(cmd) {}
 
 JobsList::JobsList() {}
@@ -270,7 +270,7 @@ void JobsList::killAllJobs() {
 }
 
 JobsList::JobEntry* JobsList::getJobById(int jobId){
-  return jobsDict[jobId];
+  return &(jobsDict[jobId]);
 }
 
 void JobsList::removeJobById(int jobId){
