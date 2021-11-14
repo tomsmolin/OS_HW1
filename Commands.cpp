@@ -241,6 +241,7 @@ void ChangeDirCommand::execute() {
 JobsCommand::JobsCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(cmd_line), jobs(jobs) {}
 
 void JobsCommand::execute() {
+  jobs->removeFinishedJobs();
   jobs->printJobsList();
 }
 
@@ -254,9 +255,14 @@ JobsList::JobsList() {
 JobsList::JobEntry::JobEntry(int pid, int job_id, JobStatus status, time_t insert, const char* cmd): 
 pid(pid),job_id(job_id),status(status),insert(insert),cmd(cmd) {};
 
-
+void JobsList::removeJobById(int jobId){
+  jobs->removeFinishedJobs();
+  jobsDict.erase(jobId);
+  maxIdUpdate();
+}
 
 void JobsList::addJob(Command* cmd, bool isStopped) {
+
   JobStatus curr_status = (isStopped) ?  Stopped : Background;
   jobsDict[++max_job_id] = JobEntry(getCurrPid(),max_job_id,curr_status,time(NULL),cmd->getCmd());
 }
@@ -292,12 +298,17 @@ JobsList::JobEntry* JobsList::getJobById(int jobId){
   return &(jobsDict[jobId]);
 }
 
-void JobsList::removeJobById(int jobId){
-  jobsDict.erase(jobId);
-  maxIdUpdate();
-}
 // JobsList::JobEntry* JobsList::getLastJob(int* lastJobId) {
-  
+void JobsList::removeFinishedJobs() {
+  map<int, JobEntry>::iterator iter;
+  for (iter = jobsDict.begin(); iter != jobsDict.end(); iter++) {
+    int status;
+    _pid_t status_2 = waitpid(iter->first->pid, &status, WNOHANG | WUNTRACED | WCONTINUED);
+    if((WIFEXITED(status) || WIFSIGNALED(status)) && status_2 == iter->first->pid) { //the procces terminated normally or terminated by a signal.
+      jobsDict.erase(iter->first);
+    }
+  }
+}
 
 // }
 // JobsList::JobEntry* JobsList::getLastStoppedJob(int* jobId){
@@ -396,6 +407,7 @@ void SmallShell::setPLastPwd(Command* cmd) {
 void SmallShell::executeCommand(const char* cmd_line) {
     // TODO: Add your implementation here
     Command* cmd = CreateCommand(cmd_line);
+    job_list.removeFinishedJobs();
     cmd->execute();
     setPLastPwd(cmd);
     // Please note that you must fork smash process for some commands (e.g., external commands....)
