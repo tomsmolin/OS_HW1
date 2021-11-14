@@ -243,7 +243,7 @@ void ChangeDirCommand::execute() {
 JobsCommand::JobsCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(cmd_line), jobs(jobs) {}
 
 void JobsCommand::execute() {
-  jobs->removeFinishedJobs();
+  // jobs->removeFinishedJobs();
   jobs->printJobsList();
 }
 
