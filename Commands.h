@@ -37,8 +37,9 @@ class BuiltInCommand : public Command {
 };
 
 class ExternalCommand : public Command {
+  JobsList* jobs;
  public:
-  ExternalCommand(const char* cmd_line);
+  ExternalCommand(const char* cmd_line,JobsList* jobs);
   virtual ~ExternalCommand() {}
   void execute() override;
 };
@@ -140,6 +141,7 @@ class JobsList {
 
 class JobsCommand : public BuiltInCommand {
  // TODO: Add your data members
+  JobsList* jobs;
  public:
   JobsCommand(const char* cmd_line, JobsList* jobs);
   virtual ~JobsCommand() {}
@@ -185,6 +187,7 @@ class SmallShell {
   bool first_legal_cd;
   std::string prompt;
   JobsList job_list;
+  
 
  public:
   Command *CreateCommand(const char* cmd_line);

@@ -95,7 +95,7 @@ const char* Command::getCmd() {
   return cmd;
 }
 
-ExternalCommand::ExternalCommand(const char* cmd_line) : Command(cmd_line) {}
+ExternalCommand::ExternalCommand(const char* cmd_line, JobsList* jobs) : Command(cmd_line), jobs(jobs) {}
 
 void ExternalCommand::execute() {
   int pid = fork();
@@ -128,8 +128,17 @@ void ExternalCommand::execute() {
     }
     /////father
     else{ 
-      wait(NULL);
-
+      if(_isBackgroundComamnd(cmd)){
+        
+        jobs->addJob(cmd);
+      }
+      else
+        {
+            int result = waitpid(pid,nullptr,WUNTRACED);
+            if(result == -1) {
+              perror("smash error: waitpid failed");
+            }
+        }
     }
 }
 
@@ -228,7 +237,11 @@ void ChangeDirCommand::execute() {
     classPlastPwd = cwd;
 }
 
+JobsCommand::JobsCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(cmd_line), jobs(jobs) {}
 
+void JobsCommand::execute() {
+  jobs->printJobsList();
+}
 
 /////////////////////////////joblist//////////////////////
 
@@ -264,7 +277,7 @@ void JobsList::printJobsList() {
   for (iter = jobsDict.begin(); iter != jobsDict.end(); iter++) {
     std::string end = (iter->second.status==Stopped) ? "(Stopped)\n": "\n";
     double time_diff = difftime(iter->second.insert,time(NULL));
-    std::cout << "[" << iter->second.job_id << "]" << iter->second.cmd << ":" << iter->second.pid <<" "<< time_diff << "seconds"<< end;
+    std::cout << "[" << iter->second.job_id << "]" << iter->second.cmd << ":" << iter->second.pid <<" "<< time_diff << " seconds"<< end;
   }
   std::cout << "\n";
 }
@@ -332,6 +345,10 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
   else if (firstWord.compare("cd") == 0) {
     return new ChangeDirCommand(cmd_line, plastPwd);
   }
+  else if (firstWord.compare("jobs") == 0)
+  {
+    return new JobsCommand(cmd_line,&job_list);
+  }
   // else {
   //   return new ExternalCommand(cmd_line);
   // }
@@ -368,12 +385,6 @@ void SmallShell::setPLastPwd(Command* cmd) {
 void SmallShell::executeCommand(const char* cmd_line) {
     // TODO: Add your implementation here
     Command* cmd = CreateCommand(cmd_line);
-
-    job_list.addJob(cmd);
-    job_list.printJobsList();
-    job_list.killAllJobs();
-     job_list.printJobsList();
-    
     cmd->execute();
     setPLastPwd(cmd);
     // Please note that you must fork smash process for some commands (e.g., external commands....)
