@@ -237,9 +237,9 @@ SmallShell::SmallShell() : plastPwd(NULL), first_legal_cd(true), prompt("smash> 
 /////////////////////////////joblist//////////////////////
 
 JobsList::JobEntry::JobEntry(int pid, int job_id, JobStatus status, time_t insert, const char* cmd) : 
-pid(pid),job_id(job_id),status(status),insert(insert),cmd(cmd) {};
+pid(pid),job_id(job_id),status(status),insert(insert),cmd(cmd) {}
 
-JobsList::JobsList() {}
+JobsList::JobsList() : jobs_num(0) {}
 
 void JobsList::addJob(Command* cmd, bool isStopped = false) {
   JobStatus curr_status = (isStopped) ?  Stopped : Background;
@@ -263,27 +263,26 @@ void JobsList::killAllJobs() {
 }
 
 JobsList::JobEntry* JobsList::getJobById(int jobId){
-  int i=0;
   for (const auto& [key, value] : jobsDict) {
-    if(i==jobId){
+    if(value.job_id==jobId){
       return &(value);
       
     }
-    i++;
   }
   return NULL;
 }
+
 void JobsList::removeJobById(int jobId){
-  jobsDict.erase(jobId);
+  jobsDict.erase(getJobById(jobId));
   jobs_num--;
 }
-JobsList::JobEntry* JobsList::getLastJob(int* lastJobId) {
+// JobsList::JobEntry* JobsList::getLastJob(int* lastJobId) {
+  
 
+// }
+// JobsList::JobEntry* JobsList::getLastStoppedJob(int* jobId){
 
-}
-JobsList::JobEntry* JobsList::getLastStoppedJob(int* jobId){
-
-}
+// }
 
 
 }
@@ -353,7 +352,10 @@ void SmallShell::setPLastPwd(Command* cmd) {
 void SmallShell::executeCommand(const char* cmd_line) {
     // TODO: Add your implementation here
     Command* cmd = CreateCommand(cmd_line);
-    cmd->execute();
-    setPLastPwd(cmd);
+    JobsList::addJob(cmd);
+    JobsList::printJobsList();
+    
+    // cmd->execute();
+    // setPLastPwd(cmd);
     // Please note that you must fork smash process for some commands (e.g., external commands....)
 }
