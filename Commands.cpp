@@ -91,6 +91,10 @@ Command::~Command() {
   delete args;
 }
 
+const char* Command::getCmd() {
+  return cmd;
+}
+
 ExternalCommand::ExternalCommand(const char* cmd_line) : Command(cmd_line) {}
 
 void ExternalCommand::execute() {
@@ -172,7 +176,15 @@ static char* getCurrPwd() {
     return cwd;
 }
 
+
 ChangeDirCommand::ChangeDirCommand(const char* cmd_line, char** plastPwd) : BuiltInCommand(cmd_line), cd_succeeded(false), classPlastPwd(*plastPwd) {}
+
+static int getCurrPid() {
+  return getpid();
+}
+
+
+
 
 void ChangeDirCommand::execute() {
     if (argv > 2)
@@ -216,10 +228,63 @@ void ChangeDirCommand::execute() {
     classPlastPwd = cwd;
 }
 
+
 SmallShell::SmallShell() : plastPwd(NULL), first_legal_cd(true), prompt("smash> ") {
     // TODO: add your implementation
     plastPwd = new char* ();
     *plastPwd = NULL;
+
+/////////////////////////////joblist//////////////////////
+
+JobsList::JobEntry::JobEntry(int pid, int job_id, JobStatus status, time_t insert, const char* cmd) : 
+pid(pid),job_id(job_id),status(status),insert(insert),cmd(cmd) {};
+
+JobsList::JobsList() {}
+
+void JobsList::addJob(Command* cmd, bool isStopped = false) {
+  JobStatus curr_status = (isStopped) ?  Stopped : Background;
+  jobsDict[jobs_num++] = JobEntry(getCurrPid(),jobs_num,curr_status,time(NULL),cmd->getCmd());
+}
+
+void JobsList::printJobsList() {
+  
+  for (const auto& [key, value] : jobsDict) {
+    std::string id = "[" << value.job_id << "]";
+    std::string end = (value.status==Stopped) ? "(Stopped)\n": "\n";
+    double time_diff = difftime(value.insert,time(NULL));
+    std::cout << id << value.cmd << ":" << value.pid << time_diff << end;
+  }
+  std::cout << "\n";
+}
+
+void JobsList::killAllJobs() {
+  jobsDict.clear();
+  jobs_num=0;
+}
+
+JobsList::JobEntry* JobsList::getJobById(int jobId){
+  int i=0;
+  for (const auto& [key, value] : jobsDict) {
+    if(i==jobId){
+      return &(value);
+      
+    }
+    i++;
+  }
+  return NULL;
+}
+void JobsList::removeJobById(int jobId){
+  jobsDict.erase(jobId);
+  jobs_num--;
+}
+JobsList::JobEntry* JobsList::getLastJob(int* lastJobId) {
+
+
+}
+JobsList::JobEntry* JobsList::getLastStoppedJob(int* jobId){
+
+}
+
 
 }
 
