@@ -129,8 +129,9 @@ void ExternalCommand::execute() {
     /////father
     else{ 
       if(_isBackgroundComamnd(cmd)){
-        char* curr_cmd  = new char;
-        *curr_cmd = *(cmd);
+        // char* curr_cmd  = new char;
+        // *curr_cmd = *(cmd);
+        std::string curr_cmd = cmd;
         jobs->addJob(pid,curr_cmd);
         jobs->printJobsList();
       }
