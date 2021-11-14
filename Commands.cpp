@@ -352,6 +352,7 @@ void JobsList::removeFinishedJobs() {
       std::cout<<"DGB:erase"<<jobsDict.size()<<std::endl;
     }
   }
+  std::cout<<"DGB:update"<<jobsDict.size()<<std::endl;
   maxIdUpdate();
   std::cout<<"DGB:update"<<jobsDict.size()<<std::endl;
 }
