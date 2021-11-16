@@ -247,6 +247,12 @@ void JobsCommand::execute() {
   jobs->printJobsList();
 }
 
+KillCommand::KillCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(cmd_line), jobs(jobs) {}
+
+void KillCommand::execute() {
+  std::cout << argv << std::endl;
+}
+
 ForegroundCommand::ForegroundCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(cmd_line), jobs(jobs) {}
 
 void ForegroundCommand::execute() {
@@ -388,8 +394,6 @@ SmallShell::~SmallShell() {
     
 }
 
-////////
-
 /**
 * Creates and returns a pointer to Command class which matches the given command line (cmd_line)
 */
@@ -414,6 +418,10 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
   else if (firstWord.compare("jobs") == 0)
   {
     return new JobsCommand(cmd_line,&job_list);
+  }
+  else if (firstWord.compare("kill") == 0)
+  {
+    return new KillCommand(cmd_line,&job_list);
   }
 
   else if (firstWord.compare("fg") == 0)
