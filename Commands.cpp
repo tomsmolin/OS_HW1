@@ -274,15 +274,11 @@ void KillCommand::execute() {
   job_id >> id;
   JobsList::JobEntry* curr_job = jobs->getJobById(id);
   if(curr_job == nullptr){
-    perror("sssss");
     std::string str = "smash error: kill:job_id "; 
     std::string str2 = args[2];
     std::string str3 = " does not exist";
     str.append(str2).append(str3);
-    std::cout << str.c_str() << std::endl;
-     
-    perror(str.c_str());
-    perror("sssss");
+    fprintf(stderr,str);
     return;
   }
   pid_t pid = curr_job->pid;
