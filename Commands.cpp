@@ -272,10 +272,12 @@ void KillCommand::execute() {
   int id = 0;
   job_id >> id;
   JobsList::JobEntry* curr_job = jobs->getJobById(id);
-  pid_t pid = curr_job->pid;
-  if(pid==0) {
-
+  if(curr_job == nullptr){
+    perror("smash error: kill:job_id %d does not exist", job_id);
+    return;
   }
+  pid_t pid = curr_job->pid;
+  std::cout << pid << std::endl;
 }
 
 ForegroundCommand::ForegroundCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(cmd_line), jobs(jobs) {}
