@@ -275,7 +275,10 @@ void KillCommand::execute() {
     std::stringstream sig_num(args[1]);
     double sig_number=0;
     sig_num >> sig_number;
-    std::cout << sig_number<< std::endl;
+    if(sig_number>-10){
+      std::cout << sig_number<< std::endl;
+    }
+    
 }
 
 ForegroundCommand::ForegroundCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(cmd_line), jobs(jobs) {}
