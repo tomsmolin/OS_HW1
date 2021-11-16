@@ -247,10 +247,18 @@ void JobsCommand::execute() {
   jobs->printJobsList();
 }
 
+// static bool killFormat(char** args,int argv) {
+//   bool args_num = (argv == 3) ? true : false;
+//   bool sig_num = (std::stringstream(args[])) 
+// }
+
 KillCommand::KillCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(cmd_line), jobs(jobs) {}
 
 void KillCommand::execute() {
   std::cout << argv << std::endl;
+  std::cout << args[0] << std::endl;
+  std::cout << args[1] << std::endl;
+  std::cout << args[2] << std::endl;
 }
 
 ForegroundCommand::ForegroundCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(cmd_line), jobs(jobs) {}
