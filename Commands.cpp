@@ -9,6 +9,8 @@
 using namespace std;
 #define ERROR -1
 #define LAST_CD "-"
+#define MIN_SIG (-35)
+#define MAX_SIG (-1)
 #if 0
 #define FUNC_ENTRY()  \
   cout << __PRETTY_FUNCTION__ << " --> " << endl;
@@ -247,38 +249,31 @@ void JobsCommand::execute() {
   jobs->printJobsList();
 }
 
-// static bool killFormat(char** args,int argv) {
-//   if(argv!=3) {
-//     return false;
-//   }
-//   std::stringstream sig_num(args[1]);
-//   double sig_number=0;
-//   sig_num >> sig_number;
-//   bool sig_format = (sig_num < -1) ? true : false;
-//   bool sig_exist = (sig_num > 35) ? true : false;
-//   return (sig_format && sig_exist);
-// }
+static bool killFormat(char** args,int argv) {
+  if(argv!=3) {
+    return false;
+  }
+  std::stringstream sig_num(args[1]);
+  double sig_number=0;
+  sig_num >> sig_number;
+  bool sig_format = (sig_number < MAX_SIG) ? true : false;
+  bool sig_exist = (sig_number > MIN_SIG) ? true : false;
+  return (sig_format && sig_exist);
+}
 
 KillCommand::KillCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(cmd_line), jobs(jobs) {}
 
 void KillCommand::execute() {
-  // if(!killFormat(args,argv)) {
-  //     perror("smash error: kill:invalid arguments");
-  //     return;
-  // }
-  // std::stringstream job_id(args[2]);
-  // int id = 0;
-  // job_id >> id;
-  // JobsList::JobEntry* curr_job = jobs->getJobById(id);
-  // pid_t pid = curr_job->pid;
-  // std::cout << pid << std::endl;
-    std::stringstream sig_num(args[1]);
-    double sig_number=0;
-    sig_num >> sig_number;
-    if(sig_number>-10){
-      std::cout << sig_number<< std::endl;
-    }
-    
+  if(!killFormat(args,argv)) {
+      perror("smash error: kill:invalid arguments");
+      return;
+  }
+  std::stringstream job_id(args[2]);
+  int id = 0;
+  job_id >> id;
+  JobsList::JobEntry* curr_job = jobs->getJobById(id);
+  pid_t pid = curr_job->pid;
+  std::cout << pid << std::endl;
 }
 
 ForegroundCommand::ForegroundCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(cmd_line), jobs(jobs) {}
