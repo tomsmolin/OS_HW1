@@ -254,7 +254,8 @@ static bool killFormat(char** args,int argv) {
     return false;
   }
   std::stringstream sig_num(args[1]);
-  double sig_number << sig_num;
+  double sig_number=0;
+  sig_num >> sig_number;
   bool sig_format = (sig_num < MAX_SIG) ? true : false;
   bool sig_exist = (sig_num > MIN_SIG) ? true : false;
   return (sig_format && sig_exist);
@@ -269,7 +270,7 @@ void KillCommand::execute() {
   }
   std::stringstream job_id(args[2]);
   int id = 0;
-  id<< job_id;
+  job_id >> id;
   JobsList::JobEntry* curr_job = jobs->getJobById(id);
   pid_t pid = curr_job->pid;
   std::cout << pid << std::endl;
