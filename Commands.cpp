@@ -488,7 +488,7 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
   }
     else if (firstWord.compare("quit") == 0)
   {
-    return new KillCommand(cmd_line,&job_list);
+    return new QuitCommand(cmd_line,&job_list);
   }
 
   else if (firstWord.compare("fg") == 0)
