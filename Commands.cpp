@@ -273,7 +273,9 @@ void KillCommand::execute() {
   job_id >> id;
   JobsList::JobEntry* curr_job = jobs->getJobById(id);
   pid_t pid = curr_job->pid;
-  std::cout << pid << std::endl;
+  if(pid==0) {
+
+  }
 }
 
 ForegroundCommand::ForegroundCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(cmd_line), jobs(jobs) {}
@@ -354,6 +356,9 @@ void JobsList::killAllJobs() {
 }
 
 JobsList::JobEntry* JobsList::getJobById(int jobId){
+  if (jobsDict[jobId]==nullptr){
+    return NULL;
+  }
   return &(jobsDict[jobId]);
 }
 
