@@ -268,7 +268,8 @@ void KillCommand::execute() {
       return;
   }
   std::stringstream job_id(args[2]);
-  int id << job_id;
+  int id = 0;
+  id<< job_id;
   JobsList::JobEntry* curr_job = jobs->getJobById(id);
   pid_t pid = curr_job->pid;
   std::cout << pid << std::endl;
