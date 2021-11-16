@@ -356,7 +356,7 @@ void JobsList::killAllJobs() {
 }
 
 JobsList::JobEntry* JobsList::getJobById(int jobId){
-  if (jobsDict[jobId]==nullptr){
+  if (jobsDict[jobId]==NULL){
     return NULL;
   }
   return &(jobsDict[jobId]);
