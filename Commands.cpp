@@ -278,7 +278,6 @@ void KillCommand::execute() {
     std::string str3 = "does not exist";
     str.append(str2).append(str3);
     std::cout << str << std::endl;
-    perror("smash error: kill:job_id does not exist");
     return;
   }
   pid_t pid = curr_job->pid;
