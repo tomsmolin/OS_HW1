@@ -281,6 +281,7 @@ void KillCommand::execute() {
     perror(str.c_str());
     return;
   }
+  pid_t pid = curr_job->pid;
   int sig_num = 0;
   std::stringstream sig_number(args[1]);
   sig_number >> sig_num;
