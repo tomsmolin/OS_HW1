@@ -266,7 +266,7 @@ KillCommand::KillCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(
 
 void KillCommand::execute() {
   if(!killFormat(args,argv)) {
-      perror("smash error: kill:invalid arguments");
+      fprintf(stderr,"smash error: kill:invalid arguments");
       return;
   }
   std::stringstream job_id(args[2]);
@@ -290,6 +290,16 @@ void KillCommand::execute() {
     perror("smash error: kill failed");
     return;
   }
+}
+
+QuitCommand::QuitCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(cmd_line), jobs(jobs) {}
+
+void QuitCommand::execute() {
+  if (argv<2) {
+    exit(1);
+  }
+  std::cout << "sending SIGKILL signal to " << jobs->jobsDict.size()<< " jobs:\n";
+  jobs->printKilledJobList();
 }
 
 ForegroundCommand::ForegroundCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(cmd_line), jobs(jobs) {}
@@ -364,7 +374,24 @@ void JobsList::printJobsList() {
   }
 }
 
+void JobsList::printKilledJobList() {
+  if(jobsDict.empty()){
+    return;
+  }
+  map<int, JobEntry>::iterator iter;
+  for (iter = jobsDict.begin(); iter != jobsDict.end(); iter++) {
+    std::cout << iter->second.pid << ":" << iter->second.cmd << std::endl;
+  }
+}
+
 void JobsList::killAllJobs() {
+  map<int, JobEntry>::iterator iter;
+  for (iter = jobsDict.begin(); iter != jobsDict.end(); iter++) {
+    if (kill(iter->second.pid, SIGKILL) == ERROR) {
+      perror("smash error: kill failed");
+      return;
+    }
+  }
   jobsDict.clear();
   maxIdUpdate();
 }

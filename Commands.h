@@ -98,6 +98,7 @@ class ShowPidCommand : public BuiltInCommand {
 class JobsList;
 class QuitCommand : public BuiltInCommand {
 // TODO: Add your data members public:
+  JobsList* jobs;
   QuitCommand(const char* cmd_line, JobsList* jobs);
   virtual ~QuitCommand() {}
   void execute() override;
@@ -138,6 +139,7 @@ class JobsList {
   JobEntry *getLastStoppedJob(int *jobId);
   // TODO: Add extra methods or modify exisitng ones as needed
   void maxIdUpdate();
+  void printKilledJobList();
 };
 
 class JobsCommand : public BuiltInCommand {
