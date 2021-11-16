@@ -9,8 +9,6 @@
 using namespace std;
 #define ERROR -1
 #define LAST_CD "-"
-#define MIN_SIG (-35)
-#define MAX_SIG (-1)
 #if 0
 #define FUNC_ENTRY()  \
   cout << __PRETTY_FUNCTION__ << " --> " << endl;
@@ -256,8 +254,8 @@ static bool killFormat(char** args,int argv) {
   std::stringstream sig_num(args[1]);
   double sig_number=0;
   sig_num >> sig_number;
-  bool sig_format = (sig_num < MAX_SIG) ? true : false;
-  bool sig_exist = (sig_num > MIN_SIG) ? true : false;
+  bool sig_format = (sig_num < -1) ? true : false;
+  bool sig_exist = (sig_num > 35) ? true : false;
   return (sig_format && sig_exist);
 }
 
