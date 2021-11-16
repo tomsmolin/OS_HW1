@@ -194,13 +194,6 @@ static char* getCurrPwd() {
 
 ChangeDirCommand::ChangeDirCommand(const char* cmd_line, char** plastPwd) : BuiltInCommand(cmd_line), cd_succeeded(false), classPlastPwd(*plastPwd) {}
 
-static int getCurrPid() {
-  return getpid();
-}
-
-
-
-
 void ChangeDirCommand::execute() {
     if (argv > 2)
     {
@@ -300,6 +293,7 @@ void QuitCommand::execute() {
   }
   std::cout << "sending SIGKILL signal to " << jobs->jobsDict.size()<< " jobs:\n";
   jobs->printKilledJobList();
+  exit(1);
 }
 
 ForegroundCommand::ForegroundCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(cmd_line), jobs(jobs) {}
@@ -489,6 +483,10 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
     return new JobsCommand(cmd_line,&job_list);
   }
   else if (firstWord.compare("kill") == 0)
+  {
+    return new KillCommand(cmd_line,&job_list);
+  }
+    else if (firstWord.compare("quit") == 0)
   {
     return new KillCommand(cmd_line,&job_list);
   }
