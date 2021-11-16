@@ -256,8 +256,10 @@ KillCommand::KillCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(
 
 void KillCommand::execute() {
   std::cout << argv << std::endl;
-  std::cout << std::stringstream(args[1]) << std::endl;
-  std::cout << std::stringstream(args[2]) << std::endl;
+  int x << std::stringstream(args[1]);
+  std::cout << x << std::endl;
+  x << std::stringstream(args[2]);
+  std::cout << x << std::endl;
   std::cout << args[2] << std::endl;
 }
 
