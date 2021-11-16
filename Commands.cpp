@@ -280,6 +280,7 @@ void KillCommand::execute() {
     str.append(str2).append(str3);
     std::cout << str.c_str() << std::endl; 
     perror(str.c_str());
+    perror("sssss");
     return;
   }
   pid_t pid = curr_job->pid;
