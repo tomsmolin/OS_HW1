@@ -5,6 +5,7 @@
 #include <sys/wait.h>
 #include <iomanip>
 #include "Commands.h"
+#include "signals.h"
 
 using namespace std;
 #define ERROR -1
@@ -280,8 +281,14 @@ void KillCommand::execute() {
     perror(str.c_str());
     return;
   }
-  pid_t pid = curr_job->pid;
-  std::cout << pid << std::endl;
+  int sig_num = 0;
+  std::stringstream sig_number(args[1]);
+  sig_number >> sig_num;
+  sig_num*=-1;
+  if (kill(pid, sig_num) == ERROR) {
+    perror("smash error: kill failed");
+    return;
+  }
 }
 
 ForegroundCommand::ForegroundCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(cmd_line), jobs(jobs) {}
