@@ -356,10 +356,10 @@ void JobsList::killAllJobs() {
 }
 
 JobsList::JobEntry* JobsList::getJobById(int jobId){
-  if (jobsDict.contains(jobId)){
-    return &(jobsDict[jobId]);
+  if (jobsDict.find(jobId) == jobsDict.end()){
+    return NULL;
   }
-  return NULL;
+  return &(jobsDict[jobId]);
 }
 
 // JobsList::JobEntry* JobsList::getLastJob(int* lastJobId) {
