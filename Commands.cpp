@@ -9,8 +9,8 @@
 using namespace std;
 #define ERROR -1
 #define LAST_CD "-"
-#define MIN_SIG -35
-#define MAX_SIG -1
+#define MIN_SIG (-35)
+#define MAX_SIG (-1)
 #if 0
 #define FUNC_ENTRY()  \
   cout << __PRETTY_FUNCTION__ << " --> " << endl;
