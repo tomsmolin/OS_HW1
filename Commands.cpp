@@ -278,6 +278,7 @@ void KillCommand::execute() {
     std::string str3 = " does not exist\n";
     str.append(str2).append(str3);
     fprintf(stderr,str.c_str());
+    curr_job= nullptr;
     return;
   }
   pid_t pid = curr_job->pid;
