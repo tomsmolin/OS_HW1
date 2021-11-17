@@ -277,6 +277,7 @@ void KillCommand::execute() {
     std::string str3 = " does not exist\n";
     str.append(str2).append(str3);
     fprintf(stderr,str.c_str());
+    std::cout<<"DGB"<<std::endl;
     return;
   }
   JobsList::JobEntry* curr_job = jobs->getJobById(id);
