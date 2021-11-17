@@ -276,7 +276,7 @@ void KillCommand::execute() {
     std::string str = "smash error: kill:job_id "; 
     std::string str2 = args[2];
     std::string str3 = " does not exist\n";
-    // str.append(str2).append(str3);
+    str.append(str2).append(str3);
     fprintf(stderr,str.c_str());
     // curr_job = jobs->getJobById(0);
     return;
