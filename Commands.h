@@ -186,6 +186,7 @@ class CatCommand : public BuiltInCommand {
 };
 
 
+
 class SmallShell {
   // TODO: Add your data members
   SmallShell();
@@ -193,7 +194,7 @@ class SmallShell {
   bool first_legal_cd;
   std::string prompt;
   JobsList job_list;
-
+  int curr_pid;
 
  public:
   Command *CreateCommand(const char* cmd_line);
@@ -209,6 +210,8 @@ class SmallShell {
   void executeCommand(const char* cmd_line);
   // TODO: add extra methods as needed
   void setPLastPwd(Command* cmd);
+  void setCurrPid(int curr_pid);
+  int getCurrPid();
   std::string* getPPrompt()
   {
       return &prompt;

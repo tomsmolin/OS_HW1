@@ -10,8 +10,20 @@ void ctrlZHandler(int sig_num) {
 }
 
 void ctrlCHandler(int sig_num) {
-  // TODO: Add your implementation
+  cout << "smash: got ctrl-C" <<endl;
+  if(SmallShell::getInstance().getCurrPid() !=-1)
+  {
+    int result = kill(SmallShell::getInstance().getCurrPid(),sig_num);
+    if (result == -1) {
+      fprintf(stderr,"smash error: kill failed");
+      return;
+    }
+    int pid = SmallShell::getInstance().getCurrPid();
+    SmallShell::getInstance().setCurrPid(-1);
+    cout << "smash: process "<<pid<<" was killed" <<endl;
+  }
 }
+
 
 void alarmHandler(int sig_num) {
   // TODO: Add your implementation

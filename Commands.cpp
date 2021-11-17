@@ -2,16 +2,19 @@
 #include <iostream>
 #include <vector>
 #include <sstream>
+#include <math.h>
 #include <sys/wait.h>
 #include <iomanip>
 #include "Commands.h"
 #include "signals.h"
+
 
 using namespace std;
 #define ERROR -1
 #define LAST_CD "-"
 #define MIN_SIG (-35)
 #define MAX_SIG (-1)
+#define NO_CURR_PID (-1)
 #if 0
 #define FUNC_ENTRY()  \
   cout << __PRETTY_FUNCTION__ << " --> " << endl;
@@ -102,14 +105,14 @@ ExternalCommand::ExternalCommand(const char* cmd_line, JobsList* jobs) : Command
 
 void ExternalCommand::execute() {
   int pid = fork();
-    if (pid == -1)
+    if (pid == ERROR)
     {
         perror("smash error: fork failed");
         return;
     }
     if(pid == 0)//child
     {
-        if(setpgrp() == -1) {
+        if(setpgrp() == ERROR) {
             perror("smash error: setpgrp failed");
             return;
         }
@@ -123,7 +126,7 @@ void ExternalCommand::execute() {
         };
 
         int result = execv(new_args[0], (char**)new_args);
-        if(result == -1)
+        if(result == ERROR)
         {
             perror("smash error: execvp failed");
             return;
@@ -140,10 +143,12 @@ void ExternalCommand::execute() {
       }
       else
         {
+            SmallShell::getInstance().setCurrPid(pid);
             int result = waitpid(pid,nullptr,WUNTRACED);
-            if(result == -1) {
+            if(result == ERROR) {
               perror("smash error: waitpid failed");
             }
+            SmallShell::getInstance().setCurrPid(NO_CURR_PID);
         }
     }
 }
@@ -217,7 +222,7 @@ void ChangeDirCommand::execute() {
         }
         else
         {
-            if (chdir(classPlastPwd) == -1)
+            if (chdir(classPlastPwd) == ERROR)
             {
                 perror("smash error: chdir failed");
                 return;
@@ -226,7 +231,7 @@ void ChangeDirCommand::execute() {
     }
     else
     {
-        if (chdir(path) == -1)
+        if (chdir(path) == ERROR)
         {
             perror("smash error: chdir failed");
             return;
@@ -250,9 +255,10 @@ static bool killFormat(char** args,int argv) {
   std::stringstream sig_num(args[1]);
   double sig_number=0;
   sig_num >> sig_number;
+  bool sig_int = (std::floor(sig_number) == sig_number) ? true : false;
   bool sig_format = (sig_number < MAX_SIG) ? true : false;
   bool sig_exist = (sig_number > MIN_SIG) ? true : false;
-  return (sig_format && sig_exist);
+  return (sig_format && sig_exist && sig_int);
 }
 
 KillCommand::KillCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(cmd_line), jobs(jobs) {}
@@ -526,6 +532,12 @@ void SmallShell::setPLastPwd(Command* cmd) {
             }
         }
     }
+}
+void SmallShell::setCurrPid(int pid) {
+  curr_pid=pid;
+}
+int SmallShell::getCurrPid() {
+  return curr_pid;
 }
 
 void SmallShell::executeCommand(const char* cmd_line) {
