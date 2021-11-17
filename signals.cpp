@@ -22,6 +22,7 @@ void ctrlCHandler(int sig_num) {
     SmallShell::getInstance().setCurrPid(-1);
     cout << "smash: process "<<pid<<" was killed" <<endl;
   }
+  cout<<endl;
 }
 
 
