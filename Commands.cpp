@@ -278,7 +278,7 @@ void KillCommand::execute() {
     std::string str3 = " does not exist\n";
     str.append(str2).append(str3);
     fprintf(stderr,str.c_str());
-    curr_job = jobs->getJobById(0);
+    // curr_job = jobs->getJobById(0);
     return;
   }
   pid_t pid = curr_job->pid;
@@ -546,6 +546,7 @@ void SmallShell::executeCommand(const char* cmd_line) {
     Command* cmd = CreateCommand(cmd_line);
     job_list.removeFinishedJobs();
     cmd->execute();
+    std::cout<<"DGB"<<std::endl;
     setPLastPwd(cmd);
     // Please note that you must fork smash process for some commands (e.g., external commands....)
 }
