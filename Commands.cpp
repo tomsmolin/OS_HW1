@@ -271,6 +271,14 @@ void KillCommand::execute() {
   std::stringstream job_id(args[2]);
   int id = 0;
   job_id >> id;
+  if(id>jobs->max_job_id){
+    std::string str = "smash error: kill:job_id "; 
+    std::string str2 = args[2];
+    std::string str3 = " does not exist\n";
+    str.append(str2).append(str3);
+    fprintf(stderr,str.c_str());
+    return;
+  }
   JobsList::JobEntry* curr_job = jobs->getJobById(id);
   if(curr_job == nullptr){
     std::string str = "smash error: kill:job_id "; 
@@ -546,7 +554,6 @@ void SmallShell::executeCommand(const char* cmd_line) {
     Command* cmd = CreateCommand(cmd_line);
     job_list.removeFinishedJobs();
     cmd->execute();
-    std::cout<<"DGB"<<std::endl;
     setPLastPwd(cmd);
     // Please note that you must fork smash process for some commands (e.g., external commands....)
 }
