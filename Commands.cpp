@@ -265,7 +265,7 @@ KillCommand::KillCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(
 
 void KillCommand::execute() {
   if(!killFormat(args,argv)) {
-      fprintf(stderr,"smash error: kill:invalid arguments");
+      fprintf(stderr,"smash error: kill:invalid arguments\n");
       return;
   }
   std::stringstream job_id(args[2]);
