@@ -13,6 +13,7 @@ using namespace std;
 #define LAST_CD "-"
 #define MIN_SIG (-35)
 #define MAX_SIG (-1)
+#define NO_CURR_JOBS (0)
 #if 0
 #define FUNC_ENTRY()  \
   cout << __PRETTY_FUNCTION__ << " --> " << endl;
@@ -260,11 +261,23 @@ static bool killFormat(char** args,int argv) {
   return (sig_format && sig_exist && sig_int);
 }
 
+static bool foreGroundFormat(char** args, int argv) {
+    if (argv != 2) {
+        return false;
+    }
+    std::stringstream id(args[1]);
+    double job_id= 0;
+    id >> job_id;
+    bool id_int = (std::floor(job_id) == job_id) ? true : false;
+    bool id_format = (job_id > 0) ? true : false;
+    return (id_format && id_int);
+}
+
 KillCommand::KillCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(cmd_line), jobs(jobs) {}
 
 void KillCommand::execute() {
   if(!killFormat(args,argv)) {
-      fprintf(stderr,"smash error: kill:invalid arguments\n");
+      fprintf(stderr,"smash error: kill: invalid arguments\n");
       return;
   }
   std::stringstream job_id(args[2]);
@@ -306,22 +319,45 @@ ForegroundCommand::ForegroundCommand(const char* cmd_line, JobsList* jobs) : Bui
 
 void ForegroundCommand::execute() { //ERROR HANDLING NOT FINISH! =========== NOT FINISHED
     int job_id = 0;
+    JobsList::JobEntry* curr_job = NULL;
     if (argv == 1)
+    {
         job_id = jobs->max_job_id;
+        if (jobs->max_job_id == NO_CURR_JOBS)
+        {
+            fprintf(stderr, "smash error: fg: jobs list is empty\n");
+            return;
+        }
+        curr_job = jobs->getJobById(job_id);
+    }
     else
-        job_id = stoi(args[1]);
-    
-    JobsList::JobEntry* j = jobs->getJobById(job_id);
-    int pid = j->pid;
-    string job_cmd = j->cmd;
-    cout << job_cmd << ": " << pid << endl;
+    {
+        if (!foreGroundFormat(args, argv)) {
+            fprintf(stderr, "smash error: fg: invalid arguments\n");
+            return;
+        }
+        stringstream id(args[1]);
+        id >> job_id;
+        curr_job = jobs->getJobById(job_id);
+        if (curr_job == NULL)
+        {
+            std::string str1("job-id ");
+            std::string str2(args[1]);
+            str1.append(str2).append(" does not exist\n");
+            fprintf(stderr, str1.c_str());
+            return;
+        }
+    }
 
+    int pid = curr_job->pid;
+    string job_cmd = curr_job->cmd;
+    cout << job_cmd << ": " << pid << endl;
     if (kill(pid, SIGCONT) == ERROR)
     {
         perror("smash error: kill failed");
         return;
     }
-    waitpid(pid, NULL, WUNTRACED); // not sure about the optins here
+    waitpid(pid, NULL, WUNTRACED); 
     jobs->removeJobById(job_id);
 }
 
