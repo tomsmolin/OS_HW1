@@ -12,6 +12,10 @@
 #define COMMAND_MAX_ARGS (20)
 #define MAX_CWD_LENGTH 256
 #define COMMAND_MAX_LENGTH (80)
+#define NO_CURR_PID (-1)
+#define ERROR (-1)
+
+
 
 class Command {
 // TODO: Add your data members
@@ -196,6 +200,7 @@ class SmallShell {
   std::string prompt;
   JobsList job_list;
   int curr_pid;
+  std::string curr_cmd;
 
  public:
   Command *CreateCommand(const char* cmd_line);
@@ -213,6 +218,10 @@ class SmallShell {
   void setPLastPwd(Command* cmd);
   void setCurrPid(int curr_pid);
   int getCurrPid();
+  void setCurrCmd(std::string curr_cmd);
+  std::string getCurrCmd();
+  void resetCurrFgInfo();
+  JobsList* getJobs();
   std::string* getPPrompt()
   {
       return &prompt;

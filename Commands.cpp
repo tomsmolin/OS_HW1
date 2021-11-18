@@ -10,11 +10,9 @@
 
 
 using namespace std;
-#define ERROR -1
 #define LAST_CD "-"
 #define MIN_SIG (-35)
 #define MAX_SIG (-1)
-#define NO_CURR_PID (-1)
 #if 0
 #define FUNC_ENTRY()  \
   cout << __PRETTY_FUNCTION__ << " --> " << endl;
@@ -134,21 +132,22 @@ void ExternalCommand::execute() {
     }
     /////father
     else{ 
+      std::string curr_cmd = cmd;
       if(_isBackgroundComamnd(cmd)){
         // char* curr_cmd  = new char;
         // *curr_cmd = *(cmd);
-        std::string curr_cmd = cmd;
         //jobs->removeFinishedJobs(); =========== Added in the beginning of addJob
         jobs->addJob(pid,curr_cmd);
       }
       else
         {
             SmallShell::getInstance().setCurrPid(pid);
+            SmallShell::getInstance().setCurrCmd(curr_cmd);
             int result = waitpid(pid,nullptr,WUNTRACED);
             if(result == ERROR) {
               perror("smash error: waitpid failed");
             }
-            SmallShell::getInstance().setCurrPid(NO_CURR_PID);
+            SmallShell::getInstance().resetCurrFgInfo();
         }
     }
 }
@@ -505,7 +504,8 @@ JobsList::JobEntry *JobsList::getLastStoppedJob(int *jobId) {
 }
 
 
-SmallShell::SmallShell() : plastPwd(NULL), first_legal_cd(true), prompt("smash> "), job_list(JobsList()) {
+SmallShell::SmallShell() : plastPwd(NULL), first_legal_cd(true), prompt("smash> "),
+                           job_list(JobsList()), curr_pid(NO_CURR_PID), curr_cmd("No Current cmd") {
     // TODO: add your implementation
     plastPwd = new char* ();
     *plastPwd = NULL;
@@ -600,6 +600,23 @@ void SmallShell::setCurrPid(int pid) {
 }
 int SmallShell::getCurrPid() {
   return curr_pid;
+}
+
+void SmallShell::setCurrCmd(std::string cmd) {
+    curr_cmd = cmd;
+}
+
+std::string SmallShell::getCurrCmd() {
+    return curr_cmd;
+}
+
+void SmallShell::resetCurrFgInfo() {
+    curr_pid = NO_CURR_PID;
+    curr_cmd = "No Current cmd";
+}
+
+JobsList* SmallShell::getJobs() {
+    return &job_list;
 }
 
 void SmallShell::executeCommand(const char* cmd_line) {
