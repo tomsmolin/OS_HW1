@@ -172,6 +172,7 @@ class ForegroundCommand : public BuiltInCommand {
   ForegroundCommand(const char* cmd_line, JobsList* jobs);
   virtual ~ForegroundCommand() {}
   void execute() override;
+  JobsList::JobEntry* setCurrJobToForeground();
 };
 
 class BackgroundCommand : public BuiltInCommand {
