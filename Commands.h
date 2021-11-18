@@ -98,6 +98,8 @@ class ShowPidCommand : public BuiltInCommand {
 class JobsList;
 class QuitCommand : public BuiltInCommand {
 // TODO: Add your data members public:
+  JobsList* jobs;
+ public:
   QuitCommand(const char* cmd_line, JobsList* jobs);
   virtual ~QuitCommand() {}
   void execute() override;
@@ -138,6 +140,7 @@ class JobsList {
   JobEntry *getLastStoppedJob(int *jobId);
   // TODO: Add extra methods or modify exisitng ones as needed
   void maxIdUpdate();
+  void printKilledJobList();
 };
 
 class JobsCommand : public BuiltInCommand {
@@ -151,6 +154,7 @@ class JobsCommand : public BuiltInCommand {
 
 class KillCommand : public BuiltInCommand {
  // TODO: Add your data members
+  JobsList* jobs;
  public:
   KillCommand(const char* cmd_line, JobsList* jobs);
   virtual ~KillCommand() {}
@@ -212,4 +216,4 @@ class SmallShell {
   }
 };
 
-#endif SMASH_COMMAND_H_
+#endif //SMASH_COMMAND_H_

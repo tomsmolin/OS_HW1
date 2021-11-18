@@ -5,10 +5,13 @@
 #include <sys/wait.h>
 #include <iomanip>
 #include "Commands.h"
+#include "signals.h"
 
 using namespace std;
 #define ERROR -1
 #define LAST_CD "-"
+#define MIN_SIG (-35)
+#define MAX_SIG (-1)
 #if 0
 #define FUNC_ENTRY()  \
   cout << __PRETTY_FUNCTION__ << " --> " << endl;
@@ -191,13 +194,6 @@ static char* getCurrPwd() {
 
 ChangeDirCommand::ChangeDirCommand(const char* cmd_line, char** plastPwd) : BuiltInCommand(cmd_line), cd_succeeded(false), classPlastPwd(*plastPwd) {}
 
-static int getCurrPid() {
-  return getpid();
-}
-
-
-
-
 void ChangeDirCommand::execute() {
     if (argv > 2)
     {
@@ -247,6 +243,59 @@ void JobsCommand::execute() {
   jobs->printJobsList();
 }
 
+static bool killFormat(char** args,int argv) {
+  if(argv!=3) {
+    return false;
+  }
+  std::stringstream sig_num(args[1]);
+  double sig_number=0;
+  sig_num >> sig_number;
+  bool sig_format = (sig_number < MAX_SIG) ? true : false;
+  bool sig_exist = (sig_number > MIN_SIG) ? true : false;
+  return (sig_format && sig_exist);
+}
+
+KillCommand::KillCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(cmd_line), jobs(jobs) {}
+
+void KillCommand::execute() {
+  if(!killFormat(args,argv)) {
+      fprintf(stderr,"smash error: kill:invalid arguments");
+      return;
+  }
+  std::stringstream job_id(args[2]);
+  int id = 0;
+  job_id >> id;
+  JobsList::JobEntry* curr_job = jobs->getJobById(id);
+  if(curr_job == nullptr){
+    std::string str = "smash error: kill:job_id "; 
+    std::string str2 = args[2];
+    std::string str3 = " does not exist\n";
+    str.append(str2).append(str3);
+    fprintf(stderr,str.c_str());
+    return;
+  }
+  pid_t pid = curr_job->pid;
+  int sig_num = 0;
+  std::stringstream sig_number(args[1]);
+  sig_number >> sig_num;
+  sig_num*=-1;
+  if (kill(pid, sig_num) == ERROR) {
+    perror("smash error: kill failed");
+    return;
+  }
+}
+
+QuitCommand::QuitCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(cmd_line), jobs(jobs) {}
+
+void QuitCommand::execute() {
+  if (argv<2) {
+    exit(1);
+  }
+  std::cout << "sending SIGKILL signal to " << jobs->jobsDict.size()<< " jobs:\n";
+  jobs->printKilledJobList();
+  exit(1);
+}
+
 ForegroundCommand::ForegroundCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(cmd_line), jobs(jobs) {}
 
 void ForegroundCommand::execute() { //ERROR HANDLING NOT FINISH! =========== NOT FINISHED
@@ -274,10 +323,10 @@ BackgroundCommand::BackgroundCommand(const char* cmd_line, JobsList* jobs) : Bui
 
 // Better implement first sending STOP SIGNAL =========== NOT FINISHED
 void BackgroundCommand::execute() {
-    int job_id = 0;
+    int id = 0;
     if (argv == 1)
     {
-        if (jobs->getLastStoppedJob(&job_id) == nullptr)
+        if (jobs->getLastStoppedJob(&id) == nullptr)
         {
             perror("smash error: bg: there is no stopped jobs to resume");
             return;
@@ -290,35 +339,40 @@ void BackgroundCommand::execute() {
     }
     else
     {
-        job_id = stoi(args[1]); // invalid argument handling
-        map<int, JobsList::JobEntry>::iterator it = jobs->jobsDict.find(job_id);
+        std::stringstream job_id(args[1]);
+        job_id >> id;
+        //job_id = stoi(args[1]); // invalid argument handling
+        map<int, JobsList::JobEntry>::iterator it = jobs->jobsDict.find(id);
+        std::string str1("job-id ");
+        std::string str2 = args[1];
         if (it == jobs->jobsDict.end())
         {
-            //perror("smash error: bg: job-id %d doen not exist", job_id); ==== dealing with the integer in the char*
+            std::string str3(" does not exist\n");
+            str1.append(str2).append(str3);
+            fprintf(stderr, str1.c_str());
             return;
         }
         else
         {
             if (it->second.status == Background)
             {
-                //perror("smash error: bg: job-id %d is already running in the background", job_id); ==== dealing with the integer in the char*
+                std::string str4(" is already running in the background\n");
+                str1.append(str2).append(str4);
+                fprintf(stderr, str1.c_str());
                 return;
             }
+            std::string job_cmd = it->second.cmd;
+            pid_t pid = it->second.pid;
+            cout << job_cmd << " : " << pid << endl;
+            if (kill(pid, SIGCONT) == ERROR)
+            {
+                perror("smash error: kill failed");
+                return;
+            }
+            jobs->removeJobById(id);
+            jobs->addJob(pid, job_cmd);
         }
     }
-    JobsList::JobEntry* j = jobs->getJobById(job_id);
-    int pid = j->pid;
-    string job_cmd = j->cmd;
-    cout << job_cmd << ": " << pid << endl;
-
-    if (kill(pid, SIGCONT) == ERROR)
-    {
-        perror("smash error: kill failed");
-        return;
-    }
-    jobs->removeJobById(job_id);
-    job_cmd.append("&");
-    jobs->addJob(pid, job_cmd);
 }
 
 /////////////////////////////joblist//////////////////////
@@ -371,12 +425,32 @@ void JobsList::printJobsList() {
   }
 }
 
+void JobsList::printKilledJobList() {
+  if(jobsDict.empty()){
+    return;
+  }
+  map<int, JobEntry>::iterator iter;
+  for (iter = jobsDict.begin(); iter != jobsDict.end(); iter++) {
+    std::cout << iter->second.pid << ":" << iter->second.cmd << std::endl;
+  }
+}
+
 void JobsList::killAllJobs() {
+  map<int, JobEntry>::iterator iter;
+  for (iter = jobsDict.begin(); iter != jobsDict.end(); iter++) {
+    if (kill(iter->second.pid, SIGKILL) == ERROR) {
+      perror("smash error: kill failed");
+      return;
+    }
+  }
   jobsDict.clear();
   maxIdUpdate();
 }
 
 JobsList::JobEntry* JobsList::getJobById(int jobId){
+  if (jobsDict.find(jobId) == jobsDict.end()){
+    return nullptr;
+  }
   return &(jobsDict[jobId]);
 }
 
@@ -465,6 +539,15 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
   {
     return new JobsCommand(cmd_line,&job_list);
   }
+  else if (firstWord.compare("kill") == 0)
+  {
+    return new KillCommand(cmd_line,&job_list);
+  }
+    else if (firstWord.compare("quit") == 0)
+  {
+    return new QuitCommand(cmd_line,&job_list);
+  }
+
   else if (firstWord.compare("fg") == 0)
   {
       return new ForegroundCommand(cmd_line, &job_list);
