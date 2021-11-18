@@ -2,10 +2,7 @@
 #define SMASH_COMMAND_H_
 
 #include <vector>
-
-#include <string.h> //moved it from cpp file
-
-
+#include <string.h>
 #include <map>
 
 #define COMMAND_ARGS_MAX_LENGTH (200)
@@ -182,6 +179,7 @@ class BackgroundCommand : public BuiltInCommand {
   BackgroundCommand(const char* cmd_line, JobsList* jobs);
   virtual ~BackgroundCommand() {}
   void execute() override;
+  JobsList::JobEntry* setCurrJobToBackground();
 };
 
 class CatCommand : public BuiltInCommand {

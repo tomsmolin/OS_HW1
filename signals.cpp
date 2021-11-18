@@ -15,7 +15,7 @@ void ctrlZHandler(int sig_num) {
 		SmallShell::getInstance().getJobs()->addJob(pid, curr_cmd, true);
 		if (kill(pid, SIGSTOP) == ERROR)
 		{
-			perror("smash error: kill failed");
+			fprintf(stderr, "smash error: kill failed\n");
 			return;
 		}
 		cout << "smash: process " << pid << " was stopped" << endl;
@@ -29,7 +29,7 @@ void ctrlCHandler(int sig_num) {
   {
     int result = kill(SmallShell::getInstance().getCurrPid(),sig_num);
     if (result == ERROR) {
-      fprintf(stderr,"smash error: kill failed");
+      fprintf(stderr,"smash error: kill failed\n");
       return;
     }
     int pid = SmallShell::getInstance().getCurrPid();
