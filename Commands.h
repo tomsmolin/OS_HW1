@@ -2,16 +2,17 @@
 #define SMASH_COMMAND_H_
 
 #include <vector>
-
-#include <string.h> //moved it from cpp file
-
-
+#include <string.h>
 #include <map>
 
 #define COMMAND_ARGS_MAX_LENGTH (200)
 #define COMMAND_MAX_ARGS (20)
 #define MAX_CWD_LENGTH 256
 #define COMMAND_MAX_LENGTH (80)
+#define NO_CURR_PID (-1)
+#define ERROR (-1)
+
+
 
 class Command {
 // TODO: Add your data members
@@ -168,14 +169,17 @@ class ForegroundCommand : public BuiltInCommand {
   ForegroundCommand(const char* cmd_line, JobsList* jobs);
   virtual ~ForegroundCommand() {}
   void execute() override;
+  JobsList::JobEntry* setCurrJobToForeground();
 };
 
 class BackgroundCommand : public BuiltInCommand {
  // TODO: Add your data members
+    JobsList* jobs;
  public:
   BackgroundCommand(const char* cmd_line, JobsList* jobs);
   virtual ~BackgroundCommand() {}
   void execute() override;
+  JobsList::JobEntry* setCurrJobToBackground();
 };
 
 class CatCommand : public BuiltInCommand {
@@ -195,6 +199,7 @@ class SmallShell {
   std::string prompt;
   JobsList job_list;
   int curr_pid;
+  std::string curr_cmd;
 
  public:
   Command *CreateCommand(const char* cmd_line);
@@ -212,6 +217,10 @@ class SmallShell {
   void setPLastPwd(Command* cmd);
   void setCurrPid(int curr_pid);
   int getCurrPid();
+  void setCurrCmd(std::string curr_cmd);
+  std::string getCurrCmd();
+  void resetCurrFgInfo();
+  JobsList* getJobs();
   std::string* getPPrompt()
   {
       return &prompt;
