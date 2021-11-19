@@ -585,7 +585,7 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
     cmdParse(cmd_line,&(cmd_command),&(file_name));
     std::cout << *(cmd_command) << std::endl;
     std::cout << *(file_name) << std::endl;
-
+    
     // return new RedirectionCommand(cmd_line,args,true);
   }
 
