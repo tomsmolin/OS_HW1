@@ -7,7 +7,6 @@
 #include <list>
 #include <unistd.h>
 
-
 #define COMMAND_ARGS_MAX_LENGTH (200)
 #define COMMAND_MAX_ARGS (20)
 #define MAX_CWD_LENGTH 256
@@ -23,7 +22,6 @@ public:
     int pid_cmd;
     //int timeout_duration; ==== NOT USED
     bool operator< (TimedCommandEntry const& entry2);
-
 
     TimedCommandEntry() = default;
     TimedCommandEntry(time_t alrm_time, std::string timeout_cmd, int pid_command);
@@ -245,8 +243,7 @@ class SmallShell {
   {
       return &prompt;
   }
-
-  std::list<TimedCommandEntry> timed_commands;
+  std::list<TimedCommandEntry> timed_list;
 
 };
 

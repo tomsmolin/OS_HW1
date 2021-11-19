@@ -153,6 +153,7 @@ void ExternalCommand::execute() {
         if (this->timed_entry != NULL)
         {
             this->timed_entry->pid_cmd = pid;
+            this->timed_entry = NULL;
         }
         std::string curr_cmd = cmd;
         if(_isBackgroundComamnd(cmd)){
@@ -163,7 +164,6 @@ void ExternalCommand::execute() {
         }
         else
         {
-            //cout << "the proccess pid we need to kill: " << pid << endl;
             SmallShell::getInstance().setCurrPid(pid);
             SmallShell::getInstance().setCurrCmd(curr_cmd);
             int result = waitpid(pid,nullptr,WUNTRACED);
@@ -171,7 +171,6 @@ void ExternalCommand::execute() {
                 fprintf(stderr, "smash error: waitpid failed\n");
             }
             SmallShell::getInstance().resetCurrFgInfo();
-            //cout << "got here fast!2 " << endl;
         }
     }
 }
@@ -585,13 +584,6 @@ SmallShell::~SmallShell() {
     
 }
 
-static int setTimeoutDuration(char* duration_str) {
-    int duration = 0;
-    std::stringstream duration_ss(duration_str);
-    duration_ss >> duration;
-    return duration;
-}
-
 /**
 * Creates and returns a pointer to Command class which matches the given command line (cmd_line)
 */
@@ -691,47 +683,49 @@ JobsList* SmallShell::getJobs() {
     return &job_list;
 }
 
+static int setTimeoutDuration(char* duration_str) {
+    int duration = 0;
+    std::stringstream duration_ss(duration_str);
+    duration_ss >> duration;
+    return duration;
+}
+
+static void getTrimmedCmdAndDuration(const char* cmd_line, std::string& new_cmd_line, int* duration) {
+    char** args = new char* (NULL); // TO DELETE IT!
+    int argv = _parseCommandLine(cmd_line, args);
+    *duration = setTimeoutDuration(args[1]);
+    new_cmd_line = args[2];
+    for (int i = 3; i < argv; i++)
+    {
+        new_cmd_line.append(" ").append(args[i]);
+    }
+}
+
 void SmallShell::executeCommand(const char* cmd_line) {
 
     std::string cmd_s = _trim(string(cmd_line));
     std::string firstWord = cmd_s.substr(0, cmd_s.find_first_of(" \n"));
-    bool timedout = false;
-    int duration = 0;
-    std::string new_cmd_line("");
+    Command* cmd = NULL;
+
     if (firstWord.compare("timeout") == 0)
     {
-        timedout = true;
-        char** args = new char* (NULL); // TO DELETE IT!
-        int argv = _parseCommandLine(cmd_line, args);
-        duration = setTimeoutDuration(args[1]);
-        new_cmd_line = args[2];
-        for (int i = 3; i < argv; i++)
-        {
-            new_cmd_line.append(" ").append(args[i]);
-        }
-    }
-    
-    Command* cmd = NULL;
-    if (timedout)
-    {
+        std::string new_cmd_line("");
+        int duration = 0;
+        getTrimmedCmdAndDuration(cmd_line, new_cmd_line, &duration);
         cmd = CreateCommand(new_cmd_line.c_str());
         TimedCommandEntry entry(time(NULL) + duration, cmd_line, NOT_SET); // should implement inst.
-        //entry.alrm_time = time(NULL) + duration;
-        //entry.setTimeoutCmd(cmd_line);
-        //entry.setTimeoutDuration(duration); ===== NOT USED
-        
         //operator compares absulote alarm times
-        if (timed_commands.front() < entry) 
+        if (timed_list.front() < entry)
         {
-            timed_commands.push_back(entry);
-            alarm(difftime(timed_commands.front().alrm_time, time(NULL)));
-            cmd->timed_entry = &timed_commands.back();
+            timed_list.push_back(entry);
+            alarm(difftime(timed_list.front().alrm_time, time(NULL)));
+            cmd->timed_entry = &timed_list.back();
         }
         else
         {
-            timed_commands.push_front(entry);
+            timed_list.push_front(entry);
             alarm(difftime(entry.alrm_time, time(NULL)));
-            cmd->timed_entry = &timed_commands.front();
+            cmd->timed_entry = &timed_list.front();
         }
     }
     else
@@ -741,8 +735,6 @@ void SmallShell::executeCommand(const char* cmd_line) {
 
     job_list.removeFinishedJobs();
     cmd->execute();
-    cmd->timed_entry = NULL;
-    timed_commands.sort();
+    timed_list.sort();
     setPLastPwd(cmd);
-    // Please note that you must fork smash process for some commands (e.g., external commands....)
 }
