@@ -564,6 +564,7 @@ SmallShell::~SmallShell() {
 
 
 static bool cmdParse(const char* cmd_line ,string* cmd_command, string* file_name){
+  std::cout << "DGB" << std::endl;
   bool append = (std::string(cmd_line).find(">>") != std::string::npos) ? true : false;
   std::string delimeter = (append) ? ">>" : ">";
   *(cmd_command) = std::string(cmd_line).substr(0,std::string(cmd_line).find(delimeter));
@@ -582,7 +583,7 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
   if (string(cmd_line).find(">") != string::npos) {
     string* cmd_command;
     string* file_name;
-    cmdParse(cmd_line,cmd_command,file_name);
+    cmdParse(cmd_line,&cmd_command,&file_name);
 
     // return new RedirectionCommand(cmd_line,args,true);
   }
