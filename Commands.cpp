@@ -5,6 +5,7 @@
 #include <math.h>
 #include <sys/wait.h>
 #include <iomanip>
+#include <sys/stat.h>
 #include "Commands.h"
 #include "signals.h"
 
