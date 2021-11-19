@@ -20,14 +20,12 @@ public:
     time_t alrm_time; //set method
     std::string timeout_cmd; // """"
     int pid_cmd;
-    //int timeout_duration; ==== NOT USED
     bool operator< (TimedCommandEntry const& entry2);
 
     TimedCommandEntry() = default;
     TimedCommandEntry(time_t alrm_time, std::string timeout_cmd, int pid_command);
     ~TimedCommandEntry() = default;
 
-    //void setTimeoutDuration(int duration); ==== NOT USED
     void setTimeoutCmd(const char* cmd_line);
 };
 

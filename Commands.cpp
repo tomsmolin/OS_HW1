@@ -102,16 +102,12 @@ const char* Command::getCmd() {
 TimedCommandEntry::TimedCommandEntry(time_t alrm_time, std::string timeout_cmd, int pid_cmd) 
 : alrm_time(alrm_time), timeout_cmd(timeout_cmd), pid_cmd(pid_cmd) {}
 
-//void TimedCommandEntry::setTimeoutDuration(int duration) {
-//    timeout_duration = duration;
-//}
-
 bool TimedCommandEntry::operator<(TimedCommandEntry const& entry2) {
-    if (alrm_time < entry2.alrm_time)
+    /*if (alrm_time < entry2.alrm_time)
         return true;
     else
-        return false;
-
+        return false;*/
+    return alrm_time < entry2.alrm_time;
 }
 
 void TimedCommandEntry::setTimeoutCmd(const char* cmd_line) {
@@ -588,12 +584,11 @@ SmallShell::~SmallShell() {
 * Creates and returns a pointer to Command class which matches the given command line (cmd_line)
 */
 Command * SmallShell::CreateCommand(const char* cmd_line) {
-	// For example:
-  std::string cmd_s = _trim(string(cmd_line));
+
+    std::string cmd_s = _trim(string(cmd_line));
   std::string firstWord = cmd_s.substr(0, cmd_s.find_first_of(" \n"));
 
     if (firstWord.compare("chprompt") == 0) {
-        //TODO: add implementation
         return new ChangePromptCommand(cmd_line, getPPrompt());
     }
     else if (firstWord.compare("pwd") == 0) {
@@ -605,25 +600,19 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
     else if (firstWord.compare("cd") == 0) {
         return new ChangeDirCommand(cmd_line, plastPwd);
     }
-    else if (firstWord.compare("jobs") == 0)
-    {
+    else if (firstWord.compare("jobs") == 0) {
         return new JobsCommand(cmd_line, &job_list);
     }
-    else if (firstWord.compare("kill") == 0)
-    {
+    else if (firstWord.compare("kill") == 0) {
         return new KillCommand(cmd_line, &job_list);
     }
-    else if (firstWord.compare("quit") == 0)
-    {
+    else if (firstWord.compare("quit") == 0) {
         return new QuitCommand(cmd_line, &job_list);
     }
-
-    else if (firstWord.compare("fg") == 0)
-    {
+    else if (firstWord.compare("fg") == 0) {
         return new ForegroundCommand(cmd_line, &job_list);
     }
-    else if (firstWord.compare("bg") == 0)
-    {
+    else if (firstWord.compare("bg") == 0) {
         return new BackgroundCommand(cmd_line, &job_list);
     }
 
@@ -699,6 +688,12 @@ static void getTrimmedCmdAndDuration(const char* cmd_line, std::string& new_cmd_
     {
         new_cmd_line.append(" ").append(args[i]);
     }
+
+    //Should fix it: double free or corruption error
+    //for (int i = 0; i < argv; i++) {
+    //    delete args[i];
+    //}
+    //delete args;
 }
 
 void SmallShell::executeCommand(const char* cmd_line) {
@@ -718,15 +713,14 @@ void SmallShell::executeCommand(const char* cmd_line) {
         if (timed_list.front() < entry)
         {
             timed_list.push_back(entry);
-            alarm(difftime(timed_list.front().alrm_time, time(NULL)));
             cmd->timed_entry = &timed_list.back();
         }
         else
         {
             timed_list.push_front(entry);
-            alarm(difftime(entry.alrm_time, time(NULL)));
             cmd->timed_entry = &timed_list.front();
         }
+        alarm(difftime(timed_list.front().alrm_time, time(NULL)));
     }
     else
     {
