@@ -14,6 +14,7 @@ using namespace std;
 #define MIN_SIG (-35)
 #define MAX_SIG (-1)
 #define NO_CURR_JOBS (0)
+#define EMPTY_STRING ("")
 #if 0
 #define FUNC_ENTRY()  \
   cout << __PRETTY_FUNCTION__ << " --> " << endl;
@@ -688,8 +689,9 @@ void SmallShell::executeCommand(const char* cmd_line) {
 }
 
 //////////pipes and redirections////////////
-RedirectionCommand::RedirectionCommand(const char* cmd_line) : Command(cmd_line), command_cmd(""), file_name("") {
+RedirectionCommand::RedirectionCommand(const char* cmd_line) : Command(cmd_line), command_cmd(EMPTY_STRING), file_name(EMPTY_STRING) {
   append = cmdParse(cmd_line, command_cmd, file_name);
+  cmd = command_cmd;
 } 
 
 // RedirectionCommand::~RedirectionCommand() {
