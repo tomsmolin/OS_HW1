@@ -689,7 +689,7 @@ void SmallShell::executeCommand(const char* cmd_line) {
 RedirectionCommand::RedirectionCommand(const char* command_cmd, const char* file_name, bool append) : 
 Command(command_cmd),file_name(file_name),append(append) {}
 
-void RedirectionCommand::execute {
+void RedirectionCommand::execute() {
   std::cout << "DGB" << std::endl;
   std::cout << file_name << std::endl;
 }
