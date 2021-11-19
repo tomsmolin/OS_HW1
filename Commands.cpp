@@ -563,7 +563,7 @@ SmallShell::~SmallShell() {
 }
 
 
-static bool cmdParse(const char* cmd_line ,string cmd_command, string file_name){
+static bool cmdParse(const char* cmd_line ,string& cmd_command, string& file_name){
   bool append = (std::string(cmd_line).find(">>") != std::string::npos) ? true : false;
   int offset = append+1;
   std::string delimeter = (append) ? ">>" : ">";
@@ -689,7 +689,7 @@ void SmallShell::executeCommand(const char* cmd_line) {
 
 //////////pipes and redirections////////////
 RedirectionCommand::RedirectionCommand(const char* cmd_line) : Command(cmd_line) {
-  append = cmdParse(cmd_line, &(command_cmd), &(file_name));
+  append = cmdParse(cmd_line, command_cmd, file_name);
 } 
 
 // RedirectionCommand::~RedirectionCommand() {
