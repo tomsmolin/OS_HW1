@@ -584,8 +584,11 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
     bool append = cmdParse(cmd_line,cmd_command,file_name);
     return new RedirectionCommand((*cmd_command).c_str(),(*file_name).c_str(),append);
   }
+  if (string(cmd_line).find(">") != string::npos) {
+    return new RedirectionCommand(cmd_line);
+  }
 
-  if (firstWord.compare("chprompt") == 0) {
+  else if (firstWord.compare("chprompt") == 0) {
      //TODO: add implementation
     return new ChangePromptCommand(cmd_line, getPPrompt());
    }
@@ -685,10 +688,18 @@ void SmallShell::executeCommand(const char* cmd_line) {
 }
 
 //////////pipes and redirections////////////
-RedirectionCommand::RedirectionCommand(const char* command_cmd, const char* file_name, bool append) : 
-Command(command_cmd),file_name(file_name),append(append) {}
+RedirectionCommand::RedirectionCommand(const char* cmd_line,) : Command(cmd_line) {
+  append = cmdParse(cmd_line, &(command_cmd), &(file_name));
+} 
+
+// RedirectionCommand::~RedirectionCommand() {
+//   delete file_name;
+//   delete cmd;
+// }
 
 void RedirectionCommand::execute() {
   std::cout << "DGB" << std::endl;
+  std::cout << cmd << std::endl;
   std::cout << file_name << std::endl;
+  std::cout << command_cmd << std::endl;
 }
