@@ -563,7 +563,7 @@ SmallShell::~SmallShell() {
 }
 
 
-static bool cmdParse(const char* cmd_line ,char** cmd_command, char** file_name){
+static bool cmdParse(const char* cmd_line ,string* cmd_command, string* file_name){
   bool append = (std::string(cmd_line).find(">>") != std::string::npos) ? true : false;
   std::string delimeter = (append) ? ">>" : ">";
   *(cmd_command) = std::string(cmd_line).substr(0,std::string(cmd_line).find(delimeter));
@@ -580,17 +580,17 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
   std::string cmd_s = _trim(string(cmd_line));
   std::string firstWord = cmd_s.substr(0, cmd_s.find_first_of(" \n"));
   if (string(cmd_line).find(">") != string::npos) {
-    char** cmd_command;
-    char** file_name;
+    string* cmd_command;
+    string* file_name;
     cmdParse(cmd_line,cmd_command,file_name);
-    
+
     // return new RedirectionCommand(cmd_line,args,true);
   }
 
-  else if (string(cmd_line).find(">>") != string::npos) {
+  // else if (string(cmd_line).find(">>") != string::npos) {
 
-    return new RedirectionCommand(cmd_line, args,false);
-  } 
+  //   return new RedirectionCommand(cmd_line, args,false);
+  // } 
   if (firstWord.compare("chprompt") == 0) {
      //TODO: add implementation
     return new ChangePromptCommand(cmd_line, getPPrompt());
