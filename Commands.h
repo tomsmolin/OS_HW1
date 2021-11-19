@@ -5,6 +5,8 @@
 #include <string.h>
 #include <map>
 #include <list>
+#include <unistd.h>
+
 
 #define COMMAND_ARGS_MAX_LENGTH (200)
 #define COMMAND_MAX_ARGS (20)
@@ -18,11 +20,16 @@ class TimedCommandEntry {
 public:
     time_t alrm_time; //set method
     std::string timeout_cmd; // """"
-    int timeout_duration;
+    int pid_cmd;
+    //int timeout_duration; ==== NOT USED
     bool operator< (TimedCommandEntry const& entry2);
-    int pid_command;
 
-    void setTimeoutDuration(int duration);
+
+    TimedCommandEntry() = default;
+    TimedCommandEntry(time_t alrm_time, std::string timeout_cmd, int pid_command);
+    ~TimedCommandEntry() = default;
+
+    //void setTimeoutDuration(int duration); ==== NOT USED
     void setTimeoutCmd(const char* cmd_line);
 };
 

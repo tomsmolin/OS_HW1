@@ -40,18 +40,22 @@ void ctrlCHandler(int sig_num) {
 
 void alarmHandler(int sig_num, siginfo_t* info, void* context) {
 	cout << "smash: got an alarm" << endl;
-	std::string cmd = SmallShell::getInstance().timed_commands.front().timeout_cmd;
-	int pid = SmallShell::getInstance().timed_commands.front().pid_command;
+	SmallShell& smash = SmallShell::getInstance();
+	std::string cmd = smash.timed_commands.front().timeout_cmd;
+	int pid = smash.timed_commands.front().pid_cmd;
 	std::string str("smash: ");
 	str.append(cmd).append(" timed out!\n");
 
-	//cout << "the pid sent for killing: " << pid << endl;
 	if (kill(pid, SIGKILL) == ERROR)
 	{
 		fprintf(stderr, "smash error: kill failed\n");
 		return;
 	}
-	SmallShell::getInstance().timed_commands.pop_front();
+	smash.timed_commands.pop_front();
+	smash.timed_commands.sort();
+	if (!smash.timed_commands.empty())
+		alarm(difftime(smash.timed_commands.front().alrm_time, time(NULL)));
+	
 	cout << str;
 }
 

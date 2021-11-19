@@ -1,4 +1,3 @@
-#include <unistd.h>
 #include <iostream>
 #include <vector>
 #include <sstream>
@@ -100,9 +99,12 @@ const char* Command::getCmd() {
   return cmd;
 }
 
-void TimedCommandEntry::setTimeoutDuration(int duration) {
-    timeout_duration = duration;
-}
+TimedCommandEntry::TimedCommandEntry(time_t alrm_time, std::string timeout_cmd, int pid_cmd) 
+: alrm_time(alrm_time), timeout_cmd(timeout_cmd), pid_cmd(pid_cmd) {}
+
+//void TimedCommandEntry::setTimeoutDuration(int duration) {
+//    timeout_duration = duration;
+//}
 
 bool TimedCommandEntry::operator<(TimedCommandEntry const& entry2) {
     if (alrm_time < entry2.alrm_time)
@@ -150,7 +152,7 @@ void ExternalCommand::execute() {
     else { 
         if (this->timed_entry != NULL)
         {
-            this->timed_entry->pid_command = pid;
+            this->timed_entry->pid_cmd = pid;
         }
         std::string curr_cmd = cmd;
         if(_isBackgroundComamnd(cmd)){
@@ -161,7 +163,6 @@ void ExternalCommand::execute() {
         }
         else
         {
-        
             //cout << "the proccess pid we need to kill: " << pid << endl;
             SmallShell::getInstance().setCurrPid(pid);
             SmallShell::getInstance().setCurrCmd(curr_cmd);
@@ -691,7 +692,7 @@ JobsList* SmallShell::getJobs() {
 }
 
 void SmallShell::executeCommand(const char* cmd_line) {
-    // TODO: Add your implementation here
+
     std::string cmd_s = _trim(string(cmd_line));
     std::string firstWord = cmd_s.substr(0, cmd_s.find_first_of(" \n"));
     bool timedout = false;
@@ -700,38 +701,48 @@ void SmallShell::executeCommand(const char* cmd_line) {
     if (firstWord.compare("timeout") == 0)
     {
         timedout = true;
-        char** args1 = new char* (NULL); // TO DELETE IT!
-        int argv1 = _parseCommandLine(cmd_line, args1);
-        duration = setTimeoutDuration(args1[1]);
-        new_cmd_line = args1[2];
-        for (int i = 3; i < argv1; i++)
+        char** args = new char* (NULL); // TO DELETE IT!
+        int argv = _parseCommandLine(cmd_line, args);
+        duration = setTimeoutDuration(args[1]);
+        new_cmd_line = args[2];
+        for (int i = 3; i < argv; i++)
         {
-            new_cmd_line.append(" ").append(args1[i]);
+            new_cmd_line.append(" ").append(args[i]);
         }
     }
     
     Command* cmd = NULL;
     if (timedout)
     {
-        alarm(duration);
         cmd = CreateCommand(new_cmd_line.c_str());
-        TimedCommandEntry entry; // should implement inst.
-        entry.alrm_time = time(NULL) + duration;
-        entry.setTimeoutCmd(cmd_line);
-        entry.setTimeoutDuration(duration);
-        timed_commands.push_back(entry);
-        timed_commands.sort();
-
-        cmd->timed_entry = &timed_commands.back();
+        TimedCommandEntry entry(time(NULL) + duration, cmd_line, NOT_SET); // should implement inst.
+        //entry.alrm_time = time(NULL) + duration;
+        //entry.setTimeoutCmd(cmd_line);
+        //entry.setTimeoutDuration(duration); ===== NOT USED
         
+        //operator compares absulote alarm times
+        if (timed_commands.front() < entry) 
+        {
+            timed_commands.push_back(entry);
+            alarm(difftime(timed_commands.front().alrm_time, time(NULL)));
+            cmd->timed_entry = &timed_commands.back();
+        }
+        else
+        {
+            timed_commands.push_front(entry);
+            alarm(difftime(entry.alrm_time, time(NULL)));
+            cmd->timed_entry = &timed_commands.front();
+        }
     }
     else
+    {
         cmd = CreateCommand(cmd_line);
+    }
 
     job_list.removeFinishedJobs();
     cmd->execute();
-    //cout << "got here!3" << endl;
+    cmd->timed_entry = NULL;
+    timed_commands.sort();
     setPLastPwd(cmd);
-    //cout << "got here!4" << endl;
     // Please note that you must fork smash process for some commands (e.g., external commands....)
 }
