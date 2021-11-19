@@ -581,8 +581,8 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
   if (string(cmd_line).find(">") != string::npos) {
     string *cmd_command = new string;
     string *file_name = new string;
-    bool append = cmdParse(cmd_line,cmd_command),file_name));
-    return new RedirectionCommand(cmd_command.c_str(),file_name.c_str(),append);
+    bool append = cmdParse(cmd_line,cmd_command,file_name);
+    return new RedirectionCommand((*cmd_command).c_str(),(*file_name).c_str(),append);
   }
 
   if (firstWord.compare("chprompt") == 0) {
