@@ -563,12 +563,12 @@ SmallShell::~SmallShell() {
 }
 
 
-static bool cmdParse(const char* cmd_line ,string* cmd_command, string* file_name){
+static bool cmdParse(const char* cmd_line ,string cmd_command, string file_name){
   bool append = (std::string(cmd_line).find(">>") != std::string::npos) ? true : false;
   int offset = append+1;
   std::string delimeter = (append) ? ">>" : ">";
-  *(cmd_command) = _trim(std::string(cmd_line).substr(0,std::string(cmd_line).find(delimeter)));
-  *(file_name) = _trim(std::string(cmd_line).substr(std::string(cmd_line).find(delimeter)+offset));
+  cmd_command = _trim(std::string(cmd_line).substr(0,std::string(cmd_line).find(delimeter)));
+  file_name = _trim(std::string(cmd_line).substr(std::string(cmd_line).find(delimeter)+offset));
   return append;
 }
 /**
@@ -578,12 +578,12 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
 	// For example:
   std::string cmd_s = _trim(string(cmd_line));
   std::string firstWord = cmd_s.substr(0, cmd_s.find_first_of(" \n"));
-  if (string(cmd_line).find(">") != string::npos) {
-    string *cmd_command = new string;
-    string *file_name = new string;
-    bool append = cmdParse(cmd_line,cmd_command,file_name);
-    return new RedirectionCommand((*cmd_command).c_str(),(*file_name).c_str(),append);
-  }
+  // if (string(cmd_line).find(">") != string::npos) {
+  //   string *cmd_command = new string;
+  //   string *file_name = new string;
+  //   bool append = cmdParse(cmd_line,cmd_command,file_name);
+  //   return new RedirectionCommand((*cmd_command).c_str(),(*file_name).c_str(),append);
+  // }
   if (string(cmd_line).find(">") != string::npos) {
     return new RedirectionCommand(cmd_line);
   }
