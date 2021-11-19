@@ -55,8 +55,8 @@ class PipeCommand : public Command {
 
 class RedirectionCommand : public Command {
  // TODO: Add your data members
-  string command_cmd;
-  string file_name;
+  std::string command_cmd;
+  std::string file_name;
   bool append;
  public:
   explicit RedirectionCommand(const char* cmd_line);
