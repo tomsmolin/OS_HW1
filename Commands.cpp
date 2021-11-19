@@ -570,8 +570,6 @@ static bool cmdParse(const char* cmd_line ,string* cmd_command, string* file_nam
   std::string delimeter = (append) ? ">>" : ">";
   *(cmd_command) = _trim(std::string(cmd_line).substr(0,std::string(cmd_line).find(delimeter)));
   *(file_name) = _trim(std::string(cmd_line).substr(std::string(cmd_line).find(delimeter)+offset));
-  std::cout << *(cmd_command) << std::endl;
-  std::cout << *(file_name) << std::endl;
   return append;
 }
 /**
@@ -585,6 +583,8 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
     string cmd_command;
     string file_name;
     cmdParse(cmd_line,&(cmd_command),&(file_name));
+    std::cout << *(cmd_command) << std::endl;
+    std::cout << *(file_name) << std::endl;
 
     // return new RedirectionCommand(cmd_line,args,true);
   }
