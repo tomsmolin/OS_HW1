@@ -694,14 +694,39 @@ RedirectionCommand::RedirectionCommand(const char* cmd_line) : Command(cmd_line)
   cmd = command_cmd.c_str();
 } 
 
-// RedirectionCommand::~RedirectionCommand() {
-//   delete file_name;
-//   delete cmd;
-// }
-
 void RedirectionCommand::execute() {
-  std::cout << "DGB" << std::endl;
-  std::cout << cmd << std::endl;
-  std::cout << file_name << std::endl;
-  std::cout << command_cmd << std::endl;
+  int stdout_fd = dup(1);
+  if(stdout_fd == ERROR) {
+    fprintf(stderr,"smash error: dup failed\n");
+    return;
+  }
+  int fd;
+  if (!append) {
+    fd = open(file_name.c_str(), O_WRONLY|O_CREAT|O_TRUNC, 0666);
+  }
+  else {
+    fd = open(file_name.c_str(), O_WRONLY|O_CREAT|O_APPEND, 0666);
+  }
+
+  if (fd == ERROR) {
+    fprintf(stderr,"smash error: open failed\n");
+    return;
+  }
+
+  int result = dup2(fd,1);
+  if(result == ERROR) {
+    fprintf(stderr,"smash error: dup2 failed\n");
+    return;
+  }
+  SmallShell::getInstance().executeCommand(command_cmd.c_str());
+  result = dup2(stdout_fd,1); // back to normal
+  if(result == ERROR) {
+    fprintf(stderr,"smash error: dup2 failed\n");
+    return;
+  }
+  result = close(fd);
+  if (result == ERROR) {
+    fprintf(stderr,"smash error: close failed\n");
+  }
 }
+ 
