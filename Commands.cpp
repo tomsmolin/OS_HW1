@@ -567,8 +567,8 @@ static bool cmdParse(const char* cmd_line ,string* cmd_command, string* file_nam
   std::cout << "DGB" << std::endl;
   bool append = (std::string(cmd_line).find(">>") != std::string::npos) ? true : false;
   std::string delimeter = (append) ? ">>" : ">";
-  *(cmd_command) = std::string(cmd_line).substr(0,std::string(cmd_line).find(delimeter));
-  *(file_name) = std::string(cmd_line).substr(std::string(cmd_line).find(delimeter));
+  *(cmd_command) = _trim(std::string(cmd_line).substr(0,std::string(cmd_line).find(delimeter)));
+  *(file_name) = _trim(std::string(cmd_line).substr(std::string(cmd_line).find(delimeter)+1));
   std::cout << *(cmd_command) << std::endl;
   std::cout << *(file_name) << std::endl;
   return append;
