@@ -565,7 +565,7 @@ SmallShell::~SmallShell() {
 }
 
 
-static bool cmdParse(const char* cmd_line ,string& cmd_command, string& file_name){
+static bool redirectionParse(const char* cmd_line ,string& cmd_command, string& file_name){
   bool append = (std::string(cmd_line).find(">>") != std::string::npos) ? true : false;
   int offset = append+1;
   std::string delimeter = (append) ? ">>" : ">";
@@ -573,7 +573,19 @@ static bool cmdParse(const char* cmd_line ,string& cmd_command, string& file_nam
   file_name = _trim(std::string(cmd_line).substr(std::string(cmd_line).find(delimeter)+offset));
   return append;
 }
+
+static bool pipeParse(const char* cmd_line ,string& first_command, string& second_command){
+  bool std_err = (std::string(cmd_line).find("|&") != std::string::npos) ? true : false;
+  int offset = std_err+1;
+  std::string delimeter = (append) ? "|&" : "|";
+  first_command = _trim(std::string(cmd_line).substr(0,std::string(cmd_line).find(delimeter)));
+  second_command = _trim(std::string(cmd_line).substr(std::string(cmd_line).find(delimeter)+offset));
+  return std_err;
+}
+
+
 /**
+ * 
 * Creates and returns a pointer to Command class which matches the given command line (cmd_line)
 */
 Command * SmallShell::CreateCommand(const char* cmd_line) {
@@ -588,6 +600,9 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
   // }
   if (string(cmd_line).find(">") != string::npos) {
     return new RedirectionCommand(cmd_line);
+  }
+  else if (string(cmd_line).find("|") != string::npos) {
+    return new PipeCommand(cmd_line);
   }
 
   else if (firstWord.compare("chprompt") == 0) {
@@ -691,7 +706,7 @@ void SmallShell::executeCommand(const char* cmd_line) {
 
 //////////pipes and redirections////////////
 RedirectionCommand::RedirectionCommand(const char* cmd_line) : Command(cmd_line), command_cmd(EMPTY_STRING), file_name(EMPTY_STRING) {
-  append = cmdParse(cmd_line, command_cmd, file_name);
+  append = redirectionParse(cmd_line, command_cmd, file_name);
   cmd = command_cmd.c_str();
 } 
 
@@ -731,3 +746,85 @@ void RedirectionCommand::execute() {
   }
 }
  
+PipeCommand::PipeCommand(const char* cmd_line) : Command(cmd_line), first_command(EMPTY_STRING), second_command(EMPTY_STRING) {
+  is_stderr = pipeParse(cmd_line,first_command,second_command);
+  cmd = first_command.c_str();
+}
+
+enum {RD,WR};
+
+void PipeCommand::execute() {
+  int fd[2];
+  int result = pipe(fd);
+  if(result == ERROR) {
+    fprintf(stderr,"smash error: pipe failed");
+    return;
+  }
+   //close stdout('|') or stderr('|&')
+  int fd_to_close=1;
+  if(is_stderr) {
+    fd_to_close=2;
+  }
+  int pid_1 = fork();
+  if(pid_1 ==ERROR) {
+    fprintf(stderr,"smash error: fork failed");
+    exit(0);
+  }
+  //first child
+  if (pid_1 == 0) {
+    if(setpgrp() == ERROR) {
+      fprintf(stderr,"smash error: setpgrp failed");
+      exit(0);
+    }
+    if(dup2(fd[WR],fd_to_close) == ERROR) { // 1 or 2 -> write pipe
+      fprintf(stderr,"smash error: dup2 failed");
+      exit(0);
+    }
+    if(close(fd[RD]) == ERROR) {
+      fprintf(stderr,"smash error: close failed");
+      exit(0);
+    }
+    if(close(fd[WR]) == ERROR) {
+      fprintf(stderr,"smash error: close failed");
+      exit(0);
+    }
+    SmallShell::getInstance().executeCommand(first_command.c_str());
+    exit(0);
+  }
+  int pid_2 = fork();
+  if(pid_2 ==ERROR) {
+    fprintf(stderr,"smash error: fork failed");
+    exit(0);
+  }
+  // second child
+  if (pid_2 == 0) {
+    if(setpgrp() == ERROR) {
+      fprintf(stderr,"smash error: setpgrp failed");
+      exit(0);
+    }
+    if(dup2(fd[RD],0) == ERROR) { //0 -> read pipe
+      fprintf(stderr,"smash error: dup2 failed");
+      exit(0);
+    }
+    if(close(fd[RD]) == ERROR) {
+      fprintf(stderr,"smash error: close failed");
+      exit(0);
+    }
+    if(close(fd[WR]) == ERROR) {
+      fprintf(stderr,"smash error: close failed");
+      exit(0);
+    }
+    SmallShell::getInstance().executeCommand(second_command.c_str());
+    exit(0);
+  }
+  close(fd[RD]);
+  close(fd[WR]);
+  if(waitpid(pid_1, nullptr, 0) == ERROR) {
+    fprintf(stderr,"smash error: waitpid failed");
+    exit(0);
+  }
+  if(waitpid(pid_2, nullptr, 0) == ERROR) {
+    fprintf(stderr,"smash error: waitpid failed");
+    exit(0);
+  }
+}
