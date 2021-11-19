@@ -688,7 +688,7 @@ void SmallShell::executeCommand(const char* cmd_line) {
 }
 
 //////////pipes and redirections////////////
-RedirectionCommand::RedirectionCommand(const char* cmd_line) : Command(cmd_line), command_cmd(""), file_name("") {
+RedirectionCommand::RedirectionCommand(const char* cmd_line) : Command(cmd_line), command_cmd(nullptr), file_name(nullptr) {
   append = cmdParse(cmd_line, command_cmd, file_name);
 } 
 
