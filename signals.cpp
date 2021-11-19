@@ -38,8 +38,20 @@ void ctrlCHandler(int sig_num) {
   }
 }
 
+void alarmHandler(int sig_num, siginfo_t* info, void* context) {
+	cout << "smash: got an alarm" << endl;
+	std::string cmd = SmallShell::getInstance().timed_commands.front().timeout_cmd;
+	int pid = SmallShell::getInstance().timed_commands.front().pid_command;
+	std::string str("smash: ");
+	str.append(cmd).append(" timed out!\n");
 
-void alarmHandler(int sig_num) {
-  // TODO: Add your implementation
+	//cout << "the pid sent for killing: " << pid << endl;
+	if (kill(pid, SIGKILL) == ERROR)
+	{
+		fprintf(stderr, "smash error: kill failed\n");
+		return;
+	}
+	SmallShell::getInstance().timed_commands.pop_front();
+	cout << str;
 }
 

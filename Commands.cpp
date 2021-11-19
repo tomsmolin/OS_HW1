@@ -65,6 +65,7 @@ bool _isBackgroundComamnd(const char* cmd_line) {
 }
 
 void _removeBackgroundSign(char* cmd_line) {
+
   const string str(cmd_line);
   // find last character other than spaces
   unsigned int idx = str.find_last_not_of(WHITESPACE);
@@ -83,7 +84,7 @@ void _removeBackgroundSign(char* cmd_line) {
 }
 
 // TODO: Add your implementation for classes in Commands.h 
-Command::Command(const char* cmd_line) : cmd(cmd_line), argv(0) {
+Command::Command(const char* cmd_line) : cmd(cmd_line), argv(0), timed_entry(NULL) {
   args = new char*(NULL);
   argv = _parseCommandLine(cmd_line,args);
 }
@@ -97,6 +98,22 @@ Command::~Command() {
 
 const char* Command::getCmd() {
   return cmd;
+}
+
+void TimedCommandEntry::setTimeoutDuration(int duration) {
+    timeout_duration = duration;
+}
+
+bool TimedCommandEntry::operator<(TimedCommandEntry const& entry2) {
+    if (alrm_time < entry2.alrm_time)
+        return true;
+    else
+        return false;
+
+}
+
+void TimedCommandEntry::setTimeoutCmd(const char* cmd_line) {
+    timeout_cmd = cmd_line;
 }
 
 ExternalCommand::ExternalCommand(const char* cmd_line, JobsList* jobs) : Command(cmd_line), jobs(jobs) {}
@@ -122,7 +139,6 @@ void ExternalCommand::execute() {
                 cmd_line_char,
                 NULL
         };
-
         int result = execv(new_args[0], (char**)new_args);
         if(result == ERROR)
         {
@@ -131,23 +147,30 @@ void ExternalCommand::execute() {
         }
     }
     /////father
-    else{ 
-      std::string curr_cmd = cmd;
-      if(_isBackgroundComamnd(cmd)){
+    else { 
+        if (this->timed_entry != NULL)
+        {
+            this->timed_entry->pid_command = pid;
+        }
+        std::string curr_cmd = cmd;
+        if(_isBackgroundComamnd(cmd)){
         // char* curr_cmd  = new char;
         // *curr_cmd = *(cmd);
         //jobs->removeFinishedJobs(); =========== Added in the beginning of addJob
         jobs->addJob(pid,curr_cmd);
-      }
-      else
+        }
+        else
         {
+        
+            //cout << "the proccess pid we need to kill: " << pid << endl;
             SmallShell::getInstance().setCurrPid(pid);
             SmallShell::getInstance().setCurrCmd(curr_cmd);
             int result = waitpid(pid,nullptr,WUNTRACED);
             if(result == ERROR) {
-              fprintf(stderr, "smash error: waitpid failed\n");
+                fprintf(stderr, "smash error: waitpid failed\n");
             }
             SmallShell::getInstance().resetCurrFgInfo();
+            //cout << "got here fast!2 " << endl;
         }
     }
 }
@@ -506,7 +529,6 @@ JobsList::JobEntry* JobsList::getJobById(int jobId){
   return &(jobsDict[jobId]);
 }
 
-// JobsList::JobEntry* JobsList::getLastJob(int* lastJobId) {
 void JobsList::removeFinishedJobs() {
   if(jobs_list_empty) {
     return;
@@ -562,6 +584,13 @@ SmallShell::~SmallShell() {
     
 }
 
+static int setTimeoutDuration(char* duration_str) {
+    int duration = 0;
+    std::stringstream duration_ss(duration_str);
+    duration_ss >> duration;
+    return duration;
+}
+
 /**
 * Creates and returns a pointer to Command class which matches the given command line (cmd_line)
 */
@@ -569,48 +598,49 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
 	// For example:
   std::string cmd_s = _trim(string(cmd_line));
   std::string firstWord = cmd_s.substr(0, cmd_s.find_first_of(" \n"));
-   
-  if (firstWord.compare("chprompt") == 0) {
-     //TODO: add implementation
-    return new ChangePromptCommand(cmd_line, getPPrompt());
-   }
-  else if (firstWord.compare("pwd") == 0) {
-    return new GetCurrDirCommand(cmd_line);
-  }
-  else if (firstWord.compare("showpid") == 0) {
-    return new ShowPidCommand(cmd_line);
-  }
-  else if (firstWord.compare("cd") == 0) {
-    return new ChangeDirCommand(cmd_line, plastPwd);
-  }
-  else if (firstWord.compare("jobs") == 0)
-  {
-    return new JobsCommand(cmd_line,&job_list);
-  }
-  else if (firstWord.compare("kill") == 0)
-  {
-    return new KillCommand(cmd_line,&job_list);
-  }
-    else if (firstWord.compare("quit") == 0)
-  {
-    return new QuitCommand(cmd_line,&job_list);
-  }
 
-  else if (firstWord.compare("fg") == 0)
-  {
-      return new ForegroundCommand(cmd_line, &job_list);
-  }
-  else if (firstWord.compare("bg") == 0)
-  {
-      return new BackgroundCommand(cmd_line, &job_list);
-  }
+    if (firstWord.compare("chprompt") == 0) {
+        //TODO: add implementation
+        return new ChangePromptCommand(cmd_line, getPPrompt());
+    }
+    else if (firstWord.compare("pwd") == 0) {
+        return new GetCurrDirCommand(cmd_line);
+    }
+    else if (firstWord.compare("showpid") == 0) {
+        return new ShowPidCommand(cmd_line);
+    }
+    else if (firstWord.compare("cd") == 0) {
+        return new ChangeDirCommand(cmd_line, plastPwd);
+    }
+    else if (firstWord.compare("jobs") == 0)
+    {
+        return new JobsCommand(cmd_line, &job_list);
+    }
+    else if (firstWord.compare("kill") == 0)
+    {
+        return new KillCommand(cmd_line, &job_list);
+    }
+    else if (firstWord.compare("quit") == 0)
+    {
+        return new QuitCommand(cmd_line, &job_list);
+    }
+
+    else if (firstWord.compare("fg") == 0)
+    {
+        return new ForegroundCommand(cmd_line, &job_list);
+    }
+    else if (firstWord.compare("bg") == 0)
+    {
+        return new BackgroundCommand(cmd_line, &job_list);
+    }
+
+     return new ExternalCommand(cmd_line, &job_list);
+
   // else {
   //   return new ExternalCommand(cmd_line);
   // }
   /////external commands:
-  return new ExternalCommand(cmd_line,&job_list);
-  
-  return nullptr;
+  return nullptr; // should it be here?
 }
 
 void SmallShell::setPLastPwd(Command* cmd) {
@@ -662,9 +692,46 @@ JobsList* SmallShell::getJobs() {
 
 void SmallShell::executeCommand(const char* cmd_line) {
     // TODO: Add your implementation here
-    Command* cmd = CreateCommand(cmd_line);
+    std::string cmd_s = _trim(string(cmd_line));
+    std::string firstWord = cmd_s.substr(0, cmd_s.find_first_of(" \n"));
+    bool timedout = false;
+    int duration = 0;
+    std::string new_cmd_line("");
+    if (firstWord.compare("timeout") == 0)
+    {
+        timedout = true;
+        char** args1 = new char* (NULL); // TO DELETE IT!
+        int argv1 = _parseCommandLine(cmd_line, args1);
+        duration = setTimeoutDuration(args1[1]);
+        new_cmd_line = args1[2];
+        for (int i = 3; i < argv1; i++)
+        {
+            new_cmd_line.append(" ").append(args1[i]);
+        }
+    }
+    
+    Command* cmd = NULL;
+    if (timedout)
+    {
+        alarm(duration);
+        cmd = CreateCommand(new_cmd_line.c_str());
+        TimedCommandEntry entry; // should implement inst.
+        entry.alrm_time = time(NULL) + duration;
+        entry.setTimeoutCmd(cmd_line);
+        entry.setTimeoutDuration(duration);
+        timed_commands.push_back(entry);
+        timed_commands.sort();
+
+        cmd->timed_entry = &timed_commands.back();
+        
+    }
+    else
+        cmd = CreateCommand(cmd_line);
+
     job_list.removeFinishedJobs();
     cmd->execute();
+    //cout << "got here!3" << endl;
     setPLastPwd(cmd);
+    //cout << "got here!4" << endl;
     // Please note that you must fork smash process for some commands (e.g., external commands....)
 }
