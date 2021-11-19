@@ -577,7 +577,7 @@ static bool redirectionParse(const char* cmd_line ,string& cmd_command, string& 
 static bool pipeParse(const char* cmd_line ,string& first_command, string& second_command){
   bool std_err = (std::string(cmd_line).find("|&") != std::string::npos) ? true : false;
   int offset = std_err+1;
-  std::string delimeter = (append) ? "|&" : "|";
+  std::string delimeter = (std_err) ? "|&" : "|";
   first_command = _trim(std::string(cmd_line).substr(0,std::string(cmd_line).find(delimeter)));
   second_command = _trim(std::string(cmd_line).substr(std::string(cmd_line).find(delimeter)+offset));
   return std_err;
