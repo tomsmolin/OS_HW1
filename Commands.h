@@ -59,7 +59,7 @@ class RedirectionCommand : public Command {
   const char* file_name;
   bool append;
  public:
-  explicit RedirectionCommand(const char* cmd_line);
+  explicit RedirectionCommand(const char* command_cmd, const char* file_name, bool append);
   virtual ~RedirectionCommand() {}
   void execute() override;
   //void prepare() override;

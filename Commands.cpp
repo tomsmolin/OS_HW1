@@ -582,17 +582,10 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
   if (string(cmd_line).find(">") != string::npos) {
     string cmd_command;
     string file_name;
-    cmdParse(cmd_line,&(cmd_command),&(file_name));
-    std::cout << cmd_command  << std::endl;
-    std::cout << file_name << std::endl;
-
-    // return new RedirectionCommand(cmd_line,args,true);
+    bool append = cmdParse(cmd_line,&(cmd_command),&(file_name));
+    return new RedirectionCommand(cmd_command,file_name,append);
   }
 
-  // else if (string(cmd_line).find(">>") != string::npos) {
-
-  //   return new RedirectionCommand(cmd_line, args,false);
-  // } 
   if (firstWord.compare("chprompt") == 0) {
      //TODO: add implementation
     return new ChangePromptCommand(cmd_line, getPPrompt());
@@ -690,4 +683,12 @@ void SmallShell::executeCommand(const char* cmd_line) {
     cmd->execute();
     setPLastPwd(cmd);
     // Please note that you must fork smash process for some commands (e.g., external commands....)
+}
+
+//////////pipes and redirections////////////
+RedirectionCommand::RedirectionCommand(const char* command_cmd, const char* file_name, bool append) : 
+Command(command_cmd),file_name(file_name),append(append) {}
+
+void RedirectionCommand::execute {
+  std::cout << file_name << std::endl;
 }
