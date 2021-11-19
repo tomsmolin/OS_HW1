@@ -583,7 +583,7 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
     string cmd_command;
     string file_name;
     bool append = cmdParse(cmd_line,&(cmd_command),&(file_name));
-    return new RedirectionCommand(cmd_command,file_name,append);
+    return new RedirectionCommand(cmd_command.c_str(),file_name.c_str(),append);
   }
 
   if (firstWord.compare("chprompt") == 0) {
