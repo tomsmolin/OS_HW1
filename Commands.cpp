@@ -581,9 +581,9 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
   std::string cmd_s = _trim(string(cmd_line));
   std::string firstWord = cmd_s.substr(0, cmd_s.find_first_of(" \n"));
   if (string(cmd_line).find(">") != string::npos) {
-    string* cmd_command;
-    string* file_name;
-    cmdParse(cmd_line,&cmd_command,&file_name);
+    string cmd_command;
+    string file_name;
+    cmdParse(cmd_line,&(cmd_command),&(file_name));
 
     // return new RedirectionCommand(cmd_line,args,true);
   }
