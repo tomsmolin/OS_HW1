@@ -4,15 +4,30 @@
 #include <vector>
 #include <string.h>
 #include <map>
+#include <list>
+#include <unistd.h>
 
 #define COMMAND_ARGS_MAX_LENGTH (200)
 #define COMMAND_MAX_ARGS (20)
 #define MAX_CWD_LENGTH 256
 #define COMMAND_MAX_LENGTH (80)
 #define NO_CURR_PID (-1)
+#define NOT_SET (-1)
 #define ERROR (-1)
 
+class TimedCommandEntry {
+public:
+    time_t alrm_time; //set method
+    std::string timeout_cmd; // """"
+    int pid_cmd;
+    bool operator< (TimedCommandEntry const& entry2);
 
+    TimedCommandEntry() = default;
+    TimedCommandEntry(time_t alrm_time, std::string timeout_cmd, int pid_command);
+    ~TimedCommandEntry() = default;
+
+    void setTimeoutCmd(const char* cmd_line);
+};
 
 class Command {
 // TODO: Add your data members
@@ -22,10 +37,13 @@ protected:
 
  public:
   char** args; // move back to protected and add relevant get method --chprompt context
+  TimedCommandEntry* timed_entry;
+
   Command(const char* cmd_line);
   virtual ~Command();
   virtual void execute() = 0;
   const char* getCmd();
+
   //virtual void prepare();
   //virtual void cleanup();
   // TODO: Add your extra methods if needed
@@ -195,8 +213,6 @@ class CatCommand : public BuiltInCommand {
   void execute() override;
 };
 
-
-
 class SmallShell {
   // TODO: Add your data members
   SmallShell();
@@ -206,7 +222,7 @@ class SmallShell {
   JobsList job_list;
   int curr_pid;
   std::string curr_cmd;
-
+  
  public:
   Command *CreateCommand(const char* cmd_line);
   SmallShell(SmallShell const&)      = delete; // disable copy ctor
@@ -231,6 +247,8 @@ class SmallShell {
   {
       return &prompt;
   }
+  std::list<TimedCommandEntry> timed_list;
+
 };
 
 #endif //SMASH_COMMAND_H_
