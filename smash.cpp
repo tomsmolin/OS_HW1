@@ -6,7 +6,7 @@
 #include "signals.h"
 
 int main(int argc, char* argv[]) {
-    struct sigaction act;
+    struct sigaction act = { 0 };
     act.sa_flags = SA_RESTART;
     act.sa_sigaction = &alarmHandler;
 

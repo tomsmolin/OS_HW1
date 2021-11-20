@@ -82,17 +82,38 @@ void _removeBackgroundSign(char* cmd_line) {
   cmd_line[str.find_last_not_of(WHITESPACE, idx) + 1] = 0;
 }
 
+static int numberOfArgs(std::string cmd_line) {
+    int cnt = 0;
+    while (cmd_line.size() > 0)
+    {
+        int arg_prefix = cmd_line.find_first_not_of(WHITESPACE);
+        if (arg_prefix >= 0)
+            cmd_line.erase(0, arg_prefix);
+        else
+            break;
+        cnt++;
+
+        int whitespace = cmd_line.find_first_of(WHITESPACE);
+        if (whitespace >= 0)
+            cmd_line.erase(0, whitespace);
+        else
+            break;
+    }
+    return cnt;
+}
+
 // TODO: Add your implementation for classes in Commands.h 
-Command::Command(const char* cmd_line) : cmd(cmd_line), argv(0), timed_entry(NULL) {
-  args = new char*(NULL);
+Command::Command(const char* cmd_line) : cmd(cmd_line), argv(0), timed_entry(NULL) {  
+  args = new char*[numberOfArgs(cmd_line) + 1]; //buffer of (+1) due to impl. of _parse command
   argv = _parseCommandLine(cmd_line,args);
 }
 
 Command::~Command() {
   for(int i=0;i<argv;i++){
-    delete args[i];
+    if (args[i] != NULL)
+      free(args[i]);
   }
-  delete args;
+  delete[] args;
 }
 
 const char* Command::getCmd() {
@@ -680,7 +701,7 @@ static int setTimeoutDuration(char* duration_str) {
 }
 
 static void getTrimmedCmdAndDuration(const char* cmd_line, std::string& new_cmd_line, int* duration) {
-    char** args = new char* (NULL); // TO DELETE IT!
+    char** args = new char*[numberOfArgs(cmd_line) + 1]; //buffer of (+1) due to impl. of _parse command
     int argv = _parseCommandLine(cmd_line, args);
     *duration = setTimeoutDuration(args[1]);
     new_cmd_line = args[2];
@@ -689,11 +710,11 @@ static void getTrimmedCmdAndDuration(const char* cmd_line, std::string& new_cmd_
         new_cmd_line.append(" ").append(args[i]);
     }
 
-    //Should fix it: double free or corruption error
-    //for (int i = 0; i < argv; i++) {
-    //    delete args[i];
-    //}
-    //delete args;
+    for (int i = 0; i < argv; i++) {
+        if (args[i] != NULL)
+            free(args[i]);
+    }
+    delete[] args;
 }
 
 void SmallShell::executeCommand(const char* cmd_line) {
