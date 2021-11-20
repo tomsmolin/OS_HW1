@@ -213,6 +213,14 @@ class CatCommand : public BuiltInCommand {
   void execute() override;
 };
 
+class HeadCommand : public BuiltInCommand {
+public:
+    HeadCommand(const char* cmd_line);
+    virtual ~HeadCommand() {}
+    void execute() override;
+    int setLinesNum();
+};
+
 class SmallShell {
   // TODO: Add your data members
   SmallShell();

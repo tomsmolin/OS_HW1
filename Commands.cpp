@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stdexcept> 
 #include <vector>
 #include <sstream>
 #include <math.h>
@@ -13,6 +14,8 @@ using namespace std;
 #define LAST_CD "-"
 #define MIN_SIG (-35)
 #define MAX_SIG (-1)
+#define NEGATIVE (-1)
+#define N (10)
 #define NO_CURR_JOBS (0)
 #define EMPTY_STRING ("")
 #if 0
@@ -355,7 +358,7 @@ void QuitCommand::execute() {
   exit(1);
 }
 
- JobsList::JobEntry* ForegroundCommand::setCurrJobToForeground() {
+JobsList::JobEntry* ForegroundCommand::setCurrJobToForeground() {
      int job_id = 0;
      JobsList::JobEntry* curr_job = NULL;
      if (argv == 1)
@@ -467,6 +470,103 @@ void BackgroundCommand::execute() {
     }
     jobs->removeJobById(curr_job->job_id);
     jobs->addJob(pid, job_cmd);
+}
+
+HeadCommand::HeadCommand(const char* cmd_line) : BuiltInCommand(cmd_line) {}
+
+int HeadCommand::setLinesNum() {
+    if (argv == 2)
+    {
+        return N; // N MACRO
+    }
+    try {
+        int num = stoi(args[1]);
+        return NEGATIVE*num;
+
+    } catch (std::exception& e) {
+        // This error wasn't mentioned in the ex.
+        fprintf(stderr, "smash error: head: invalid arguments\n");
+        return ERROR;
+    }
+}
+
+static void resetBuffer(char* line) {
+    for (int i = 0; i < 1024; i++)
+        line[i] = '\0';
+}
+
+void HeadCommand::execute() {
+    if (argv == 1) {
+        fprintf(stderr, "smash error: head: not enough arguments\n");
+        return;
+    }
+    int lines_num = setLinesNum();
+    if (lines_num == ERROR)
+        return;
+
+    int file_index = 2;
+    if (argv == 2)
+        file_index = 1;
+
+    int fd = open(args[file_index], O_RDONLY);
+    if (fd == ERROR) {
+        fprintf(stderr, "smash error: open failed\n");
+        return;
+    }
+    char* line = new char[1024]{ 0 };
+    int r_result = read(fd, line, 1024);
+    if (r_result == ERROR) {
+        fprintf(stderr, "smash error: read failed\n");
+        return;
+    }
+    std::string str(line);
+    int seeker = 0;
+    int w_result = 0;
+    while (lines_num > 0)
+    {
+        size_t end_of_line = str.find_first_of("\n");
+        if (end_of_line != std::string::npos)
+        {
+            w_result = write(1, &line[seeker], end_of_line + 1);
+            if (w_result == ERROR) {
+                fprintf(stderr, "smash error: write failed\n");
+                return;
+            }
+            str.erase(0, end_of_line + 1);
+            seeker += end_of_line + 1;
+            lines_num--;
+            if (seeker == 1024)
+            {
+                //resetBuffer(line);
+                r_result = read(fd, line, 1024);
+                if (r_result == ERROR) {
+                    fprintf(stderr, "smash error: read failed\n");
+                    return;
+                }
+                str = line;
+                seeker = 0;
+            }
+        }
+        else
+        {
+            w_result = write(1, &line[seeker], 1024 - (seeker + 1));
+            if (w_result == ERROR) {
+                fprintf(stderr, "smash error: write failed\n");
+                return;
+            }
+            //resetBuffer(line);
+            r_result = read(fd, line, 1024);
+            if (r_result == ERROR) {
+                fprintf(stderr, "smash error: read failed\n");
+                return;
+            }
+            str = line;
+            seeker = 0;
+
+        }
+    }
+
+    delete[] line;
 }
 
 /////////////////////////////joblist//////////////////////
@@ -586,6 +686,8 @@ JobsList::JobEntry *JobsList::getLastStoppedJob(int *jobId) {
     return nullptr;
 }
 
+/////////////////////////////end of joblist//////////////////////
+
 SmallShell::SmallShell() : plastPwd(NULL), first_legal_cd(true), prompt("smash> "),
                            job_list(JobsList()), curr_pid(NO_CURR_PID), curr_cmd("No Current cmd") {
     // TODO: add your implementation
@@ -641,6 +743,9 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
     }
     else if (string(cmd_line).find("|") != string::npos) {
         return new PipeCommand(cmd_line);
+    }
+    else if (firstWord.compare("head") == 0) {
+        return new HeadCommand(cmd_line);
     }
     else if (firstWord.compare("chprompt") == 0) {
         return new ChangePromptCommand(cmd_line, getPPrompt());
