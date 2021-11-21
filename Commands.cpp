@@ -538,7 +538,7 @@ void HeadCommand::execute() {
             lines_num--;
             if (seeker == BUFFER_SIZE)
             {
-                resetBuffer(line);
+                //resetBuffer(line);
                 r_result = read(fd, line, BUFFER_SIZE);
                 if (r_result == ERROR) {
                     fprintf(stderr, "smash error: read failed\n");
@@ -557,7 +557,7 @@ void HeadCommand::execute() {
                 fprintf(stderr, "smash error: write failed\n");
                 return;
             }
-            resetBuffer(line);
+            //resetBuffer(line);
             r_result = read(fd, line, BUFFER_SIZE);
             if (r_result == ERROR) {
                 fprintf(stderr, "smash error: read failed\n");
