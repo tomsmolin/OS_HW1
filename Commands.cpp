@@ -45,6 +45,14 @@ string _trim(const std::string& s)
   return _rtrim(_ltrim(s));
 }
 
+// void removeBackGroundSign(const char* cmd_line) {
+//   if(!_isBackgroundComamnd(cmd_line)) {
+//     return;
+//   }
+//   _removeBackgroundSign(const_cast<char*>(cmd_line));
+//   std::cout << cmd_line << std::endl;
+// }
+
 int _parseCommandLine(const char* cmd_line, char** args) {
   FUNC_ENTRY()
   int i = 0;
@@ -194,7 +202,7 @@ void ExternalCommand::execute() {
     }
 }
 
-BuiltInCommand::BuiltInCommand(const char* cmd_line) : Command(cmd_line) {} 
+BuiltInCommand::BuiltInCommand(const char* cmd_line) : Command(_removeBackgroundSign(const_cast<char*>(cmd_line))) {} 
 
 ChangePromptCommand::ChangePromptCommand(const char* cmd_line, string* prompt) : BuiltInCommand(cmd_line), prompt(prompt) {}
 
@@ -632,12 +640,7 @@ static bool pipeParse(const char* cmd_line ,string& first_command, string& secon
 Command * SmallShell::CreateCommand(const char* cmd_line) {
 
   std::string cmd_s = _trim(string(cmd_line));
-  std::string firstWord = cmd_s.substr(0, cmd_s.find_first_of(" \n"));
-  char* cmd_without_bg;
-  cmd_without_bg = cmd_line;
-  std::cout << cmd_without_bg << std::endl; 
-  _removeBackgroundSign(cmd_without_bg);
-  std::cout << cmd_without_bg << std::endl;  
+  std::string firstWord = cmd_s.substr(0, cmd_s.find_first_of(" \n"));  
     if (string(cmd_line).find(">") != string::npos) {
         return new RedirectionCommand(cmd_line);
     }
