@@ -45,13 +45,6 @@ string _trim(const std::string& s)
   return _rtrim(_ltrim(s));
 }
 
-char* removeBackGroundSign(const char* cmd_line) {
-  if(!_isBackgroundComamnd(cmd_line)) {
-    return cmd_line;
-  }
-  _removeBackgroundSign(const_cast<char*>(cmd_line));
-  return &(cmd_line);
-}
 
 int _parseCommandLine(const char* cmd_line, char** args) {
   FUNC_ENTRY()
