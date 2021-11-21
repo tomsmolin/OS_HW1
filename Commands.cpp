@@ -795,15 +795,16 @@ void SmallShell::executeCommand(const char* cmd_line) {
 RedirectionCommand::RedirectionCommand(const char* cmd_line) : Command(cmd_line), command_cmd(EMPTY_STRING), file_name(EMPTY_STRING) {
   append = redirectionParse(cmd_line, command_cmd, file_name);
   std::cout << command_cmd << std::endl;
-  if(command_cmd==EMPTY_STRING){
-    std::cout << "DGB" << std::endl;
-    
+  if(command_cmd!=EMPTY_STRING){ // for example: >>a.txt
+    cmd = command_cmd.c_str();
   }
-  cmd = command_cmd.c_str();
   std::cout << file_name << std::endl;
 } 
 
 void RedirectionCommand::execute() {
+  if(command_cmd==EMPTY_STRING){ // for example: >>a.txt should to nothing as said in piazza
+    return;
+  }
   int stdout_fd = dup(1);
   if(stdout_fd == ERROR) {
     fprintf(stderr,"smash error: dup failed\n");
