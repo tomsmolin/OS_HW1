@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stdexcept> 
 #include <vector>
 #include <sstream>
 #include <math.h>
@@ -13,7 +14,10 @@ using namespace std;
 #define LAST_CD "-"
 #define MIN_SIG (-35)
 #define MAX_SIG (-1)
+#define NEGATIVE (-1)
+#define N (10)
 #define NO_CURR_JOBS (0)
+#define BUFFER_SIZE (1024)
 #define EMPTY_STRING ("")
 #if 0
 #define FUNC_ENTRY()  \
@@ -117,6 +121,8 @@ Command::~Command() {
       free(args[i]);
   }
   delete[] args;
+  args = NULL; //VALGRIND
+  cmd = NULL; //VALGRIND
 }
 
 const char* Command::getCmd() {
@@ -359,7 +365,7 @@ void QuitCommand::execute() {
   exit(1);
 }
 
- JobsList::JobEntry* ForegroundCommand::setCurrJobToForeground() {
+JobsList::JobEntry* ForegroundCommand::setCurrJobToForeground() {
      int job_id = 0;
      JobsList::JobEntry* curr_job = NULL;
      if (argv == 1)
@@ -471,6 +477,126 @@ void BackgroundCommand::execute() {
     }
     jobs->removeJobById(curr_job->job_id);
     jobs->addJob(pid, job_cmd);
+}
+
+HeadCommand::HeadCommand(const char* cmd_line) : BuiltInCommand(cmd_line) {}
+
+int HeadCommand::setLinesNum() {
+    if (argv == 2)
+    {
+        return N; // N MACRO
+    }
+    try {
+        int num = stoi(args[1]);
+        return NEGATIVE*num;
+
+    } catch (std::exception& e) {
+        // This error wasn't mentioned in the ex.
+        fprintf(stderr, "smash error: head: invalid arguments\n");
+        return ERROR;
+    }
+}
+
+static void resetBuffer(char* line) {
+    line[0] = '\0';
+    for (int i = 1; i < BUFFER_SIZE; i++)
+        line[i] = 0;
+}
+
+void HeadCommand::execute() {
+    if (argv == 1) {
+        fprintf(stderr, "smash error: head: not enough arguments\n");
+        return;
+    }
+    int lines_num = setLinesNum();
+    if (lines_num == ERROR)
+        return;
+
+    int file_index = 2;
+    if (argv == 2)
+        file_index = 1;
+
+    int fd = open(args[file_index], O_RDONLY);
+    if (fd == ERROR) {
+        fprintf(stderr, "smash error: open failed\n");
+        return;
+    }
+    char* line = new char[BUFFER_SIZE]{ 0 };
+    int r_result = read(fd, line, BUFFER_SIZE - 1);
+    if (r_result == ERROR) {
+        fprintf(stderr, "smash error: read failed\n");
+        return;
+    }
+    line[BUFFER_SIZE - 1] = '\0'; // str excepts a c string type, otherwise invalid read recieved in valgrind
+    std::string str(line);
+    int seeker = 0;
+    int w_result = 0;
+    while (lines_num > 0)
+    {
+        size_t end_of_line = str.find_first_of("\n");
+        if (end_of_line != std::string::npos)
+        {
+            w_result = write(1, &line[seeker], end_of_line + 1);
+            if (w_result == ERROR) {
+                fprintf(stderr, "smash error: write failed\n");
+                return;
+            }
+            if (w_result < end_of_line + 1)
+            {
+                fprintf(stderr, "write wasn't able to write all bytes\n");
+                return;
+            }
+            str.erase(0, end_of_line + 1);
+            seeker += end_of_line + 1;
+            lines_num--;
+            if (seeker == BUFFER_SIZE)
+            {
+                resetBuffer(line);
+                r_result = read(fd, line, BUFFER_SIZE - 1);
+                if (r_result == ERROR) {
+                    fprintf(stderr, "smash error: read failed\n");
+                    return;
+                }
+                line[BUFFER_SIZE - 1] = '\0';
+                if (r_result == 0) //EOF
+                    break;
+                str = line;
+                seeker = 0;
+            }
+        }
+        else
+        {
+            w_result = write(1, &line[seeker], BUFFER_SIZE - seeker);
+            if (w_result == ERROR) {
+                fprintf(stderr, "smash error: write failed\n");
+                return;
+            }
+            if (w_result < BUFFER_SIZE - seeker)
+            {
+                fprintf(stderr, "write wasn't able to write all bytes\n");
+                return;
+            }
+            resetBuffer(line);
+            r_result = read(fd, line, BUFFER_SIZE - 1);
+            if (r_result == ERROR) {
+                fprintf(stderr, "smash error: read failed\n");
+                return;
+            }
+            line[BUFFER_SIZE - 1] = '\0';
+            if (r_result == 0) //EOF
+                break;
+            str = line;
+            seeker = 0;
+        }
+    }
+    if (close(fd) == ERROR)
+    {
+        fprintf(stderr, "smash error: close failed\n");
+        return;
+    }
+
+    delete[] line;
+    line = NULL;// VALGRIND
 }
 
 /////////////////////////////joblist//////////////////////
@@ -590,6 +716,8 @@ JobsList::JobEntry *JobsList::getLastStoppedJob(int *jobId) {
     return nullptr;
 }
 
+/////////////////////////////end of joblist//////////////////////
+
 SmallShell::SmallShell() : plastPwd(NULL), first_legal_cd(true), prompt("smash> "),
                            job_list(JobsList()), curr_pid(NO_CURR_PID), curr_cmd("No Current cmd") {
     // TODO: add your implementation
@@ -639,6 +767,9 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
     }
     else if (string(cmd_line).find("|") != string::npos) {
         return new PipeCommand(cmd_line);
+    }
+    else if (firstWord.compare("head") == 0) {
+        return new HeadCommand(cmd_line);
     }
     else if (firstWord.compare("chprompt") == 0) {
         return new ChangePromptCommand(cmd_line, getPPrompt());
@@ -783,7 +914,8 @@ void SmallShell::executeCommand(const char* cmd_line) {
     cmd->execute();
     timed_list.sort();
     setPLastPwd(cmd);
-    // Please note that you must fork smash process for some commands (e.g., external commands....)
+    delete cmd;
+    cmd = NULL; // VALGRIND
 }
 
 //////////pipes and redirections////////////

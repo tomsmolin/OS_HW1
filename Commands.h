@@ -126,7 +126,7 @@ class QuitCommand : public BuiltInCommand {
   JobsList* jobs;
  public:
   QuitCommand(const char* cmd_line, JobsList* jobs);
-  virtual ~QuitCommand() {}
+  virtual ~QuitCommand() { jobs = NULL; }
   void execute() override;
 };
 
@@ -211,6 +211,14 @@ class CatCommand : public BuiltInCommand {
   CatCommand(const char* cmd_line);
   virtual ~CatCommand() {}
   void execute() override;
+};
+
+class HeadCommand : public BuiltInCommand {
+public:
+    HeadCommand(const char* cmd_line);
+    virtual ~HeadCommand() {}
+    void execute() override;
+    int setLinesNum();
 };
 
 class SmallShell {
