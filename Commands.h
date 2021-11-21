@@ -126,7 +126,7 @@ class QuitCommand : public BuiltInCommand {
   JobsList* jobs;
  public:
   QuitCommand(const char* cmd_line, JobsList* jobs);
-  virtual ~QuitCommand() {}
+  virtual ~QuitCommand() { jobs = NULL; }
   void execute() override;
 };
 

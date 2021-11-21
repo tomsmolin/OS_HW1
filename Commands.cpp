@@ -120,6 +120,8 @@ Command::~Command() {
       free(args[i]);
   }
   delete[] args;
+  args = NULL; //VALGRIND
+  cmd = NULL; //VALGRIND
 }
 
 const char* Command::getCmd() {
@@ -492,7 +494,8 @@ int HeadCommand::setLinesNum() {
 }
 
 static void resetBuffer(char* line) {
-    for (int i = 0; i < BUFFER_SIZE; i++)
+    line[0] = '\0';
+    for (int i = 1; i < BUFFER_SIZE; i++)
         line[i] = 0;
 }
 
@@ -515,11 +518,12 @@ void HeadCommand::execute() {
         return;
     }
     char* line = new char[BUFFER_SIZE]{ 0 };
-    int r_result = read(fd, line, BUFFER_SIZE);
+    int r_result = read(fd, line, BUFFER_SIZE - 1);
     if (r_result == ERROR) {
         fprintf(stderr, "smash error: read failed\n");
         return;
     }
+    line[BUFFER_SIZE - 1] = '\0'; // str excepts a c string type, otherwise invalid read recieved in valgrind
     std::string str(line);
     int seeker = 0;
     int w_result = 0;
@@ -533,17 +537,23 @@ void HeadCommand::execute() {
                 fprintf(stderr, "smash error: write failed\n");
                 return;
             }
+            if (w_result < end_of_line + 1)
+            {
+                fprintf(stderr, "write wasn't able to write all bytes\n");
+                return;
+            }
             str.erase(0, end_of_line + 1);
             seeker += end_of_line + 1;
             lines_num--;
             if (seeker == BUFFER_SIZE)
             {
                 resetBuffer(line);
-                r_result = read(fd, line, BUFFER_SIZE);
+                r_result = read(fd, line, BUFFER_SIZE - 1);
                 if (r_result == ERROR) {
                     fprintf(stderr, "smash error: read failed\n");
                     return;
                 }
+                line[BUFFER_SIZE - 1] = '\0';
                 if (r_result == 0) //EOF
                     break;
                 str = line;
@@ -557,12 +567,18 @@ void HeadCommand::execute() {
                 fprintf(stderr, "smash error: write failed\n");
                 return;
             }
+            if (w_result < BUFFER_SIZE - seeker)
+            {
+                fprintf(stderr, "write wasn't able to write all bytes\n");
+                return;
+            }
             resetBuffer(line);
-            r_result = read(fd, line, BUFFER_SIZE);
+            r_result = read(fd, line, BUFFER_SIZE - 1);
             if (r_result == ERROR) {
                 fprintf(stderr, "smash error: read failed\n");
                 return;
             }
+            line[BUFFER_SIZE - 1] = '\0';
             if (r_result == 0) //EOF
                 break;
             str = line;
@@ -576,6 +592,7 @@ void HeadCommand::execute() {
     }
 
     delete[] line;
+    line = NULL;// VALGRIND
 }
 
 /////////////////////////////joblist//////////////////////
@@ -899,7 +916,8 @@ void SmallShell::executeCommand(const char* cmd_line) {
     cmd->execute();
     timed_list.sort();
     setPLastPwd(cmd);
-    // Please note that you must fork smash process for some commands (e.g., external commands....)
+    delete cmd;
+    cmd = NULL; // VALGRIND
 }
 
 //////////pipes and redirections////////////
