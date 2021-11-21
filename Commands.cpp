@@ -633,7 +633,7 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
 
   std::string cmd_s = _trim(string(cmd_line));
   std::string firstWord = cmd_s.substr(0, cmd_s.find_first_of(" \n"));
-  char* cmd_without_bg = cmd_line;
+  char* cmd_without_bg = *cmd_line;
   _removeBackgroundSign(cmd_without_bg);
   std::cout << cmd_without_bg << std::endl;  
     if (string(cmd_line).find(">") != string::npos) {
