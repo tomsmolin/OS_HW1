@@ -796,7 +796,7 @@ RedirectionCommand::RedirectionCommand(const char* cmd_line) : Command(cmd_line)
   append = redirectionParse(cmd_line, command_cmd, file_name);
   std::cout << command_cmd << std::endl;
   cmd = command_cmd.c_str();
-  std::cout << 
+  std::cout << file_name << std::endl;
 } 
 
 void RedirectionCommand::execute() {
