@@ -240,6 +240,9 @@ static char* getCurrPwd() {
 ChangeDirCommand::ChangeDirCommand(const char* cmd_line, char** plastPwd) : BuiltInCommand(cmd_line), cd_succeeded(false), classPlastPwd(*plastPwd) {}
 
 void ChangeDirCommand::execute() {
+    if(argv <2 ){ // for cd without arguments
+      return;
+    }
     if (argv > 2)
     {
         fprintf(stderr, "smash error: cd: too many arguments\n");
@@ -791,7 +794,9 @@ void SmallShell::executeCommand(const char* cmd_line) {
 //////////pipes and redirections////////////
 RedirectionCommand::RedirectionCommand(const char* cmd_line) : Command(cmd_line), command_cmd(EMPTY_STRING), file_name(EMPTY_STRING) {
   append = redirectionParse(cmd_line, command_cmd, file_name);
+  std::cout << command_cmd << std::cout;
   cmd = command_cmd.c_str();
+  std::cout << 
 } 
 
 void RedirectionCommand::execute() {
