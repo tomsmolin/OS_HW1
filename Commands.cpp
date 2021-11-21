@@ -17,6 +17,7 @@ using namespace std;
 #define NEGATIVE (-1)
 #define N (10)
 #define NO_CURR_JOBS (0)
+#define BUFFER_SIZE (1024)
 #define EMPTY_STRING ("")
 #if 0
 #define FUNC_ENTRY()  \
@@ -491,8 +492,8 @@ int HeadCommand::setLinesNum() {
 }
 
 static void resetBuffer(char* line) {
-    for (int i = 0; i < 1024; i++)
-        line[i] = '\0';
+    for (int i = 0; i < BUFFER_SIZE; i++)
+        line[i] = 0;
 }
 
 void HeadCommand::execute() {
@@ -513,8 +514,8 @@ void HeadCommand::execute() {
         fprintf(stderr, "smash error: open failed\n");
         return;
     }
-    char* line = new char[1024]{ 0 };
-    int r_result = read(fd, line, 1024);
+    char* line = new char[BUFFER_SIZE]{ 0 };
+    int r_result = read(fd, line, BUFFER_SIZE);
     if (r_result == ERROR) {
         fprintf(stderr, "smash error: read failed\n");
         return;
@@ -535,35 +536,43 @@ void HeadCommand::execute() {
             str.erase(0, end_of_line + 1);
             seeker += end_of_line + 1;
             lines_num--;
-            if (seeker == 1024)
+            if (seeker == BUFFER_SIZE)
             {
-                //resetBuffer(line);
-                r_result = read(fd, line, 1024);
+                resetBuffer(line);
+                r_result = read(fd, line, BUFFER_SIZE);
                 if (r_result == ERROR) {
                     fprintf(stderr, "smash error: read failed\n");
                     return;
                 }
+                if (r_result == 0) //EOF
+                    break;
                 str = line;
                 seeker = 0;
             }
         }
         else
         {
-            w_result = write(1, &line[seeker], 1024 - (seeker + 1));
+            w_result = write(1, &line[seeker], BUFFER_SIZE - seeker);
             if (w_result == ERROR) {
                 fprintf(stderr, "smash error: write failed\n");
                 return;
             }
-            //resetBuffer(line);
-            r_result = read(fd, line, 1024);
+            resetBuffer(line);
+            r_result = read(fd, line, BUFFER_SIZE);
             if (r_result == ERROR) {
                 fprintf(stderr, "smash error: read failed\n");
                 return;
             }
+            if (r_result == 0) //EOF
+                break;
             str = line;
             seeker = 0;
-
         }
+    }
+    if (close(fd) == ERROR)
+    {
+        fprintf(stderr, "smash error: close failed\n");
+        return;
     }
 
     delete[] line;
