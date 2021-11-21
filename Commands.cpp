@@ -117,12 +117,13 @@ Command::Command(const char* cmd_line) : cmd(cmd_line), argv(0), timed_entry(NUL
 
 Command::~Command() {
   for(int i=0;i<argv;i++){
-    if (args[i] != NULL)
-      free(args[i]);
+      if (args[i] != NULL)
+          free((char*)args[i]);
+    args[i] = NULL;
   }
   delete[] args;
   args = NULL; //VALGRIND
-  cmd = NULL; //VALGRIND
+  //cmd = NULL; //VALGRIND
 }
 
 const char* Command::getCmd() {
@@ -246,6 +247,8 @@ static char* getCurrPwd() {
 
 ChangeDirCommand::ChangeDirCommand(const char* cmd_line, char** plastPwd) : BuiltInCommand(cmd_line), cd_succeeded(false), classPlastPwd(*plastPwd) {}
 
+ChangeDirCommand::~ChangeDirCommand() {}
+
 void ChangeDirCommand::execute() {
     if(argv <2 ){ // for cd without arguments
       return;
@@ -265,9 +268,10 @@ void ChangeDirCommand::execute() {
     char* path = args[1];
     if (strcmp(path, "-") == 0)
     {
-        if (!classPlastPwd)
+        if (!classPlastPwd) // When last working directory isn't set on smash
         {
             fprintf(stderr, "smash error: cd: OLDPWD not set\n");
+            delete[] cwd; //No old pwd is set - therefore the smash won't rec. this mem.
             return;
         }
         else
@@ -358,10 +362,12 @@ QuitCommand::QuitCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(
 
 void QuitCommand::execute() {
   if (argv<2) {
+    delete this;
     exit(1);
   }
   std::cout << "sending SIGKILL signal to " << jobs->jobsDict.size()<< " jobs:\n";
   jobs->printKilledJobList();
+  delete this;
   exit(1);
 }
 
@@ -484,7 +490,7 @@ HeadCommand::HeadCommand(const char* cmd_line) : BuiltInCommand(cmd_line) {}
 int HeadCommand::setLinesNum() {
     if (argv == 2)
     {
-        return N; // N MACRO
+        return N;
     }
     try {
         int num = stoi(args[1]);
@@ -727,12 +733,10 @@ SmallShell::SmallShell() : plastPwd(NULL), first_legal_cd(true), prompt("smash> 
 
 
 SmallShell::~SmallShell() {
-    // TODO: add your implementation
     if (*plastPwd)
         delete[] * plastPwd;
 
     delete plastPwd;
-    
 }
 
 
@@ -809,7 +813,6 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
 }
 
 void SmallShell::setPLastPwd(Command* cmd) {
-
     if (strcmp(cmd->args[0], "cd") == 0)
     {
         ChangeDirCommand* temp = (ChangeDirCommand*)cmd;
