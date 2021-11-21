@@ -292,9 +292,6 @@ void JobsCommand::execute() {
 }
 
 static bool killFormat(char** args,int argv) {
-  if(argv!=3) {
-    return false;
-  }
   std::stringstream sig_num(args[1]);
   double sig_number=0;
   sig_num >> sig_number;
@@ -319,8 +316,11 @@ static bool backAndForegroundFormat(char** args, int argv) {
 KillCommand::KillCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(cmd_line), jobs(jobs) {}
 
 void KillCommand::execute() {
-  if(!killFormat(args,argv)) {
-      fprintf(stderr,"smash error: kill: invalid arguments\n");
+    if(argv!=3) {
+    fprintf(stderr,"smash error: kill: invalid arguments\n");
+  }
+  if(!killFormat(args,argv)) { // as said in piazza invalid sig_num => syscall failed
+      fprintf(stderr, "smash error: kill failed\n"); 
       return;
   }
   std::stringstream job_id(args[2]);
@@ -794,11 +794,9 @@ void SmallShell::executeCommand(const char* cmd_line) {
 //////////pipes and redirections////////////
 RedirectionCommand::RedirectionCommand(const char* cmd_line) : Command(cmd_line), command_cmd(EMPTY_STRING), file_name(EMPTY_STRING) {
   append = redirectionParse(cmd_line, command_cmd, file_name);
-  std::cout << command_cmd << std::endl;
   if(command_cmd!=EMPTY_STRING){ // for example: >>a.txt
     cmd = command_cmd.c_str();
   }
-  std::cout << file_name << std::endl;
 } 
 
 void RedirectionCommand::execute() {
