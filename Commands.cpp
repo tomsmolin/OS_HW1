@@ -45,13 +45,13 @@ string _trim(const std::string& s)
   return _rtrim(_ltrim(s));
 }
 
-// void removeBackGroundSign(const char* cmd_line) {
-//   if(!_isBackgroundComamnd(cmd_line)) {
-//     return;
-//   }
-//   _removeBackgroundSign(const_cast<char*>(cmd_line));
-//   std::cout << cmd_line << std::endl;
-// }
+char* removeBackGroundSign(const char* cmd_line) {
+  if(!_isBackgroundComamnd(cmd_line)) {
+    return cmd_line;
+  }
+  _removeBackgroundSign(const_cast<char*>(cmd_line));
+  return &(cmd_line);
+}
 
 int _parseCommandLine(const char* cmd_line, char** args) {
   FUNC_ENTRY()
@@ -202,7 +202,7 @@ void ExternalCommand::execute() {
     }
 }
 
-BuiltInCommand::BuiltInCommand(const char* cmd_line) : Command(_removeBackgroundSign(const_cast<char*>(cmd_line))) {} 
+BuiltInCommand::BuiltInCommand(const char* cmd_line) : Command(removeBackGroundSign(cmd_line)) {} 
 
 ChangePromptCommand::ChangePromptCommand(const char* cmd_line, string* prompt) : BuiltInCommand(cmd_line), prompt(prompt) {}
 
