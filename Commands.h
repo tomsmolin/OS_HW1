@@ -101,7 +101,7 @@ class ChangeDirCommand : public BuiltInCommand {
   bool cd_succeeded;
   char* classPlastPwd;
   ChangeDirCommand(const char* cmd_line, char** plastPwd);
-  virtual ~ChangeDirCommand() {} // ============ implement this destructor??
+  virtual ~ChangeDirCommand(); // ============ implement this destructor??
   void execute() override;
 
 };
