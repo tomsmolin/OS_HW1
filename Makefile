@@ -16,16 +16,15 @@ $(TESTS_OUTPUTS): test_output%.txt: test_input%.txt test_expected_output%.txt
 	./$(SMASH_BIN) < $(word 1, $^) > $@
 	diff $@ $(word 2, $^)
 	echo $(word 1, $^) ++PASSED++
-$(TESTS_OUTPUTS): test.txt
-	./$(SMASH_BIN) < test.txt
+
 $(SMASH_BIN): $(OBJS)
 	$(COMPILER) $(COMPILER_FLAGS) $^ -o $@
 
 $(OBJS): %.o: %.cpp
 	$(COMPILER) $(COMPILER_FLAGS) -c $^
 
-# zip: $(SRCS) $(HDRS)
-# 	zip $(SUBMITTERS).zip $^ submitters.txt Makefile
+zip: $(SRCS) $(HDRS)
+	zip $(SUBMITTERS).zip $^ submitters.txt Makefile
 
 clean:
 	rm -rf $(SMASH_BIN) $(OBJS) $(TESTS_OUTPUTS) 
