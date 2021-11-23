@@ -9,15 +9,15 @@ TESTS_INPUTS := $(wildcard test_input*.txt)
 TESTS_OUTPUTS := $(subst input,output,$(TESTS_INPUTS))
 SMASH_BIN := smash
 
-# test: $(TESTS_OUTPUTS)
+test: $(TESTS_OUTPUTS)
 
-# $(TESTS_OUTPUTS): $(SMASH_BIN)
-# #$(TESTS_OUTPUTS): test_output%.txt: test_input%.txt test_expected_output%.txt
-# #	./$(SMASH_BIN) < $(word 1, $^) > $@
-# #	diff $@ $(word 2, $^)
-# #	echo $(word 1, $^) ++PASSED++
-# $(TESTS_OUTPUTS): test.txt
-# 	./$(SMASH_BIN) < test.txt
+$(TESTS_OUTPUTS): $(SMASH_BIN)
+$(TESTS_OUTPUTS): test_output%.txt: test_input%.txt test_expected_output%.txt
+	./$(SMASH_BIN) < $(word 1, $^) > $@
+	diff $@ $(word 2, $^)
+	echo $(word 1, $^) ++PASSED++
+$(TESTS_OUTPUTS): test.txt
+	./$(SMASH_BIN) < test.txt
 $(SMASH_BIN): $(OBJS)
 	$(COMPILER) $(COMPILER_FLAGS) $^ -o $@
 
