@@ -396,7 +396,7 @@ JobsList::JobEntry* ForegroundCommand::setCurrJobToForeground() {
          curr_job = jobs->getJobById(job_id);
          if (curr_job == NULL)
          {
-             std::string str1("job-id ");
+             std::string str1("smash error: fg: job-id ");
              std::string str2(args[1]);
              str1.append(str2).append(" does not exist\n");
              fprintf(stderr, str1.c_str());
