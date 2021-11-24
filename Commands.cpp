@@ -356,7 +356,7 @@ void KillCommand::execute() {
     fprintf(stderr, "smash error: kill failed\n");
     return;
   }
-  std::cout << "signal number 9 was sent to pid" << " " << pid << std::endl;
+  std::cout << "signal number 9 was sent to pid " << " " << pid << std::endl;
 }
 
 QuitCommand::QuitCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(cmd_line), jobs(jobs) {}
