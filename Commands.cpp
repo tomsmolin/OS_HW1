@@ -662,7 +662,7 @@ void JobsList::printKilledJobList() {
   }
   map<int, JobEntry>::iterator iter;
   for (iter = jobsDict.begin(); iter != jobsDict.end(); iter++) {
-    std::cout << iter->second.pid << ":" << iter->second.cmd << std::endl;
+    std::cout << iter->second.pid << ": " << iter->second.cmd << std::endl;
   }
 }
 
