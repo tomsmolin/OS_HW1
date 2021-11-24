@@ -415,7 +415,7 @@ void ForegroundCommand::execute() {
 
     int pid = curr_job->pid;
     string job_cmd = curr_job->cmd;
-    cout << job_cmd << ": " << pid << endl;
+    cout << job_cmd << " : " << pid << endl;
     if (kill(pid, SIGCONT) == ERROR)
     {
         fprintf(stderr, "smash error: kill failed\n");
