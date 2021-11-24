@@ -445,7 +445,7 @@ JobsList::JobEntry* BackgroundCommand::setCurrJobToBackground() {
             return NULL;
         }
         map<int, JobsList::JobEntry>::iterator it = jobs->jobsDict.find(job_id);
-        std::string str1("job-id ");
+        std::string str1("smash error: bg: job-id ");
         std::string str2 = args[1];
         if (it == jobs->jobsDict.end())
         {
