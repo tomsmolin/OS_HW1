@@ -366,7 +366,7 @@ void QuitCommand::execute() {
     delete this;
     exit(1);
   }
-  std::cout << "sending SIGKILL signal to " << jobs->jobsDict.size()<< " jobs:\n";
+  std::cout << "smash: sending SIGKILL signal to " << jobs->jobsDict.size()<< " jobs:\n";
   jobs->printKilledJobList();
   delete this;
   exit(1);
