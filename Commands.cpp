@@ -651,7 +651,7 @@ void JobsList::printJobsList() {
   for (iter = jobsDict.begin(); iter != jobsDict.end(); iter++) {
     std::string end = (iter->second.status==Stopped) ? "(Stopped)\n": "\n";
     double time_diff = difftime(time(NULL),iter->second.insert);
-    std::cout << "[" << iter->second.job_id << "] " << iter->second.cmd << " : " << iter->second.pid <<" "<< time_diff << " secs"<< end;
+    std::cout << "[" << iter->second.job_id << "]" << " " << iter->second.cmd << " : " << iter->second.pid <<" "<< time_diff << " secs"<< end;
   }
 }
 
