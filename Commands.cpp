@@ -220,7 +220,7 @@ void ChangePromptCommand::execute() {
 ShowPidCommand::ShowPidCommand(const char* cmd_line) : BuiltInCommand(cmd_line) {}
 
 void ShowPidCommand::execute() {
-  cout << args[0] << " pid is " << getpid() << endl;
+  cout << "smash pid is " << getpid() << endl;
 }
 
 GetCurrDirCommand::GetCurrDirCommand(const char* cmd_line) : BuiltInCommand(cmd_line) {}
