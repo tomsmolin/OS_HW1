@@ -697,16 +697,18 @@ void JobsList::removeFinishedJobs() {
   if(jobs_list_empty) {
     return;
   }
+  cout << "DGB" << endl;
   map<int, JobEntry>::iterator iter;
   for (iter = jobsDict.begin(); iter != jobsDict.end(); iter++) {
     int status;
     int status_2 = waitpid(iter->second.pid, &status, WNOHANG | WUNTRACED | WCONTINUED);
+    cout << "dgb" << endl;
     if(((WIFEXITED(status) || WIFSIGNALED(status)) && status_2 == iter->second.pid) || kill(iter->second.pid, 0) != 0) { //the procces terminated normally or terminated by a signal.
       if(jobsDict.size()== 1){
         jobs_list_empty=true;
-        cout << "DGB" << endl;
+        
         jobsDict.erase(iter->first);
-        cout << "dgb" << endl;
+        
         freeIdUpdate();
         return;
       }
