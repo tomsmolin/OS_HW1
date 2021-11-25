@@ -268,8 +268,9 @@ void ChangeDirCommand::execute() {
     char* path = args[1];
     if (strcmp(path, "-") == 0)
     {
-        if (!classPlastPwd) // When last working directory isn't set on smash
+        if (classPlastPwd == NULL) // When last working directory isn't set on smash
         {
+            classPlastPwd = cwd;
             fprintf(stderr, "smash error: cd: OLDPWD not set\n");
             delete[] cwd; //No old pwd is set - therefore the smash won't rec. this mem.
             return;
@@ -741,7 +742,7 @@ JobsList::JobEntry *JobsList::getLastStoppedJob(int *jobId) {
 
 /////////////////////////////end of joblist//////////////////////
 
-SmallShell::SmallShell() : plastPwd(NULL), first_legal_cd(true), prompt("smash> "),
+SmallShell::SmallShell() : plastPwd(NULL), legal_cd_made_before(false), prompt("smash> "),
                            job_list(JobsList()), curr_pid(NO_CURR_PID), curr_cmd("No Current cmd") {
     // TODO: add your implementation
     plastPwd = new char* ();
@@ -835,11 +836,10 @@ void SmallShell::setPLastPwd(Command* cmd) {
         ChangeDirCommand* temp = (ChangeDirCommand*)cmd;
         if (temp->cd_succeeded)
         {
-            if (first_legal_cd)
+            if (!legal_cd_made_before) // upon first successful cd - entered once
             {
-                *plastPwd = NULL;
-                first_legal_cd = false;
-                delete[] temp->classPlastPwd;
+                *plastPwd = temp->classPlastPwd;
+                legal_cd_made_before = true;
             }
             else
             {

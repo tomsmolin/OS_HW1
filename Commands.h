@@ -225,7 +225,7 @@ class SmallShell {
   // TODO: Add your data members
   SmallShell();
   char** plastPwd;
-  bool first_legal_cd;
+  bool legal_cd_made_before;
   std::string prompt;
   JobsList job_list;
   int curr_pid;
