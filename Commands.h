@@ -21,12 +21,14 @@ public:
     std::string timeout_cmd; // """"
     int pid_cmd;
     bool operator< (TimedCommandEntry const& entry2);
+    bool operator== (TimedCommandEntry const& entry2);
 
     TimedCommandEntry() = default;
     TimedCommandEntry(time_t alrm_time, std::string timeout_cmd, int pid_command);
     ~TimedCommandEntry() = default;
 
     void setTimeoutCmd(const char* cmd_line);
+    
 };
 
 class Command {
