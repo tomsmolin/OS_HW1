@@ -651,6 +651,7 @@ void JobsList::freeIdUpdate() {
     }
     i++;
   }
+  cout << i+1 << endl;
   free_job_id = i+1;
 }
 
