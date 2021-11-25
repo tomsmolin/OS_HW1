@@ -636,7 +636,7 @@ void JobsList::freeIdUpdate() {
     free_job_id=0;
   }
   // int curr_max = 0;
-  int i = 0;
+  int i = 1;
   map<int, JobEntry>::iterator iter;
   for (iter = jobsDict.begin(); iter != jobsDict.end(); iter++) {
     // if(iter->first>curr_max) {
