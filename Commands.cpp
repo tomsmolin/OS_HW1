@@ -704,7 +704,8 @@ void JobsList::removeFinishedJobs() {
     int status_2 = waitpid(iter->second.pid, &status, WNOHANG | WUNTRACED | WCONTINUED);
     cout << "dgb" << iter->second.pid << endl;
     cout << "dgb2 " << status_2 << endl;
-    if(((WIFEXITED(status) || WIFSIGNALED(status)) && status_2 == iter->second.pid) || kill(iter->second.pid, 0) != 0) { //the procces terminated normally or terminated by a signal.
+    if ((kill(iter->second.pid, 0) != 0) || ((WIFEXITED(status) || WIFSIGNALED(status)) && status_2 == iter->second.pid)) {
+    // if(((WIFEXITED(status) || WIFSIGNALED(status)) && status_2 == iter->second.pid) || kill(iter->second.pid, 0) != 0) { //the procces terminated normally or terminated by a signal.
       cout << "DGB" << endl;
       if(jobsDict.size()== 1){
         jobs_list_empty=true;
