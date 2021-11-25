@@ -635,6 +635,7 @@ void JobsList::addJob(int pid,std::string cmd, bool isStopped) {
 void JobsList::freeIdUpdate() {
   if(jobs_list_empty){
     free_job_id=1;
+    return;
   }
   // int curr_max = 0;
   int i = 1;
