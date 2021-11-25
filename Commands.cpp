@@ -624,6 +624,7 @@ void JobsList::removeJobById(int jobId){
 }
 
 void JobsList::addJob(int pid,std::string cmd, bool isStopped) {
+  freeIdUpdate();
   removeFinishedJobs();
   JobStatus curr_status = (isStopped) ?  Stopped : Background;
   jobs_list_empty=false;
@@ -632,7 +633,7 @@ void JobsList::addJob(int pid,std::string cmd, bool isStopped) {
 
 void JobsList::freeIdUpdate() {
   if(jobs_list_empty){
-    free_job_id=0;
+    free_job_id=1;
   }
   // int curr_max = 0;
   int i = 1;
