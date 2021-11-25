@@ -147,7 +147,7 @@ class JobsList {
    // TODO: Add your data members
   };
   bool jobs_list_empty;
-  int max_job_id;
+  int free_job_id;
   std::map<int, JobEntry> jobsDict;
  // TODO: Add your data members
 
@@ -164,7 +164,7 @@ class JobsList {
   JobEntry * getLastJob(int* lastJobId);
   JobEntry *getLastStoppedJob(int *jobId);
   // TODO: Add extra methods or modify exisitng ones as needed
-  void maxIdUpdate();
+  void freeIdUpdate();
   void printKilledJobList();
 };
 
