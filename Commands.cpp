@@ -628,7 +628,6 @@ void JobsList::addJob(int pid,std::string cmd, bool isStopped) {
   removeFinishedJobs();
   JobStatus curr_status = (isStopped) ?  Stopped : Background;
   jobs_list_empty=false;
-  cout << "jobid:" << free_job_id << endl;
   jobsDict[free_job_id] = JobEntry(pid, free_job_id,curr_status,time(NULL),cmd);
 }
 
