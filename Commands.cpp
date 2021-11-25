@@ -724,7 +724,7 @@ void JobsList::removeFinishedJobs() {
       }
     }
   }
-  cout << "endd" << endl;
+  cout << "end" << endl;
 }
 
 JobsList::JobEntry *JobsList::getLastStoppedJob(int *jobId) {
