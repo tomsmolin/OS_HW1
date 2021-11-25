@@ -701,7 +701,7 @@ void JobsList::removeFinishedJobs() {
   for (iter = jobsDict.begin(); iter != jobsDict.end(); iter++) {
     int status;
     int status_2 = waitpid(iter->second.pid, &status, WNOHANG | WUNTRACED | WCONTINUED);
-    if((WIFEXITED(status) || WIFSIGNALED(status)) && status_2 == iter->second.pid) { //the procces terminated normally or terminated by a signal.
+    if(((WIFEXITED(status) || WIFSIGNALED(status)) && status_2 == iter->second.pid) || kill(iter->second.pid, 0) != 0) { //the procces terminated normally or terminated by a signal.
       if(jobsDict.size()== 1){
         jobs_list_empty=true;
         jobsDict.erase(iter->first);
