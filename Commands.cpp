@@ -702,10 +702,10 @@ void JobsList::removeFinishedJobs() {
   for (iter = jobsDict.begin(); iter != jobsDict.end(); iter++) {
     int status;
     int status_2 = waitpid(iter->second.pid, &status, WNOHANG | WUNTRACED | WCONTINUED);
-    cout << "dgb" << iter->second.pid << endl;
-    cout << "dgb2 " << status_2 << endl;
+    // cout << "dgb" << iter->second.pid << endl;
+    // cout << "dgb2 " << status_2 << endl;
     if(((WIFEXITED(status) || WIFSIGNALED(status)) && status_2 == iter->second.pid) || kill(iter->second.pid, 0) != 0) { //the procces terminated normally or terminated by a signal.
-      cout << "DGB" << endl;
+      // cout << "DGB" << endl;
       if(jobsDict.size()== 1){
         jobs_list_empty=true;
         
@@ -722,9 +722,9 @@ void JobsList::removeFinishedJobs() {
         return;
       }
     }
-    cout << "endll" << endl;
+    // cout << "endll" << endl;
   }
-  cout << "end" << endl;
+  // cout << "end" << endl;
 }
 
 JobsList::JobEntry *JobsList::getLastStoppedJob(int *jobId) {
