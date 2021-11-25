@@ -704,7 +704,9 @@ void JobsList::removeFinishedJobs() {
     if(((WIFEXITED(status) || WIFSIGNALED(status)) && status_2 == iter->second.pid) || kill(iter->second.pid, 0) != 0) { //the procces terminated normally or terminated by a signal.
       if(jobsDict.size()== 1){
         jobs_list_empty=true;
+        cout << "DGB" << endl;
         jobsDict.erase(iter->first);
+        cout << "dgb" << endl;
         freeIdUpdate();
         return;
       }
