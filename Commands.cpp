@@ -643,7 +643,7 @@ void JobsList::freeIdUpdate() {
     //   curr_max=iter->first;
     // }
     if(i != iter->first){
-      cout << iter->first << endl
+      cout << iter->first << endl;
       free_job_id = i;
       return;
     }
