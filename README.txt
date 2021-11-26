@@ -35,5 +35,3 @@ We recommend that you start your implementation with:
 - Finally implement the bonus command.
 
 Good luck :)
-
-***Check Clion configggggggggggggggggggg
