@@ -4,6 +4,8 @@
 #include <sstream>
 #include <math.h>
 #include <sys/wait.h>
+#include <sys/types.h>
+#include <algorithm>
 #include <iomanip>
 #include <fcntl.h>
 #include "Commands.h"
@@ -141,6 +143,10 @@ bool TimedCommandEntry::operator<(TimedCommandEntry const& entry2) {
     return alrm_time < entry2.alrm_time;
 }
 
+bool TimedCommandEntry::operator==(TimedCommandEntry const& entry2) {
+    return pid_cmd == entry2.pid_cmd;
+}
+
 void TimedCommandEntry::setTimeoutCmd(const char* cmd_line) {
     timeout_cmd = cmd_line;
 }
@@ -193,9 +199,27 @@ void ExternalCommand::execute() {
         {
             SmallShell::getInstance().setCurrPid(pid);
             SmallShell::getInstance().setCurrCmd(curr_cmd);
-            int result = waitpid(pid,nullptr,WUNTRACED);
+            int status = 0;
+            int result = waitpid(pid, &status, WUNTRACED);
             if(result == ERROR) {
                 fprintf(stderr, "smash error: waitpid failed\n");
+            }
+            if (WIFEXITED(status))
+            {
+                std::list<TimedCommandEntry>& list = SmallShell::getInstance().timed_list;
+                std::list<TimedCommandEntry>::iterator it;
+                it = find(list.begin(), list.end(), TimedCommandEntry(0, "", pid));
+                if (it != list.end())
+                {
+                    list.erase(it);
+                    if (list.empty())
+                        alarm(0);
+                    else
+                    {
+                        int next_alrm = list.front().alrm_time;
+                        alarm(difftime(next_alrm, time(NULL)));
+                    }
+                }
             }
             SmallShell::getInstance().resetCurrFgInfo();
         }
@@ -268,8 +292,9 @@ void ChangeDirCommand::execute() {
     char* path = args[1];
     if (strcmp(path, "-") == 0)
     {
-        if (!classPlastPwd) // When last working directory isn't set on smash
+        if (classPlastPwd == NULL) // When last working directory isn't set on smash
         {
+            classPlastPwd = cwd;
             fprintf(stderr, "smash error: cd: OLDPWD not set\n");
             delete[] cwd; //No old pwd is set - therefore the smash won't rec. this mem.
             return;
@@ -741,7 +766,7 @@ JobsList::JobEntry *JobsList::getLastStoppedJob(int *jobId) {
 
 /////////////////////////////end of joblist//////////////////////
 
-SmallShell::SmallShell() : plastPwd(NULL), first_legal_cd(true), prompt("smash> "),
+SmallShell::SmallShell() : plastPwd(NULL), legal_cd_made_before(false), prompt("smash> "),
                            job_list(JobsList()), curr_pid(NO_CURR_PID), curr_cmd("No Current cmd") {
     // TODO: add your implementation
     plastPwd = new char* ();
@@ -835,11 +860,10 @@ void SmallShell::setPLastPwd(Command* cmd) {
         ChangeDirCommand* temp = (ChangeDirCommand*)cmd;
         if (temp->cd_succeeded)
         {
-            if (first_legal_cd)
+            if (!legal_cd_made_before) // upon first successful cd - entered once
             {
-                *plastPwd = NULL;
-                first_legal_cd = false;
-                delete[] temp->classPlastPwd;
+                *plastPwd = temp->classPlastPwd;
+                legal_cd_made_before = true;
             }
             else
             {
@@ -879,13 +903,24 @@ static int setTimeoutDuration(char* duration_str) {
     int duration = 0;
     std::stringstream duration_ss(duration_str);
     duration_ss >> duration;
+    //ADD MORE CHECKING FOR LEGAL INT
+    if (duration < 1)
+        return ERROR;
     return duration;
 }
 
 static void getTrimmedCmdAndDuration(const char* cmd_line, std::string& new_cmd_line, int* duration) {
-    char** args = new char*[numberOfArgs(cmd_line) + 1]; //buffer of (+1) due to impl. of _parse command
+    int num_of_args = numberOfArgs(cmd_line);
+    if (num_of_args < 3)
+    {
+        *duration = ERROR;
+        return;
+    }
+    char** args = new char*[num_of_args + 1]; //buffer of (+1) due to impl. of _parse command
     int argv = _parseCommandLine(cmd_line, args);
     *duration = setTimeoutDuration(args[1]);
+    if (*duration == ERROR)
+        return;
     new_cmd_line = args[2];
     for (int i = 3; i < argv; i++)
     {
@@ -910,6 +945,11 @@ void SmallShell::executeCommand(const char* cmd_line) {
         std::string new_cmd_line("");
         int duration = 0;
         getTrimmedCmdAndDuration(cmd_line, new_cmd_line, &duration);
+        if (duration == ERROR)
+        {
+            fprintf(stderr, "smash error: timeout: invalid arguments\n");
+            return;
+        }
         cmd = CreateCommand(new_cmd_line.c_str());
         TimedCommandEntry entry(time(NULL) + duration, cmd_line, NOT_SET); // should implement inst.
         //operator compares absulote alarm times
