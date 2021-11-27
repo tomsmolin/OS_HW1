@@ -67,9 +67,9 @@ int _parseCommandLine(const char* cmd_line, char** args) {
   FUNC_EXIT()
 }
 
-bool _isBackgroundComamnd(const char* cmd_line) {
-  const string str(cmd_line);
-  return str[str.find_last_not_of(WHITESPACE)] == '&';
+bool _isBackgroundComamnd(const std::string cmd_line) {
+  //const string str(cmd_line);
+  return str[cmd_line.find_last_not_of(WHITESPACE)] == '&';
 }
 
 void _removeBackgroundSign(char* cmd_line) {
@@ -189,7 +189,7 @@ void ExternalCommand::execute() {
             this->timed_entry = NULL;
         }
         std::string curr_cmd = cmd;
-        if(_isBackgroundComamnd(cmd))
+        if(_isBackgroundComamnd(curr_cmd))
         {
             jobs->addJob(pid,curr_cmd);
         }
