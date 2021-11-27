@@ -21,17 +21,19 @@ void ctrlZHandler(int sig_num) {
 			smash.getJobs()->addJob(pid, curr_cmd, true);
 		else
 		{
+			cout << "got here1 " << endl;
 			int job_id = smash.getCurrFgFromJobsListId();
 			smash.getJobs()->getJobById(job_id)->insert = time(NULL);
 		}
 
 		if (kill(pid, SIGSTOP) == ERROR)
 		{
+			cout << "got here2 " << endl;
 			fprintf(stderr, "smash error: kill failed\n");
 			return;
 		}
 		cout << "smash: process " << pid << " was stopped" << endl;
-		SmallShell::getInstance().resetCurrFgInfo();
+		SmallShell::getInstance().resetCurrFgInfo(); // UPDATE FOR NEW FIELDS
 	}
 }
 
