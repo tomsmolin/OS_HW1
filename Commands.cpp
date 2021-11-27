@@ -448,6 +448,8 @@ void ForegroundCommand::execute() {
         return;
     }
     int status = 0;
+    SmallShell::getInstance().setCurrPid(pid);
+    SmallShell::getInstance().setCurrCmd(job_cmd);
     int result = waitpid(pid, &status, WUNTRACED);
     if (result == ERROR)
     {

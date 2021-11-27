@@ -8,9 +8,12 @@ using namespace std;
 void ctrlZHandler(int sig_num) {
 	cout << "smash: got ctrl-Z" << endl;
 	int pid = SmallShell::getInstance().getCurrPid();
-	if (pid == NOT_SET)
+
+	if (pid == NOT_SET) {
 		return;
+	}
 	std::string curr_cmd = SmallShell::getInstance().getCurrCmd();
+
 	if (pid != NO_CURR_PID)
 	{
 		SmallShell::getInstance().getJobs()->addJob(pid, curr_cmd, true);

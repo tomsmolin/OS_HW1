@@ -232,8 +232,10 @@ class SmallShell {
   bool legal_cd_made_before;
   std::string prompt;
   JobsList job_list;
+
   int curr_pid;
   std::string curr_cmd;
+  bool curr_fg_from_jobs;
   
  public:
   Command *CreateCommand(const char* cmd_line);
