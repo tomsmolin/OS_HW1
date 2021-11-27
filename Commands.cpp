@@ -189,11 +189,9 @@ void ExternalCommand::execute() {
             this->timed_entry = NULL;
         }
         std::string curr_cmd = cmd;
-        if(_isBackgroundComamnd(cmd)){
-        // char* curr_cmd  = new char;
-        // *curr_cmd = *(cmd);
-        //jobs->removeFinishedJobs(); =========== Added in the beginning of addJob
-        jobs->addJob(pid,curr_cmd);
+        if(_isBackgroundComamnd(cmd))
+        {
+            jobs->addJob(pid,curr_cmd);
         }
         else
         {
@@ -204,13 +202,14 @@ void ExternalCommand::execute() {
             if(result == ERROR) {
                 fprintf(stderr, "smash error: waitpid failed\n");
             }
-            if (WIFEXITED(status))
+            if (WIFEXITED(status) || WIFSIGNALED(status))
             {
                 std::list<TimedCommandEntry>& list = SmallShell::getInstance().timed_list;
                 std::list<TimedCommandEntry>::iterator it;
                 it = find(list.begin(), list.end(), TimedCommandEntry(0, "", pid));
                 if (it != list.end())
-                {
+                { //timeout 6 ../os1-tests-master/./my_sleep 4
+
 //                    list.erase(it);
 //                    if (list.empty())
 //                        alarm(0);
