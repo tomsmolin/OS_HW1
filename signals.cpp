@@ -21,9 +21,13 @@ void ctrlZHandler(int sig_num) {
 			smash.getJobs()->addJob(pid, curr_cmd, true);
 		else
 		{
-			cout << "got here1 " << endl;
+			JobsList::JobEntry* job_entry = smash.getJobs()->getJobById(job_id);
 			int job_id = smash.getCurrFgFromJobsListId();
-			smash.getJobs()->getJobById(job_id)->insert = time(NULL);
+			job_entry->insert = time(NULL);
+			if (job_entry->status == Background)
+			{
+				job_entry->cmd.append(" (stopped)");
+			}
 		}
 
 		if (kill(pid, SIGSTOP) == ERROR)
