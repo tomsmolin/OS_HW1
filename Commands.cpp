@@ -71,12 +71,12 @@ bool _isBackgroundComamnd(const std::string cmd_line) {
   //const string str(cmd_line);
   return /*str*/cmd_line[cmd_line.find_last_not_of(WHITESPACE)] == '&';
 }
+// $$$$$$: attempt to use std::string as argument
+void _removeBackgroundSign(/*$$$$$$char* cmd_line*/ std::string cmd_line) {
 
-void _removeBackgroundSign(char* cmd_line) {
-
-  const string str(cmd_line);
+  //$$$$$$const string str(cmd_line);
   // find last character other than spaces
-  unsigned int idx = str.find_last_not_of(WHITESPACE);
+  unsigned int idx = /*$$$$$$str*/cmd_line.find_last_not_of(WHITESPACE);
   // if all characters are spaces then return
   if (idx == string::npos) {
     return;
@@ -88,7 +88,7 @@ void _removeBackgroundSign(char* cmd_line) {
   // replace the & (background sign) with space and then remove all tailing spaces.
   cmd_line[idx] = ' ';
   // truncate the command line string up to the last non-space character
-  cmd_line[str.find_last_not_of(WHITESPACE, idx) + 1] = 0;
+  cmd_line[/*$$$$$$str.*/find_last_not_of(WHITESPACE, idx) + 1] = 0;
 }
 
 static int numberOfArgs(std::string cmd_line) {
@@ -166,12 +166,13 @@ void ExternalCommand::execute() {
             fprintf(stderr, "smash error: setpgrp failed\n");
             return;
         }
-        char* cmd_line_char  = (char*)cmd;
+        //char* cmd_line_char  = (char*)cmd;
+        std::string cmd_line_char = cmd;
         _removeBackgroundSign(cmd_line_char);
         const char *new_args[] = {
                 "/bin/bash",
                 "-c",
-                cmd_line_char,
+                cmd_line_char.c_str(),
                 NULL
         };
         int result = execv(new_args[0], (char**)new_args);
