@@ -69,7 +69,7 @@ int _parseCommandLine(const char* cmd_line, char** args) {
 
 bool _isBackgroundComamnd(const std::string cmd_line) {
   //const string str(cmd_line);
-  return str[cmd_line.find_last_not_of(WHITESPACE)] == '&';
+  return /*str*/cmd_line[cmd_line.find_last_not_of(WHITESPACE)] == '&';
 }
 
 void _removeBackgroundSign(char* cmd_line) {
