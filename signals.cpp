@@ -21,8 +21,8 @@ void ctrlZHandler(int sig_num) {
 			smash.getJobs()->addJob(pid, curr_cmd, true);
 		else
 		{
-			JobsList::JobEntry* job_entry = smash.getJobs()->getJobById(job_id);
 			int job_id = smash.getCurrFgFromJobsListId();
+			JobsList::JobEntry* job_entry = smash.getJobs()->getJobById(job_id);
 			job_entry->insert = time(NULL);
 			if (job_entry->status == Background)
 			{
