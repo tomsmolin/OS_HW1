@@ -456,7 +456,8 @@ void ForegroundCommand::execute() {
     }
     if (WIFSTOPPED(status))
     {
-
+        if (curr_job->status == Stopped)
+            return;
     }
     jobs->removeJobById(curr_job->job_id);
 }
