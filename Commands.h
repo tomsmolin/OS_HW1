@@ -12,6 +12,7 @@
 #define MAX_CWD_LENGTH 256
 #define COMMAND_MAX_LENGTH (80)
 #define NO_CURR_PID (-1)
+#define NO_CURR_JOB_ID (-1)
 #define NOT_SET (-1)
 #define ERROR (-1)
 #define EXITED (-1)

@@ -33,7 +33,6 @@ void ctrlZHandler(int sig_num) {
 
 		if (kill(pid, SIGSTOP) == ERROR)
 		{
-			cout << "got here2 " << endl;
 			fprintf(stderr, "smash error: kill failed\n");
 			return;
 		}

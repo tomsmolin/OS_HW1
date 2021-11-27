@@ -919,6 +919,8 @@ std::string SmallShell::getCurrCmd() {
 void SmallShell::resetCurrFgInfo() {
     curr_pid = NO_CURR_PID;
     curr_cmd = "No Current cmd";
+    curr_fg_from_jobs = false;
+    curr_fg_from_jobs_id = NO_CURR_JOB_ID;
 }
 
 JobsList* SmallShell::getJobs() {
