@@ -736,6 +736,7 @@ void JobsList::removeFinishedJobs() {
   }
   
   map<int, JobEntry>::iterator iter;
+  map<int, JobEntry>::iterator temp_iter;
   for (iter = jobsDict.begin(); iter != jobsDict.end(); iter++) {
     int status;
     int status_2 = waitpid(iter->second.pid, &status, WNOHANG | WUNTRACED | WCONTINUED);
@@ -745,15 +746,27 @@ void JobsList::removeFinishedJobs() {
       // cout << "DGB" << endl;
       if(jobsDict.size()== 1){
         jobs_list_empty=true;
-        
-        jobsDict.erase(iter->first);
-        
+
+        /* When we're traversing a map with a loop and an iterator \
+         * deleting some element could be problematic and "confusing" \
+         * for the iterator. Therefore, we need to somehow make sure it reaches \
+         * the next element properly. for ex, with this implementation (There are more elegant ways though): */
+        temp_iter = ++iter;
+        jobsDict.erase((--iter)->first);
+        iter = temp_iter;
+
+
         freeIdUpdate();
         return;
       }
-      bool last_iter = (++iter==jobsDict.end()) ? true : false;
-      iter--;  
-      jobsDict.erase(iter->first);
+      bool last_iter = (++iter==jobsDict.end()) ? true : false; // TO ASK: why is this necessary?
+      iter--;
+
+      /* same note from above* */
+      temp_iter = ++iter;
+      jobsDict.erase((--iter)->first);
+      iter = temp_iter;
+
       freeIdUpdate();
       if(last_iter){
         return;
