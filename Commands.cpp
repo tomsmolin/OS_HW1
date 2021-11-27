@@ -447,7 +447,17 @@ void ForegroundCommand::execute() {
         fprintf(stderr, "smash error: kill failed\n");
         return;
     }
-    waitpid(pid, NULL, WUNTRACED); 
+    int status = 0;
+    int result = waitpid(pid, &status, WUNTRACED);
+    if (result == ERROR)
+    {
+        fprintf(stderr, "smash error: waitpid failed\n");
+        return;
+    }
+    if (WIFSTOPPED(status))
+    {
+
+    }
     jobs->removeJobById(curr_job->job_id);
 }
 
