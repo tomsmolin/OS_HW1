@@ -22,7 +22,7 @@ void ctrlZHandler(int sig_num) {
 		else
 		{
 			int job_id = smash.getCurrFgFromJobsListId();
-			smash.getJobs()->getJobById(job_id)->insert(time(NULL));
+			smash.getJobs()->getJobById(job_id)->insert = time(NULL);
 		}
 
 		if (kill(pid, SIGSTOP) == ERROR)

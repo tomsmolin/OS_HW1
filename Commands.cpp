@@ -450,7 +450,7 @@ void ForegroundCommand::execute() {
     int status = 0;
     SmallShell::getInstance().setCurrPid(pid);
     SmallShell::getInstance().setCurrCmd(job_cmd);
-    SmallShell::getInstance().setCurrFgFromJobs();
+    SmallShell::getInstance().setCurrFgFromJobs(curr_job->job_id);
     int result = waitpid(pid, &status, WUNTRACED);
     if (result == ERROR)
     {
@@ -902,7 +902,7 @@ void SmallShell::setCurrCmd(std::string cmd) {
 }
 
 void SmallShell::setCurrFgFromJobs(int job_id) {
-    curr_fg_from_jobs = true
+    curr_fg_from_jobs = true;
     curr_fg_from_jobs_id = job_id;
 }
 
