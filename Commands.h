@@ -14,6 +14,8 @@
 #define NO_CURR_PID (-1)
 #define NOT_SET (-1)
 #define ERROR (-1)
+#define EXITED (-1)
+
 
 class TimedCommandEntry {
 public:

@@ -211,14 +211,15 @@ void ExternalCommand::execute() {
                 it = find(list.begin(), list.end(), TimedCommandEntry(0, "", pid));
                 if (it != list.end())
                 {
-                    list.erase(it);
-                    if (list.empty())
-                        alarm(0);
-                    else
-                    {
-                        int next_alrm = list.front().alrm_time;
-                        alarm(difftime(next_alrm, time(NULL)));
-                    }
+//                    list.erase(it);
+//                    if (list.empty())
+//                        alarm(0);
+//                    else
+//                    {
+//                        int next_alrm = list.front().alrm_time;
+//                        alarm(difftime(next_alrm, time(NULL)));
+//                    }
+                       it->alrm_time = EXITED;
                 }
             }
             SmallShell::getInstance().resetCurrFgInfo();
