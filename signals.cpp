@@ -16,7 +16,9 @@ void ctrlZHandler(int sig_num) {
 
 	if (pid != NO_CURR_PID)
 	{
-		SmallShell::getInstance().getJobs()->addJob(pid, curr_cmd, true);
+		if (!SmallShell::getInstance().CurrFgIsFromJobsList())
+			SmallShell::getInstance().getJobs()->addJob(pid, curr_cmd, true);
+
 		if (kill(pid, SIGSTOP) == ERROR)
 		{
 			fprintf(stderr, "smash error: kill failed\n");

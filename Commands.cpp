@@ -450,6 +450,7 @@ void ForegroundCommand::execute() {
     int status = 0;
     SmallShell::getInstance().setCurrPid(pid);
     SmallShell::getInstance().setCurrCmd(job_cmd);
+    SmallShell::getInstance().setCurrFgFromJobs();
     int result = waitpid(pid, &status, WUNTRACED);
     if (result == ERROR)
     {
@@ -780,7 +781,8 @@ JobsList::JobEntry *JobsList::getLastStoppedJob(int *jobId) {
 /////////////////////////////end of joblist//////////////////////
 
 SmallShell::SmallShell() : plastPwd(NULL), legal_cd_made_before(false), prompt("smash> "),
-                           job_list(JobsList()), curr_pid(NO_CURR_PID), curr_cmd("No Current cmd") {
+                           job_list(JobsList()), curr_pid(NO_CURR_PID),
+                           curr_cmd("No Current cmd"), curr_fg_from_jobs(false) {
     // TODO: add your implementation
     plastPwd = new char* ();
     *plastPwd = NULL;
@@ -897,6 +899,14 @@ int SmallShell::getCurrPid() {
 
 void SmallShell::setCurrCmd(std::string cmd) {
     curr_cmd = cmd;
+}
+
+void SmallShell::setCurrFgFromJobs() {
+    curr_fg_from_jobs = true;
+}
+
+void SmallShell::CurrFgIsFromJobsList() {
+    return curr_fg_from_jobs;
 }
 
 std::string SmallShell::getCurrCmd() {

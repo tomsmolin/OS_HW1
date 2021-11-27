@@ -254,6 +254,8 @@ class SmallShell {
   void setCurrPid(int curr_pid);
   int getCurrPid();
   void setCurrCmd(std::string curr_cmd);
+  void setCurrFgFromJobs();
+  bool CurrFgIsFromJobsList();
   std::string getCurrCmd();
   void resetCurrFgInfo();
   JobsList* getJobs();
