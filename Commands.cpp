@@ -901,8 +901,13 @@ void SmallShell::setCurrCmd(std::string cmd) {
     curr_cmd = cmd;
 }
 
-void SmallShell::setCurrFgFromJobs() {
-    curr_fg_from_jobs = true;
+void SmallShell::setCurrFgFromJobs(int job_id) {
+    curr_fg_from_jobs = true
+    curr_fg_from_jobs_id = job_id;
+}
+
+int SmallShell::getCurrFgFromJobsListId() {
+    return curr_fg_from_jobs_id;
 }
 
 bool SmallShell::CurrFgIsFromJobsList() {

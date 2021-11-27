@@ -236,7 +236,8 @@ class SmallShell {
   int curr_pid;
   std::string curr_cmd;
   bool curr_fg_from_jobs;
-  
+  int curr_fg_from_jobs_id;
+
  public:
   Command *CreateCommand(const char* cmd_line);
   SmallShell(SmallShell const&)      = delete; // disable copy ctor
@@ -254,7 +255,8 @@ class SmallShell {
   void setCurrPid(int curr_pid);
   int getCurrPid();
   void setCurrCmd(std::string curr_cmd);
-  void setCurrFgFromJobs();
+  void setCurrFgFromJobs(int curr_fg_from_jobs_id);
+  int getCurrFgFromJobsListId();
   bool CurrFgIsFromJobsList();
   std::string getCurrCmd();
   void resetCurrFgInfo();

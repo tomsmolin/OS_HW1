@@ -7,17 +7,23 @@ using namespace std;
 
 void ctrlZHandler(int sig_num) {
 	cout << "smash: got ctrl-Z" << endl;
-	int pid = SmallShell::getInstance().getCurrPid();
+	SmallShell& smash = SmallShell::getInstance();
+	int pid = smash.getCurrPid();
 
 	if (pid == NOT_SET) {
 		return;
 	}
-	std::string curr_cmd = SmallShell::getInstance().getCurrCmd();
+	std::string curr_cmd = smash.getCurrCmd();
 
 	if (pid != NO_CURR_PID)
 	{
-		if (!SmallShell::getInstance().CurrFgIsFromJobsList())
-			SmallShell::getInstance().getJobs()->addJob(pid, curr_cmd, true);
+		if (!smash.CurrFgIsFromJobsList())
+			smash.getJobs()->addJob(pid, curr_cmd, true);
+		else
+		{
+			int job_id = smash.getCurrFgFromJobsListId();
+			smash.getJobs()->getJobById(job_id)->insert(time(NULL));
+		}
 
 		if (kill(pid, SIGSTOP) == ERROR)
 		{
