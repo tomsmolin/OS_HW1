@@ -78,6 +78,6 @@ void alarmHandler(int sig_num, siginfo_t* info, void* context) {
 	smash.timed_list.sort();
 	if (!smash.timed_list.empty())
 		alarm(difftime(smash.timed_list.front().alrm_time, time(NULL)));
-	smash.getJobs()->removeFinishedJobs();
+	//smash.getJobs()->removeFinishedJobs();
 }
 
