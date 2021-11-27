@@ -905,7 +905,7 @@ void SmallShell::setCurrFgFromJobs() {
     curr_fg_from_jobs = true;
 }
 
-void SmallShell::CurrFgIsFromJobsList() {
+bool SmallShell::CurrFgIsFromJobsList() {
     return curr_fg_from_jobs;
 }
 
