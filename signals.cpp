@@ -84,7 +84,6 @@ void alarmHandler(int sig_num, siginfo_t* info, void* context) {
 			cout << str;
 		}
 	}
-	
 	smash.getJobs()->removeFinishedJobs();
 }
 
