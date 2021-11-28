@@ -67,12 +67,15 @@ void alarmHandler(int sig_num, siginfo_t* info, void* context) {
 
 	if (alrm_time != EXITED)
 	{
-		if (kill(pid, SIGKILL) == ERROR)
+		if (kill(pid, 0) != ERROR) // existence check
 		{
-			fprintf(stderr, "smash error: kill failed\n");
-			return;
+			if (kill(pid, SIGKILL) == ERROR)
+			{
+				fprintf(stderr, "smash error: kill failed\n");
+				return;
+			}
+			cout << str;
 		}
-		cout << str;
 	}
 	smash.timed_list.pop_front();
 	smash.timed_list.sort();
