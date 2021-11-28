@@ -182,7 +182,7 @@ void ExternalCommand::execute() {
         }
     }
     /////father
-    else { 
+    else {
         if (this->timed_entry != NULL)
         {
             this->timed_entry->pid_cmd = pid;
