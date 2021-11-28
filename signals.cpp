@@ -59,6 +59,7 @@ void ctrlCHandler(int sig_num) {
 void alarmHandler(int sig_num, siginfo_t* info, void* context) {
 	
 	SmallShell& smash = SmallShell::getInstance();
+	smash.getJobs()->removeFinishedJobs();
 	std::string cmd = smash.timed_list.front().timeout_cmd;
 	int pid = smash.timed_list.front().pid_cmd;
 	int alrm_time = smash.timed_list.front().alrm_time;
@@ -73,9 +74,7 @@ void alarmHandler(int sig_num, siginfo_t* info, void* context) {
 
 	if (alrm_time != EXITED)
 	{
-		int res = kill(pid, 0);
-		cout << "kill(pid, 0) is: " << res << endl;
-		if (res != ERROR) // existence check
+		if (kill(pid, 0) != ERROR) // existence check
 		{
 			if (kill(pid, SIGKILL) == ERROR)
 			{
