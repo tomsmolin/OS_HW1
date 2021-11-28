@@ -849,7 +849,7 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
     else if (firstWord.compare("pwd") == 0) {
         return new GetCurrDirCommand(cmd_line);
     }
-    else if (firstWord.compare("showpid") == 0) {
+    else if (firstWord.compare("showpid") == 0 || firstWord.compare("showpid&") == 0) {
         return new ShowPidCommand(cmd_line);
     }
     else if (firstWord.compare("cd") == 0) {
