@@ -73,7 +73,9 @@ void alarmHandler(int sig_num, siginfo_t* info, void* context) {
 
 	if (alrm_time != EXITED)
 	{
-		if (kill(pid, 0) != ERROR) // existence check
+		int res = kill(pid, 0);
+		cout << "kill(pid, 0) is: " << res << endl;
+		if (res != ERROR) // existence check
 		{
 			if (kill(pid, SIGKILL) == ERROR)
 			{
