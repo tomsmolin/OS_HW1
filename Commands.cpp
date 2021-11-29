@@ -132,6 +132,10 @@ const char* Command::getCmd() {
   return cmd;
 }
 
+//adding back the 'timeout %d' prefix
+void Command::updateCmdForTimeout(char* timeout_cmd) {
+    cmd = timeout_cmd;
+}
 TimedCommandEntry::TimedCommandEntry(time_t alrm_time, std::string timeout_cmd, int pid_cmd) 
 : alrm_time(alrm_time), timeout_cmd(timeout_cmd), pid_cmd(pid_cmd) {}
 
@@ -992,6 +996,7 @@ void SmallShell::executeCommand(const char* cmd_line) {
             return;
         }
         cmd = CreateCommand(new_cmd_line.c_str());
+        cmd->updateCmdForTimeout(cmd_line);
         TimedCommandEntry entry(time(NULL) + duration, cmd_line, NOT_SET); // should implement inst.
         //operator compares absulote alarm times
         if (timed_list.front() < entry)
