@@ -962,8 +962,8 @@ static void getTrimmedCmdAndDuration(const char* cmd_line, std::string& new_cmd_
     *duration = setTimeoutDuration(args[1]);
     if (*duration == ERROR)
         return;
-    new_cmd_line = args[2];
-    for (int i = 3; i < argv; i++)
+    new_cmd_line = args[0];
+    for (int i = 1; i < argv; i++)
     {
         new_cmd_line.append(" ").append(args[i]);
     }
