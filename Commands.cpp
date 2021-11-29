@@ -996,7 +996,7 @@ void SmallShell::executeCommand(const char* cmd_line) {
             return;
         }
         cmd = CreateCommand(new_cmd_line.c_str());
-        cmd->updateCmdForTimeout(cmd_line);
+        //cmd->updateCmdForTimeout(cmd_line);
         TimedCommandEntry entry(time(NULL) + duration, cmd_line, NOT_SET); // should implement inst.
         //operator compares absulote alarm times
         if (timed_list.front() < entry)
