@@ -570,7 +570,7 @@ void HeadCommand::execute() {
         fprintf(stderr, "smash error: open failed\n");
         return;
     }
-    char* line = new char[BUFFER_SIZE]{ 0 };
+    char* line = new char[BUFFER_SIZE];
     int r_result = read(fd, line, BUFFER_SIZE - 1);
     if (r_result == ERROR) {
         fprintf(stderr, "smash error: read failed\n");
