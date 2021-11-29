@@ -67,9 +67,9 @@ int _parseCommandLine(const char* cmd_line, char** args) {
   FUNC_EXIT()
 }
 
-bool _isBackgroundComamnd(const char* cmd_line) {
-  const string str(cmd_line);
-  return str[str.find_last_not_of(WHITESPACE)] == '&';
+bool _isBackgroundComamnd(const std::string cmd_line) {
+  //const string str(cmd_line);
+  return /*str*/cmd_line[cmd_line.find_last_not_of(WHITESPACE)] == '&';
 }
 
 void _removeBackgroundSign(char* cmd_line) {
@@ -182,18 +182,16 @@ void ExternalCommand::execute() {
         }
     }
     /////father
-    else { 
+    else {
         if (this->timed_entry != NULL)
         {
             this->timed_entry->pid_cmd = pid;
             this->timed_entry = NULL;
         }
         std::string curr_cmd = cmd;
-        if(_isBackgroundComamnd(cmd)){
-        // char* curr_cmd  = new char;
-        // *curr_cmd = *(cmd);
-        //jobs->removeFinishedJobs(); =========== Added in the beginning of addJob
-        jobs->addJob(pid,curr_cmd);
+        if(_isBackgroundComamnd(curr_cmd))
+        {
+            jobs->addJob(pid,curr_cmd);
         }
         else
         {
@@ -204,21 +202,23 @@ void ExternalCommand::execute() {
             if(result == ERROR) {
                 fprintf(stderr, "smash error: waitpid failed\n");
             }
-            if (WIFEXITED(status))
+            if (WIFEXITED(status) || WIFSIGNALED(status))
             {
                 std::list<TimedCommandEntry>& list = SmallShell::getInstance().timed_list;
                 std::list<TimedCommandEntry>::iterator it;
                 it = find(list.begin(), list.end(), TimedCommandEntry(0, "", pid));
                 if (it != list.end())
-                {
-                    list.erase(it);
-                    if (list.empty())
-                        alarm(0);
-                    else
-                    {
-                        int next_alrm = list.front().alrm_time;
-                        alarm(difftime(next_alrm, time(NULL)));
-                    }
+                { //timeout 6 ../os1-tests-master/./my_sleep 4
+
+//                    list.erase(it);
+//                    if (list.empty())
+//                        alarm(0);
+//                    else
+//                    {
+//                        int next_alrm = list.front().alrm_time;
+//                        alarm(difftime(next_alrm, time(NULL)));
+//                    }
+                       it->alrm_time = EXITED;
                 }
             }
             SmallShell::getInstance().resetCurrFgInfo();
@@ -447,7 +447,19 @@ void ForegroundCommand::execute() {
         fprintf(stderr, "smash error: kill failed\n");
         return;
     }
-    waitpid(pid, NULL, WUNTRACED); 
+    int status = 0;
+    SmallShell::getInstance().setCurrPid(pid);
+    SmallShell::getInstance().setCurrCmd(job_cmd);
+    SmallShell::getInstance().setCurrFgFromJobs(curr_job->job_id);
+    int result = waitpid(pid, &status, WUNTRACED);
+    if (result == ERROR)
+    {
+        fprintf(stderr, "smash error: waitpid failed\n");
+        return;
+    }
+    if (WIFSTOPPED(status))
+            return;
+
     jobs->removeJobById(curr_job->job_id);
 }
 
@@ -724,6 +736,7 @@ void JobsList::removeFinishedJobs() {
   }
   
   map<int, JobEntry>::iterator iter;
+  map<int, JobEntry>::iterator temp_iter;
   for (iter = jobsDict.begin(); iter != jobsDict.end(); iter++) {
     int status;
     int status_2 = waitpid(iter->second.pid, &status, WNOHANG | WUNTRACED | WCONTINUED);
@@ -733,15 +746,27 @@ void JobsList::removeFinishedJobs() {
       // cout << "DGB" << endl;
       if(jobsDict.size()== 1){
         jobs_list_empty=true;
-        
-        jobsDict.erase(iter->first);
-        
+
+        /* When we're traversing a map with a loop and an iterator \
+         * deleting some element could be problematic and "confusing" \
+         * for the iterator. Therefore, we need to somehow make sure it reaches \
+         * the next element properly. for ex, with this implementation (There are more elegant ways though): */
+        temp_iter = ++iter;
+        jobsDict.erase((--iter)->first);
+        iter = temp_iter;
+
+
         freeIdUpdate();
         return;
       }
-      bool last_iter = (++iter==jobsDict.end()) ? true : false;
-      iter--;  
-      jobsDict.erase(iter->first);
+      bool last_iter = (++iter==jobsDict.end()) ? true : false; // TO ASK: why is this necessary?
+      iter--;
+
+      /* same note from above* */
+      temp_iter = ++iter;
+      jobsDict.erase((--iter)->first);
+      iter = temp_iter;
+
       freeIdUpdate();
       if(last_iter){
         return;
@@ -767,7 +792,8 @@ JobsList::JobEntry *JobsList::getLastStoppedJob(int *jobId) {
 /////////////////////////////end of joblist//////////////////////
 
 SmallShell::SmallShell() : plastPwd(NULL), legal_cd_made_before(false), prompt("smash> "),
-                           job_list(JobsList()), curr_pid(NO_CURR_PID), curr_cmd("No Current cmd") {
+                           job_list(JobsList()), curr_pid(NO_CURR_PID),
+                           curr_cmd("No Current cmd"), curr_fg_from_jobs(false) {
     // TODO: add your implementation
     plastPwd = new char* ();
     *plastPwd = NULL;
@@ -817,31 +843,31 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
     else if (firstWord.compare("head") == 0) {
         return new HeadCommand(cmd_line);
     }
-    else if (firstWord.compare("chprompt") == 0) {
+    else if (firstWord.compare("chprompt") == 0 || firstWord.compare("chprompt&") == 0) {
         return new ChangePromptCommand(cmd_line, getPPrompt());
     }
-    else if (firstWord.compare("pwd") == 0) {
+    else if (firstWord.compare("pwd") == 0 || firstWord.compare("pwd&") == 0) {
         return new GetCurrDirCommand(cmd_line);
     }
-    else if (firstWord.compare("showpid") == 0) {
+    else if (firstWord.compare("showpid") == 0 || firstWord.compare("showpid&") == 0) {
         return new ShowPidCommand(cmd_line);
     }
-    else if (firstWord.compare("cd") == 0) {
+    else if (firstWord.compare("cd") == 0 || firstWord.compare("cd&") == 0) {
         return new ChangeDirCommand(cmd_line, plastPwd);
     }
-    else if (firstWord.compare("jobs") == 0) {
+    else if (firstWord.compare("jobs") == 0 || firstWord.compare("jobs&") == 0) {
         return new JobsCommand(cmd_line, &job_list);
     }
-    else if (firstWord.compare("kill") == 0) {
+    else if (firstWord.compare("kill") == 0 || firstWord.compare("kill&") == 0) {
         return new KillCommand(cmd_line, &job_list);
     }
-    else if (firstWord.compare("quit") == 0) {
+    else if (firstWord.compare("quit") == 0 || firstWord.compare("quit&") == 0) {
         return new QuitCommand(cmd_line, &job_list);
     }
-    else if (firstWord.compare("fg") == 0) {
+    else if (firstWord.compare("fg") == 0 || firstWord.compare("fg&") == 0) {
         return new ForegroundCommand(cmd_line, &job_list);
     }
-    else if (firstWord.compare("bg") == 0) {
+    else if (firstWord.compare("bg") == 0 || firstWord.compare("bg&") == 0) {
         return new BackgroundCommand(cmd_line, &job_list);
     }
 
@@ -886,6 +912,19 @@ void SmallShell::setCurrCmd(std::string cmd) {
     curr_cmd = cmd;
 }
 
+void SmallShell::setCurrFgFromJobs(int job_id) {
+    curr_fg_from_jobs = true;
+    curr_fg_from_jobs_id = job_id;
+}
+
+int SmallShell::getCurrFgFromJobsListId() {
+    return curr_fg_from_jobs_id;
+}
+
+bool SmallShell::CurrFgIsFromJobsList() {
+    return curr_fg_from_jobs;
+}
+
 std::string SmallShell::getCurrCmd() {
     return curr_cmd;
 }
@@ -893,6 +932,8 @@ std::string SmallShell::getCurrCmd() {
 void SmallShell::resetCurrFgInfo() {
     curr_pid = NO_CURR_PID;
     curr_cmd = "No Current cmd";
+    curr_fg_from_jobs = false;
+    curr_fg_from_jobs_id = NO_CURR_JOB_ID;
 }
 
 JobsList* SmallShell::getJobs() {
