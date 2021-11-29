@@ -570,7 +570,7 @@ void HeadCommand::execute() {
         fprintf(stderr, "smash error: open failed\n");
         return;
     }
-    char* line = new char[BUFFER_SIZE];
+    char* line = new char[BUFFER_SIZE] {0};
     int r_result = read(fd, line, BUFFER_SIZE - 1);
     if (r_result == ERROR) {
         fprintf(stderr, "smash error: read failed\n");
@@ -600,7 +600,7 @@ void HeadCommand::execute() {
             lines_num--;
             if (seeker == BUFFER_SIZE)
             {
-                //resetBuffer(line);
+                resetBuffer(line);
                 r_result = read(fd, line, BUFFER_SIZE - 1);
                 if (r_result == ERROR) {
                     fprintf(stderr, "smash error: read failed\n");
@@ -625,7 +625,7 @@ void HeadCommand::execute() {
                 fprintf(stderr, "write wasn't able to write all bytes\n");
                 return;
             }
-            //resetBuffer(line);
+            resetBuffer(line);
             r_result = read(fd, line, BUFFER_SIZE - 1);
             if (r_result == ERROR) {
                 fprintf(stderr, "smash error: read failed\n");
