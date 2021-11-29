@@ -48,7 +48,7 @@ protected:
   virtual ~Command();
   virtual void execute() = 0;
   const char* getCmd();
-  void updateCmdForTimeout(char* cmd_line);
+  void updateCmdForTimeout(const char* cmd_line);
 
   //virtual void prepare();
   //virtual void cleanup();
