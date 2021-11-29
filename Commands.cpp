@@ -1018,7 +1018,7 @@ void SmallShell::executeCommand(const char* cmd_line) {
 
     job_list.removeFinishedJobs();
     cmd->execute();
-    cmd->updateCmdForTimeout(cmd_line);
+    cmd->updateCmdForTimeout(cmd_line); cout << cmd->getCmd() << endl;
     timed_list.sort();
     setPLastPwd(cmd);
     delete cmd;
