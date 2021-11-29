@@ -133,7 +133,7 @@ const char* Command::getCmd() {
 }
 
 //adding back the 'timeout %d' prefix
-void Command::updateCmdForTimeout(char* timeout_cmd) {
+void Command::updateCmdForTimeout(const char* timeout_cmd) {
     cmd = timeout_cmd;
 }
 TimedCommandEntry::TimedCommandEntry(time_t alrm_time, std::string timeout_cmd, int pid_cmd) 
