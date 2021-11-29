@@ -638,11 +638,11 @@ void HeadCommand::execute() {
             seeker = 0;
         }
     }
-    if (close(fd) == ERROR)
+    /*if (close(fd) == ERROR)
     {
         fprintf(stderr, "smash error: close failed\n");
         return;
-    }
+    }*/
 
     delete[] line;
     line = NULL;// VALGRIND
