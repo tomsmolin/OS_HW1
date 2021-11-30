@@ -407,8 +407,8 @@ JobsList::JobEntry* ForegroundCommand::setCurrJobToForeground() {
      JobsList::JobEntry* curr_job = NULL;
      if (argv == 1)
      {
-         job_id = jobs->free_job_id;
-         if (jobs->free_job_id == NO_CURR_JOBS)
+         job_id = jobs->max_id;
+         if (jobs->max_id == NO_CURR_JOBS)
          {
              fprintf(stderr, "smash error: fg: jobs list is empty\n");
              return NULL;
@@ -619,7 +619,7 @@ void HeadCommand::execute() {
 
 JobsList::JobsList() {
   jobsDict = {};
-  free_job_id=0;
+  max_id=0;
   jobs_list_empty=true;
 }
 
@@ -628,36 +628,37 @@ pid(pid),job_id(job_id),status(status),insert(insert),cmd(cmd) {};
 
 void JobsList::removeJobById(int jobId){
   jobsDict.erase(jobId);
-  freeIdUpdate();
+  maxIdUpdate();
 }
 
 void JobsList::addJob(int pid,std::string cmd, bool isStopped) {
-  freeIdUpdate();
+  maxIdUpdate();
   removeFinishedJobs();
   JobStatus curr_status = (isStopped) ?  Stopped : Background;
   jobs_list_empty=false;
-  jobsDict[free_job_id] = JobEntry(pid, free_job_id,curr_status,time(NULL),cmd);
+  max_id++;
+  jobsDict[max_id] = JobEntry(pid, max_id,curr_status,time(NULL),cmd);
 }
 
-void JobsList::freeIdUpdate() {
+void JobsList::maxIdUpdate() {
   if(jobs_list_empty){
-    free_job_id=1;
+    max_id=0;
     return;
   }
-  // int curr_max = 0;
-  int i = 1;
+  int curr_max = 0;
+  // int i = 1;
   map<int, JobEntry>::iterator iter;
   for (iter = jobsDict.begin(); iter != jobsDict.end(); iter++) {
-    // if(iter->first>curr_max) {
-    //   curr_max=iter->first;
-    // }
-    if(i != iter->first){
-      free_job_id = i;
-      return;
+    if(iter->first>curr_max) {
+      curr_max=iter->first;
     }
-    i++;
+    // if(i != iter->first){
+    //   max_id = i;
+    //   return;
+    // }
+    // i++;
   }
-  free_job_id = i;
+  max_id = curr_max;
 }
 
 void JobsList::printJobsList() {
@@ -691,7 +692,7 @@ void JobsList::killAllJobs() {
     }
   }
   jobsDict.clear();
-  freeIdUpdate();
+  maxIdUpdate();
 }
 
 JobsList::JobEntry* JobsList::getJobById(int jobId){
@@ -727,7 +728,7 @@ void JobsList::removeFinishedJobs() {
         iter = temp_iter;
 
 
-        freeIdUpdate();
+        maxIdUpdate();
         return;
       }
       bool last_iter = (++iter==jobsDict.end()) ? true : false; // TO ASK: why is this necessary?
@@ -738,7 +739,7 @@ void JobsList::removeFinishedJobs() {
       jobsDict.erase((--iter)->first);
       iter = temp_iter;
 
-      freeIdUpdate();
+      maxIdUpdate();
       if(last_iter){
         return;
       }
