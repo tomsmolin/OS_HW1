@@ -578,7 +578,6 @@ void HeadCommand::execute() {
     }
     line[BUFFER_SIZE - 1] = '\0'; // str excepts a c string type, otherwise invalid read recieved in valgrind
     std::string str(line);
-    line[BUFFER_SIZE - 1] = 'c';
     int seeker = 0;
     int w_result = 0;
     while (lines_num > 0)
@@ -611,7 +610,6 @@ void HeadCommand::execute() {
                 if (r_result == 0) //EOF
                     break;
                 str = line;
-                line[BUFFER_SIZE - 1] = 'c';
                 seeker = 0;
             }
         }
@@ -637,7 +635,6 @@ void HeadCommand::execute() {
             if (r_result == 0) //EOF
                 break;
             str = line;
-            line[BUFFER_SIZE - 1] = 'c';
             seeker = 0;
         }
     }
