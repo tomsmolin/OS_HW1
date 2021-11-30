@@ -576,13 +576,13 @@ void HeadCommand::execute() {
     while (lines_num > 0)
     {
         std::getline(ifs, str);
+        if (ifs.eof())
+            break;
         if (ifs.bad() || ifs.fail())
         {
             fprintf(stderr, "smash error: read failed\n");
             return;
         }
-        if (ifs.eof())
-            break;
         str.append("\n");
         int w_result = write(1, str.c_str(), str.size());
         if (w_result == ERROR) {
