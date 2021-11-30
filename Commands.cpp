@@ -565,8 +565,7 @@ void HeadCommand::execute() {
     if (argv == 2)
         file_index = 1;
 
-    std::ifstream ifs;
-    ifs.open(args[file_index], std::ifstream::in);
+    std::ifstream ifs(args[file_index], std::ifstream::in); //Constructor opens the file
     if (ifs.fail())
     {
         fprintf(stderr, "smash error: open failed: No such file or directory\n");
