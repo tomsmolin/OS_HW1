@@ -1039,7 +1039,7 @@ void RedirectionCommand::execute() {
   }
 
   if (fd == ERROR) {
-    perror"smash error: open failed");
+    perror("smash error: open failed");
     return;
   }
 
