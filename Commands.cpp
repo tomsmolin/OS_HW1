@@ -112,7 +112,7 @@ static int numberOfArgs(std::string cmd_line) {
 }
 
 // TODO: Add your implementation for classes in Commands.h 
-Command::Command(const char* cmd_line) : cmd(cmd_line), argv(0), timed_entry(NULL) {  
+Command::Command(const char* cmd_line) : cmd(cmd_line), argv(0), timed_entry(NULL), job_id(NOT_SET) {  
   args = new char*[numberOfArgs(cmd_line) + 1]; //buffer of (+1) due to impl. of _parse command
   argv = _parseCommandLine(cmd_line,args);
 }
@@ -195,7 +195,7 @@ void ExternalCommand::execute() {
         std::string curr_cmd = cmd;
         if(_isBackgroundComamnd(curr_cmd))
         {
-            jobs->addJob(pid,curr_cmd);
+            cmd_job_id = jobs->addJob(pid,curr_cmd);
         }
         else
         {
@@ -525,7 +525,7 @@ void BackgroundCommand::execute() {
         return;
     }
     jobs->removeJobById(curr_job->job_id);
-    jobs->addJob(pid, job_cmd);
+    cmd_job_id = jobs->addJob(pid, job_cmd);
 }
 
 HeadCommand::HeadCommand(const char* cmd_line) : BuiltInCommand(cmd_line) {}
@@ -631,12 +631,13 @@ void JobsList::removeJobById(int jobId){
   freeIdUpdate();
 }
 
-void JobsList::addJob(int pid,std::string cmd, bool isStopped) {
+int JobsList::addJob(int pid,std::string cmd, bool isStopped) {
   freeIdUpdate();
   removeFinishedJobs();
   JobStatus curr_status = (isStopped) ?  Stopped : Background;
   jobs_list_empty=false;
   jobsDict[free_job_id] = JobEntry(pid, free_job_id,curr_status,time(NULL),cmd);
+  return free_job_id;
 }
 
 void JobsList::freeIdUpdate() {
@@ -985,7 +986,12 @@ void SmallShell::executeCommand(const char* cmd_line) {
 
     job_list.removeFinishedJobs();
     cmd->execute();
-    //cmd->updateCmdForTimeout(cmd_line); cout << cmd->getCmd() << endl;
+    if (cmd->cmd_job_id != NOT_SET)
+    {
+        getJobs()->getJobById(cmd->cmd_job_id)->cmd = cmd_line;
+        cmd->cmd_job_id = NOT_SET;
+    }
+    
     timed_list.sort();
     setPLastPwd(cmd);
     delete cmd;

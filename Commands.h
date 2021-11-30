@@ -41,7 +41,7 @@ class Command {
 protected:
   const char* cmd;
   int argv;
-
+ 
  public:
   char** args; // move back to protected and add relevant get method --chprompt context
   TimedCommandEntry* timed_entry;
@@ -52,6 +52,8 @@ protected:
   const char* getCmd();
   void updateCmdForTimeout(const char* cmd_line);
 
+
+  int cmd_job_id;
   //virtual void prepare();
   //virtual void cleanup();
   // TODO: Add your extra methods if needed
@@ -163,7 +165,7 @@ class JobsList {
  public:
   JobsList();
   ~JobsList() = default;
-  void addJob(int pid, std::string cmd,bool isStopped=false);
+  int addJob(int pid, std::string cmd,bool isStopped=false);
   void printJobsList();
   void killAllJobs();
   void removeFinishedJobs();
