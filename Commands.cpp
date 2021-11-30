@@ -581,7 +581,7 @@ void HeadCommand::execute() {
         {
             if (str.compare("") != 0)
             {
-                w_result = write(1, str.c_str(), str.size())
+                w_result = write(1, str.c_str(), str.size());
                 if (w_result == ERROR)
                 {
                     fprintf(stderr, "smash error: write failed\n");
