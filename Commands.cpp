@@ -14,6 +14,7 @@
 
 using namespace std;
 #define LAST_CD "-"
+#define PRINT_ERROR(str) (perror(str))
 #define MIN_SIG (-35)
 #define MAX_SIG (-1)
 #define NEGATIVE (-1)
@@ -165,13 +166,13 @@ void ExternalCommand::execute() {
   int pid = fork();
     if (pid == ERROR)
     {
-        fprintf(stderr, "smash error: fork failed\n");
+        PRINT_ERROR("smash error: fork failed");
         return;
     }
     if(pid == 0)//child
     {
         if(setpgrp() == ERROR) {
-            fprintf(stderr, "smash error: setpgrp failed\n");
+            PRINT_ERROR("smash error: setpgrp failed");
             return;
         }
         char* cmd_line_char  = (char*)cmd;
@@ -185,7 +186,7 @@ void ExternalCommand::execute() {
         int result = execv(new_args[0], (char**)new_args);
         if(result == ERROR)
         {
-            fprintf(stderr, "smash error: execvp failed\n");
+            PRINT_ERROR("smash error: execvp failed");
             return;
         }
     }
@@ -208,7 +209,7 @@ void ExternalCommand::execute() {
             int status = 0;
             int result = waitpid(pid, &status, WUNTRACED);
             if(result == ERROR) {
-                fprintf(stderr, "smash error: waitpid failed\n");
+                PRINT_ERROR("smash error: waitpid failed");
             }
             if (WIFEXITED(status) || WIFSIGNALED(status))
             {
@@ -260,7 +261,7 @@ GetCurrDirCommand::GetCurrDirCommand(const char* cmd_line) : BuiltInCommand(cmd_
 void GetCurrDirCommand::execute() {
   char cwd[MAX_CWD_LENGTH]; // make sure it's not suppose to be 80
   if(getcwd(cwd, MAX_CWD_LENGTH) == NULL){
-    fprintf(stderr, "smash error: getcwd failed\n");
+    PRINT_ERROR("smash error: getcwd failed");
     return;
   }
   cout << cwd << endl;  
@@ -270,7 +271,7 @@ static char* getCurrPwd() {
     char* cwd = new char[COMMAND_MAX_LENGTH];
     if (getcwd(cwd, COMMAND_MAX_LENGTH) == NULL)
     {
-        fprintf(stderr, "smash error: getcwd failed\n");
+        PRINT_ERROR("smash error: getcwd failed");
         return NULL;
     }
 
@@ -287,7 +288,7 @@ void ChangeDirCommand::execute() {
     }
     if (argv > 2)
     {
-        fprintf(stderr, "smash error: cd: too many arguments\n");
+        PRINT_ERROR("smash error: cd: too many arguments");
         return;
     }
 
@@ -303,7 +304,7 @@ void ChangeDirCommand::execute() {
         if (classPlastPwd == NULL) // When last working directory isn't set on smash
         {
             classPlastPwd = cwd;
-            fprintf(stderr, "smash error: cd: OLDPWD not set\n");
+            PRINT_ERROR("smash error: cd: OLDPWD not set");
             delete[] cwd; //No old pwd is set - therefore the smash won't rec. this mem.
             return;
         }
@@ -311,7 +312,7 @@ void ChangeDirCommand::execute() {
         {
             if (chdir(classPlastPwd) == ERROR)
             {
-                fprintf(stderr, "smash error: chdir failed\n");
+                PRINT_ERROR("smash error: chdir failed");
                 return;
             }
         }
@@ -320,7 +321,7 @@ void ChangeDirCommand::execute() {
     {
         if (chdir(path) == ERROR)
         {
-            fprintf(stderr, "smash error: chdir failed\n");
+            PRINT_ERROR("smash error: chdir failed");
             return;
         }
     }
@@ -361,11 +362,11 @@ KillCommand::KillCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(
 
 void KillCommand::execute() {
     if((argv!=3) || (!killFormat(args,argv))) {
-    fprintf(stderr, "smash error: invalid arguments\n"); 
+    PRINT_ERROR("smash error: invalid arguments"); 
     return;
   }
   // if(!killFormat(args,argv)) { // as said in piazza invalid sig_num => syscall failed
-  //     fprintf(stderr, "smash error: kill failed\n"); 
+  //     PRINT_ERROR( "smash error: kill failed\n"); 
   //     return;
   // }
   std::stringstream job_id(args[2]);
@@ -377,7 +378,7 @@ void KillCommand::execute() {
     std::string str2 = args[2];
     std::string str3 = " does not exist\n";
     str.append(str2).append(str3);
-    fprintf(stderr,str.c_str());
+    PRINT_ERROR(str.c_str());
     str = args[2]; //preventing from free invalid pointer
     return;
   }
@@ -387,7 +388,7 @@ void KillCommand::execute() {
   sig_number >> sig_num;
   sig_num*=-1;
   if (kill(pid, sig_num) == ERROR) {
-    fprintf(stderr, "smash error: kill failed\n");
+    PRINT_ERROR("smash error: kill failed");
     return;
   }
   printf("signal number %d was sent to pid %d\n",sig_num, pid);
@@ -414,7 +415,7 @@ JobsList::JobEntry* ForegroundCommand::setCurrJobToForeground() {
          job_id = jobs->max_id;
          if (jobs->max_id == NO_CURR_JOBS)
          {
-             fprintf(stderr, "smash error: fg: jobs list is empty\n");
+             PRINT_ERROR("smash error: fg: jobs list is empty");
              return NULL;
          }
          return jobs->getJobById(job_id);
@@ -422,7 +423,7 @@ JobsList::JobEntry* ForegroundCommand::setCurrJobToForeground() {
      else
      {
          if (!backAndForegroundFormat(args, argv)) {
-             fprintf(stderr, "smash error: fg: invalid arguments\n");
+             PRINT_ERROR("smash error: fg: invalid arguments");
              return NULL;
          }
          stringstream id(args[1]);
@@ -433,7 +434,7 @@ JobsList::JobEntry* ForegroundCommand::setCurrJobToForeground() {
              std::string str1("smash error: fg: job-id ");
              std::string str2(args[1]);
              str1.append(str2).append(" does not exist\n");
-             fprintf(stderr, str1.c_str());
+             PRINT_ERROR(str1.c_str());
              return NULL;
          }
          return jobs->getJobById(job_id);
@@ -452,7 +453,7 @@ void ForegroundCommand::execute() {
     cout << job_cmd << " : " << pid << endl;
     if (kill(pid, SIGCONT) == ERROR)
     {
-        fprintf(stderr, "smash error: kill failed\n");
+        PRINT_ERROR("smash error: kill failed");
         return;
     }
     int status = 0;
@@ -462,7 +463,7 @@ void ForegroundCommand::execute() {
     int result = waitpid(pid, &status, WUNTRACED);
     if (result == ERROR)
     {
-        fprintf(stderr, "smash error: waitpid failed\n");
+        PRINT_ERROR("smash error: waitpid failed");
         return;
     }
     if (WIFSTOPPED(status))
@@ -477,7 +478,7 @@ JobsList::JobEntry* BackgroundCommand::setCurrJobToBackground() {
     {
         if (jobs->getLastStoppedJob(&job_id) == nullptr)
         {
-            fprintf(stderr, "smash error: bg: there is no stopped jobs to resume\n");
+            PRINT_ERROR("smash error: bg: there is no stopped jobs to resume");
             return NULL;
         }
         return jobs->getJobById(job_id);
@@ -487,7 +488,7 @@ JobsList::JobEntry* BackgroundCommand::setCurrJobToBackground() {
         std::stringstream id(args[1]);
         id >> job_id;
         if (!backAndForegroundFormat(args, argv)) {
-            fprintf(stderr, "smash error: bg: invalid arguments\n");
+            PRINT_ERROR("smash error: bg: invalid arguments");
             return NULL;
         }
         map<int, JobsList::JobEntry>::iterator it = jobs->jobsDict.find(job_id);
@@ -497,14 +498,14 @@ JobsList::JobEntry* BackgroundCommand::setCurrJobToBackground() {
         {
             std::string str3(" does not exist\n");
             str1.append(str2).append(str3);
-            fprintf(stderr, str1.c_str());
+            PRINT_ERROR( str1.c_str());
             return NULL;
         }
         if (it->second.status == Background)
         {
             std::string str4(" is already running in the background\n");
             str1.append(str2).append(str4);
-            fprintf(stderr, str1.c_str());
+            PRINT_ERROR(str1.c_str());
             return NULL;
         }
         return &it->second;
@@ -525,7 +526,7 @@ void BackgroundCommand::execute() {
     cout << job_cmd << " : " << pid << endl;
     if (kill(pid, SIGCONT) == ERROR)
     {
-        fprintf(stderr, "smash error: kill failed\n");
+        PRINT_ERROR( "smash error: kill failed");
         return;
     }
     jobs->removeJobById(curr_job->job_id);
@@ -545,14 +546,14 @@ int HeadCommand::setLinesNum() {
 
     } catch (std::exception& e) {
         // This error wasn't mentioned in the ex.
-        fprintf(stderr, "smash error: head: invalid arguments\n");
+        PRINT_ERROR("smash error: head: invalid arguments");
         return ERROR;
     }
 }
 
 void HeadCommand::execute() {
     if (argv == 1) {
-        fprintf(stderr, "smash error: head: not enough arguments\n");
+        PRINT_ERROR("smash error: head: not enough arguments");
         return;
     }
     int lines_num = setLinesNum();
@@ -566,7 +567,7 @@ void HeadCommand::execute() {
     std::ifstream ifs(args[file_index], std::ifstream::in); //Constructor opens the file
     if (ifs.fail())
     {
-        fprintf(stderr, "smash error: open failed: No such file or directory\n");
+        PRINT_ERROR( "smash error: open failed: No such file or directory");
         return;
     }
     std::string str;
@@ -581,12 +582,12 @@ void HeadCommand::execute() {
                 w_result = write(1, str.c_str(), str.size());
                 if (w_result == ERROR)
                 {
-                    fprintf(stderr, "smash error: write failed\n");
+                    PRINT_ERROR( "smash error: write failed");
                     return;
                 }
                 if (w_result < str.size())
                 {
-                    fprintf(stderr, "write wasn't able to write all bytes\n");
+                    PRINT_ERROR( "write wasn't able to write all bytes");
                     return;
                 }
             }
@@ -594,18 +595,18 @@ void HeadCommand::execute() {
         }
         if (ifs.bad() || ifs.fail())
         {
-            fprintf(stderr, "smash error: read failed\n");
+            PRINT_ERROR( "smash error: read failed");
             return;
         }
         str.append("\n");
         w_result = write(1, str.c_str(), str.size());
         if (w_result == ERROR) {
-            fprintf(stderr, "smash error: write failed\n");
+            PRINT_ERROR( "smash error: write failed");
             return;
         }
         if (w_result < str.size())
         {
-            fprintf(stderr, "write wasn't able to write all bytes\n");
+            PRINT_ERROR( "write wasn't able to write all bytes");
             return;
         }
         lines_num--;
@@ -614,7 +615,7 @@ void HeadCommand::execute() {
     ifs.close();
     if (ifs.fail())
     {
-        fprintf(stderr, "smash error: close failed\n");
+        PRINT_ERROR("smash error: close failed");
         return;
     }
 }
@@ -692,7 +693,7 @@ void JobsList::killAllJobs() {
   map<int, JobEntry>::iterator iter;
   for (iter = jobsDict.begin(); iter != jobsDict.end(); iter++) {
     if (kill(iter->second.pid, SIGKILL) == ERROR) {
-      fprintf(stderr, "smash error: kill failed\n");
+      PRINT_ERROR( "smash error: kill failed");
       return;
     }
   }
@@ -965,7 +966,7 @@ void SmallShell::executeCommand(const char* cmd_line) {
         getTrimmedCmdAndDuration(cmd_line, new_cmd_line, &duration);
         if (duration == ERROR)
         {
-            fprintf(stderr, "smash error: timeout: invalid arguments\n");
+            PRINT_ERROR( "smash error: timeout: invalid arguments");
             return;
         }
         cmd = CreateCommand(new_cmd_line.c_str());
@@ -1016,7 +1017,7 @@ void RedirectionCommand::execute() {
   }
   int stdout_fd = dup(1);
   if(stdout_fd == ERROR) {
-    fprintf(stderr,"smash error: dup failed\n");
+    PRINT_ERROR("smash error: dup failed");
     return;
   }
   int fd;
@@ -1028,24 +1029,24 @@ void RedirectionCommand::execute() {
   }
 
   if (fd == ERROR) {
-    fprintf(stderr,"smash error: open failed\n");
+    PRINT_ERROR("smash error: open failed\n");
     return;
   }
 
   int result = dup2(fd,1);
   if(result == ERROR) {
-    fprintf(stderr,"smash error: dup2 failed\n");
+    PRINT_ERROR("smash error: dup2 failed");
     return;
   }
   SmallShell::getInstance().executeCommand(command_cmd.c_str());
   result = dup2(stdout_fd,1); // back to normal
   if(result == ERROR) {
-    fprintf(stderr,"smash error: dup2 failed\n");
+    PRINT_ERROR("smash error: dup2 failed");
     return;
   }
   result = close(fd);
   if (result == ERROR) {
-    fprintf(stderr,"smash error: close failed\n");
+    PRINT_ERROR("smash error: close failed");
   }
 }
  
@@ -1060,7 +1061,7 @@ void PipeCommand::execute() {
   int fd[2];
   int result = pipe(fd);
   if(result == ERROR) {
-    fprintf(stderr,"smash error: pipe failed");
+    PRINT_ERROR("smash error: pipe failed");
     return;
   }
    //close stdout('|') or stderr('|&')
@@ -1070,25 +1071,25 @@ void PipeCommand::execute() {
   }
   int pid_1 = fork();
   if(pid_1 ==ERROR) {
-    fprintf(stderr,"smash error: fork failed");
+    PRINT_ERROR("smash error: fork failed");
     exit(0);
   }
   //first child
   if (pid_1 == 0) {
     if(setpgrp() == ERROR) {
-      fprintf(stderr,"smash error: setpgrp failed");
+      PRINT_ERROR("smash error: setpgrp failed");
       exit(0);
     }
     if(dup2(fd[WR],fd_to_close) == ERROR) { // 1 or 2 -> write pipe
-      fprintf(stderr,"smash error: dup2 failed");
+      PRINT_ERROR("smash error: dup2 failed");
       exit(0);
     }
     if(close(fd[RD]) == ERROR) {
-      fprintf(stderr,"smash error: close failed");
+      PRINT_ERROR("smash error: close failed");
       exit(0);
     }
     if(close(fd[WR]) == ERROR) {
-      fprintf(stderr,"smash error: close failed");
+      PRINT_ERROR("smash error: close failed");
       exit(0);
     }
     SmallShell::getInstance().executeCommand(first_command.c_str());
@@ -1096,25 +1097,25 @@ void PipeCommand::execute() {
   }
   int pid_2 = fork();
   if(pid_2 ==ERROR) {
-    fprintf(stderr,"smash error: fork failed");
+    PRINT_ERROR("smash error: fork failed");
     exit(0);
   }
   // second child
   if (pid_2 == 0) {
     if(setpgrp() == ERROR) {
-      fprintf(stderr,"smash error: setpgrp failed");
+      PRINT_ERROR("smash error: setpgrp failed");
       exit(0);
     }
     if(dup2(fd[RD],0) == ERROR) { //0 -> read pipe
-      fprintf(stderr,"smash error: dup2 failed");
+      PRINT_ERROR("smash error: dup2 failed");
       exit(0);
     }
     if(close(fd[RD]) == ERROR) {
-      fprintf(stderr,"smash error: close failed");
+      PRINT_ERROR("smash error: close failed");
       exit(0);
     }
     if(close(fd[WR]) == ERROR) {
-      fprintf(stderr,"smash error: close failed");
+      PRINT_ERROR("smash error: close failed");
       exit(0);
     }
     SmallShell::getInstance().executeCommand(second_command.c_str());
@@ -1123,11 +1124,11 @@ void PipeCommand::execute() {
   close(fd[RD]);
   close(fd[WR]);
   if(waitpid(pid_1, nullptr, 0) == ERROR) {
-    fprintf(stderr,"smash error: waitpid failed");
+    PRINT_ERROR("smash error: waitpid failed");
     exit(0);
   }
   if(waitpid(pid_2, nullptr, 0) == ERROR) {
-    fprintf(stderr,"smash error: waitpid failed");
+    PRINT_ERROR("smash error: waitpid failed");
     exit(0);
   }
 }
