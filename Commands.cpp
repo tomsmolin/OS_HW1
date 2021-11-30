@@ -1087,11 +1087,11 @@ void PipeCommand::execute() {
   //first child
   if (pid_1 == 0) {
     if(setpgrp() == ERROR) {
-      perror"smash error: setpgrp failed");
+      perror("smash error: setpgrp failed");
       retrun;
     }
     if(dup2(fd[WR],fd_to_close) == ERROR) { // 1 or 2 -> write pipe
-      perror"smash error: dup2 failed");
+      perror("smash error: dup2 failed");
       return;
     }
     if(close(fd[RD]) == ERROR) {
