@@ -361,7 +361,7 @@ KillCommand::KillCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(
 
 void KillCommand::execute() {
     if((argv!=3) || (!killFormat(args,argv))) {
-    fprintf(stderr, "smash error: invalid arguments\n"); 
+    fprintf(stderr, "smash error: kill: invalid arguments\n"); 
     return;
   }
   // if(!killFormat(args,argv)) { // as said in piazza invalid sig_num => syscall failed
