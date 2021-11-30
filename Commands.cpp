@@ -615,7 +615,7 @@ void HeadCommand::execute() {
         }
         else
         {
-            w_result = write(1, &line[seeker], BUFFER_SIZE - seeker);
+            w_result = write(1, &line[seeker], (BUFFER_SIZE - 1) - seeker);
             if (w_result == ERROR) {
                 fprintf(stderr, "smash error: write failed\n");
                 return;
