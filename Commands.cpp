@@ -1142,6 +1142,7 @@ void PipeCommand::execute() {
     perror("smash error: waitpid failed");
     exit(0);
   }
+  cout << "DGB6" << endl;
   if(waitpid(pid_2, nullptr, 0) == ERROR) {
     perror("smash error: waitpid failed");
     exit(0);
