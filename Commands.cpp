@@ -288,7 +288,7 @@ void ChangeDirCommand::execute() {
     }
     if (argv > 2)
     {
-        printf(std::cerr,(std::cerr,"smash error: cd: too many arguments");
+        printf(std::cerr,"smash error: cd: too many arguments");
         return;
     }
 
@@ -304,7 +304,7 @@ void ChangeDirCommand::execute() {
         if (classPlastPwd == NULL) // When last working directory isn't set on smash
         {
             classPlastPwd = cwd;
-            printf(std::cerr,(std::cerr,"smash error: cd: OLDPWD not set");
+            printf(std::cerr,"smash error: cd: OLDPWD not set");
             delete[] cwd; //No old pwd is set - therefore the smash won't rec. this mem.
             return;
         }
@@ -362,11 +362,11 @@ KillCommand::KillCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(
 
 void KillCommand::execute() {
     if((argv!=3) || (!killFormat(args,argv))) {
-    printf(std::cerr,(std::cerr,"smash error: invalid arguments"); 
+    printf(std::cerr,"smash error: invalid arguments"); 
     return;
   }
   // if(!killFormat(args,argv)) { // as said in piazza invalid sig_num => syscall failed
-  //     printf(std::cerr,(std::cerr, "smash error: kill failed\n"); 
+  //     printf(std::cerr, "smash error: kill failed\n"); 
   //     return;
   // }
   std::stringstream job_id(args[2]);
@@ -378,7 +378,7 @@ void KillCommand::execute() {
     std::string str2 = args[2];
     std::string str3 = " does not exist\n";
     str.append(str2).append(str3);
-    printf(std::cerr,(std::cerr,str.c_str());
+    printf(std::cerr,str.c_str());
     str = args[2]; //preventing from free invalid pointer
     return;
   }
@@ -415,7 +415,7 @@ JobsList::JobEntry* ForegroundCommand::setCurrJobToForeground() {
          job_id = jobs->max_id;
          if (jobs->max_id == NO_CURR_JOBS)
          {
-             printf(std::cerr,(std::cerr,"smash error: fg: jobs list is empty");
+             printf(std::cerr,"smash error: fg: jobs list is empty");
              return NULL;
          }
          return jobs->getJobById(job_id);
@@ -423,7 +423,7 @@ JobsList::JobEntry* ForegroundCommand::setCurrJobToForeground() {
      else
      {
          if (!backAndForegroundFormat(args, argv)) {
-             printf(std::cerr,(std::cerr,"smash error: fg: invalid arguments");
+             printf(std::cerr,"smash error: fg: invalid arguments");
              return NULL;
          }
          stringstream id(args[1]);
@@ -434,7 +434,7 @@ JobsList::JobEntry* ForegroundCommand::setCurrJobToForeground() {
              std::string str1("smash error: fg: job-id ");
              std::string str2(args[1]);
              str1.append(str2).append(" does not exist\n");
-             printf(std::cerr,(std::cerr,str1.c_str());
+             printf(std::cerr,str1.c_str());
              return NULL;
          }
          return jobs->getJobById(job_id);
@@ -478,7 +478,7 @@ JobsList::JobEntry* BackgroundCommand::setCurrJobToBackground() {
     {
         if (jobs->getLastStoppedJob(&job_id) == nullptr)
         {
-            printf(std::cerr,(std::cerr,"smash error: bg: there is no stopped jobs to resume");
+            printf(std::cerr,"smash error: bg: there is no stopped jobs to resume");
             return NULL;
         }
         return jobs->getJobById(job_id);
@@ -488,7 +488,7 @@ JobsList::JobEntry* BackgroundCommand::setCurrJobToBackground() {
         std::stringstream id(args[1]);
         id >> job_id;
         if (!backAndForegroundFormat(args, argv)) {
-            printf(std::cerr,(std::cerr,"smash error: bg: invalid arguments");
+            printf(std::cerr,"smash error: bg: invalid arguments");
             return NULL;
         }
         map<int, JobsList::JobEntry>::iterator it = jobs->jobsDict.find(job_id);
@@ -498,14 +498,14 @@ JobsList::JobEntry* BackgroundCommand::setCurrJobToBackground() {
         {
             std::string str3(" does not exist\n");
             str1.append(str2).append(str3);
-            printf(std::cerr,(std::cerr, str1.c_str());
+            printf(std::cerr, str1.c_str());
             return NULL;
         }
         if (it->second.status == Background)
         {
             std::string str4(" is already running in the background\n");
             str1.append(str2).append(str4);
-            printf(std::cerr,(std::cerr,str1.c_str());
+            printf(std::cerr,str1.c_str());
             return NULL;
         }
         return &it->second;
@@ -546,14 +546,14 @@ int HeadCommand::setLinesNum() {
 
     } catch (std::exception& e) {
         // This error wasn't mentioned in the ex.
-        printf(std::cerr,(std::cerr,"smash error: head: invalid arguments");
+        printf(std::cerr,"smash error: head: invalid arguments");
         return ERROR;
     }
 }
 
 void HeadCommand::execute() {
     if (argv == 1) {
-        printf(std::cerr,(std::cerr,"smash error: head: not enough arguments");
+        printf(std::cerr,"smash error: head: not enough arguments");
         return;
     }
     int lines_num = setLinesNum();
@@ -587,7 +587,7 @@ void HeadCommand::execute() {
                 }
                 if (w_result < str.size())
                 {
-                    printf(std::cerr,(std::cerr, "write wasn't able to write all bytes");
+                    printf(std::cerr, "write wasn't able to write all bytes");
                     return;
                 }
             }
@@ -606,7 +606,7 @@ void HeadCommand::execute() {
         }
         if (w_result < str.size())
         {
-            printf(std::cerr,(std::cerr, "write wasn't able to write all bytes");
+            printf(std::cerr, "write wasn't able to write all bytes");
             return;
         }
         lines_num--;
@@ -966,7 +966,7 @@ void SmallShell::executeCommand(const char* cmd_line) {
         getTrimmedCmdAndDuration(cmd_line, new_cmd_line, &duration);
         if (duration == ERROR)
         {
-            printf(std::cerr,(std::cerr,"smash error: timeout: invalid arguments\n");
+            printf(std::cerr,"smash error: timeout: invalid arguments\n");
             return;
         }
         cmd = CreateCommand(new_cmd_line.c_str());
