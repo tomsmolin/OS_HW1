@@ -567,10 +567,20 @@ void HeadCommand::execute() {
 
     std::ifstream ifs;
     ifs.open(args[file_index], std::ifstream::in);
+    if (ifs.fail())
+    {
+        fprintf(stderr, "smash error: open failed: No such file or directory\n");
+        return;
+    }
     std::string str;
     while (lines_num > 0)
     {
         std::getline(ifs, str);
+        if (ifs.bad() || ifs.fail())
+        {
+            fprintf(stderr, "smash error: read failed\n");
+            return;
+        }
         if (ifs.eof())
             break;
         str.append("\n");
@@ -582,6 +592,11 @@ void HeadCommand::execute() {
         lines_num--;
     }
     ifs.close();
+    if (ifs.fail())
+    {
+        fprintf(stderr, "smash error: close failed\n");
+        return;
+    }
 }
 
 
