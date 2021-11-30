@@ -1147,4 +1147,5 @@ void PipeCommand::execute() {
     perror("smash error: waitpid failed");
     exit(0);
   }
+  cout << "DGB7" << endl;
 }
