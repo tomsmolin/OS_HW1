@@ -4,6 +4,8 @@
 #include <sstream>
 #include <math.h>
 #include <sys/wait.h>
+#include <sys/types.h>
+#include <algorithm>
 #include <iomanip>
 #include <fcntl.h>
 #include "Commands.h"
@@ -65,9 +67,9 @@ int _parseCommandLine(const char* cmd_line, char** args) {
   FUNC_EXIT()
 }
 
-bool _isBackgroundComamnd(const char* cmd_line) {
-  const string str(cmd_line);
-  return str[str.find_last_not_of(WHITESPACE)] == '&';
+bool _isBackgroundComamnd(const std::string cmd_line) {
+  //const string str(cmd_line);
+  return /*str*/cmd_line[cmd_line.find_last_not_of(WHITESPACE)] == '&';
 }
 
 void _removeBackgroundSign(char* cmd_line) {
@@ -130,6 +132,10 @@ const char* Command::getCmd() {
   return cmd;
 }
 
+//adding back the 'timeout %d' prefix
+void Command::updateCmdForTimeout(const char* timeout_cmd) {
+    cmd = timeout_cmd;
+}
 TimedCommandEntry::TimedCommandEntry(time_t alrm_time, std::string timeout_cmd, int pid_cmd) 
 : alrm_time(alrm_time), timeout_cmd(timeout_cmd), pid_cmd(pid_cmd) {}
 
@@ -139,6 +145,10 @@ bool TimedCommandEntry::operator<(TimedCommandEntry const& entry2) {
     else
         return false;*/
     return alrm_time < entry2.alrm_time;
+}
+
+bool TimedCommandEntry::operator==(TimedCommandEntry const& entry2) {
+    return pid_cmd == entry2.pid_cmd;
 }
 
 void TimedCommandEntry::setTimeoutCmd(const char* cmd_line) {
@@ -176,26 +186,44 @@ void ExternalCommand::execute() {
         }
     }
     /////father
-    else { 
+    else {
         if (this->timed_entry != NULL)
         {
             this->timed_entry->pid_cmd = pid;
             this->timed_entry = NULL;
         }
         std::string curr_cmd = cmd;
-        if(_isBackgroundComamnd(cmd)){
-        // char* curr_cmd  = new char;
-        // *curr_cmd = *(cmd);
-        //jobs->removeFinishedJobs(); =========== Added in the beginning of addJob
-        jobs->addJob(pid,curr_cmd);
+        if(_isBackgroundComamnd(curr_cmd))
+        {
+            jobs->addJob(pid,curr_cmd);
         }
         else
         {
             SmallShell::getInstance().setCurrPid(pid);
             SmallShell::getInstance().setCurrCmd(curr_cmd);
-            int result = waitpid(pid,nullptr,WUNTRACED);
+            int status = 0;
+            int result = waitpid(pid, &status, WUNTRACED);
             if(result == ERROR) {
                 fprintf(stderr, "smash error: waitpid failed\n");
+            }
+            if (WIFEXITED(status) || WIFSIGNALED(status))
+            {
+                std::list<TimedCommandEntry>& list = SmallShell::getInstance().timed_list;
+                std::list<TimedCommandEntry>::iterator it;
+                it = find(list.begin(), list.end(), TimedCommandEntry(0, "", pid));
+                if (it != list.end())
+                { //timeout 6 ../os1-tests-master/./my_sleep 4
+
+//                    list.erase(it);
+//                    if (list.empty())
+//                        alarm(0);
+//                    else
+//                    {
+//                        int next_alrm = list.front().alrm_time;
+//                        alarm(difftime(next_alrm, time(NULL)));
+//                    }
+                       it->alrm_time = EXITED;
+                }
             }
             SmallShell::getInstance().resetCurrFgInfo();
         }
@@ -268,8 +296,9 @@ void ChangeDirCommand::execute() {
     char* path = args[1];
     if (strcmp(path, "-") == 0)
     {
-        if (!classPlastPwd) // When last working directory isn't set on smash
+        if (classPlastPwd == NULL) // When last working directory isn't set on smash
         {
+            classPlastPwd = cwd;
             fprintf(stderr, "smash error: cd: OLDPWD not set\n");
             delete[] cwd; //No old pwd is set - therefore the smash won't rec. this mem.
             return;
@@ -422,7 +451,19 @@ void ForegroundCommand::execute() {
         fprintf(stderr, "smash error: kill failed\n");
         return;
     }
-    waitpid(pid, NULL, WUNTRACED); 
+    int status = 0;
+    SmallShell::getInstance().setCurrPid(pid);
+    SmallShell::getInstance().setCurrCmd(job_cmd);
+    SmallShell::getInstance().setCurrFgFromJobs(curr_job->job_id);
+    int result = waitpid(pid, &status, WUNTRACED);
+    if (result == ERROR)
+    {
+        fprintf(stderr, "smash error: waitpid failed\n");
+        return;
+    }
+    if (WIFSTOPPED(status))
+            return;
+
     jobs->removeJobById(curr_job->job_id);
 }
 
@@ -505,12 +546,6 @@ int HeadCommand::setLinesNum() {
     }
 }
 
-static void resetBuffer(char* line) {
-    line[0] = '\0';
-    for (int i = 1; i < BUFFER_SIZE; i++)
-        line[i] = 0;
-}
-
 void HeadCommand::execute() {
     if (argv == 1) {
         fprintf(stderr, "smash error: head: not enough arguments\n");
@@ -524,87 +559,60 @@ void HeadCommand::execute() {
     if (argv == 2)
         file_index = 1;
 
-    int fd = open(args[file_index], O_RDONLY);
-    if (fd == ERROR) {
-        fprintf(stderr, "smash error: open failed\n");
+    std::ifstream ifs(args[file_index], std::ifstream::in); //Constructor opens the file
+    if (ifs.fail())
+    {
+        fprintf(stderr, "smash error: open failed: No such file or directory\n");
         return;
     }
-    char* line = new char[BUFFER_SIZE]{ 0 };
-    int r_result = read(fd, line, BUFFER_SIZE - 1);
-    if (r_result == ERROR) {
-        fprintf(stderr, "smash error: read failed\n");
-        return;
-    }
-    line[BUFFER_SIZE - 1] = '\0'; // str excepts a c string type, otherwise invalid read recieved in valgrind
-    std::string str(line);
-    int seeker = 0;
+    std::string str;
     int w_result = 0;
     while (lines_num > 0)
     {
-        size_t end_of_line = str.find_first_of("\n");
-        if (end_of_line != std::string::npos)
+        std::getline(ifs, str);
+        if (ifs.eof())
         {
-            w_result = write(1, &line[seeker], end_of_line + 1);
-            if (w_result == ERROR) {
-                fprintf(stderr, "smash error: write failed\n");
-                return;
-            }
-            if (w_result < end_of_line + 1)
+            if (str.compare("") != 0)
             {
-                fprintf(stderr, "write wasn't able to write all bytes\n");
-                return;
-            }
-            str.erase(0, end_of_line + 1);
-            seeker += end_of_line + 1;
-            lines_num--;
-            if (seeker == BUFFER_SIZE)
-            {
-                resetBuffer(line);
-                r_result = read(fd, line, BUFFER_SIZE - 1);
-                if (r_result == ERROR) {
-                    fprintf(stderr, "smash error: read failed\n");
+                w_result = write(1, str.c_str(), str.size());
+                if (w_result == ERROR)
+                {
+                    fprintf(stderr, "smash error: write failed\n");
                     return;
                 }
-                line[BUFFER_SIZE - 1] = '\0';
-                if (r_result == 0) //EOF
-                    break;
-                str = line;
-                seeker = 0;
+                if (w_result < str.size())
+                {
+                    fprintf(stderr, "write wasn't able to write all bytes\n");
+                    return;
+                }
             }
+            break;
         }
-        else
+        if (ifs.bad() || ifs.fail())
         {
-            w_result = write(1, &line[seeker], BUFFER_SIZE - seeker);
-            if (w_result == ERROR) {
-                fprintf(stderr, "smash error: write failed\n");
-                return;
-            }
-            if (w_result < BUFFER_SIZE - seeker)
-            {
-                fprintf(stderr, "write wasn't able to write all bytes\n");
-                return;
-            }
-            resetBuffer(line);
-            r_result = read(fd, line, BUFFER_SIZE - 1);
-            if (r_result == ERROR) {
-                fprintf(stderr, "smash error: read failed\n");
-                return;
-            }
-            line[BUFFER_SIZE - 1] = '\0';
-            if (r_result == 0) //EOF
-                break;
-            str = line;
-            seeker = 0;
+            fprintf(stderr, "smash error: read failed\n");
+            return;
         }
+        str.append("\n");
+        w_result = write(1, str.c_str(), str.size());
+        if (w_result == ERROR) {
+            fprintf(stderr, "smash error: write failed\n");
+            return;
+        }
+        if (w_result < str.size())
+        {
+            fprintf(stderr, "write wasn't able to write all bytes\n");
+            return;
+        }
+        lines_num--;
     }
-    if (close(fd) == ERROR)
+    ifs.clear();
+    ifs.close();
+    if (ifs.fail())
     {
         fprintf(stderr, "smash error: close failed\n");
         return;
     }
-
-    delete[] line;
-    line = NULL;// VALGRIND
 }
 
 /////////////////////////////joblist//////////////////////
@@ -699,6 +707,7 @@ void JobsList::removeFinishedJobs() {
   }
   
   map<int, JobEntry>::iterator iter;
+  map<int, JobEntry>::iterator temp_iter;
   for (iter = jobsDict.begin(); iter != jobsDict.end(); iter++) {
     int status;
     int status_2 = waitpid(iter->second.pid, &status, WNOHANG | WUNTRACED | WCONTINUED);
@@ -708,15 +717,27 @@ void JobsList::removeFinishedJobs() {
       // cout << "DGB" << endl;
       if(jobsDict.size()== 1){
         jobs_list_empty=true;
-        
-        jobsDict.erase(iter->first);
-        
+
+        /* When we're traversing a map with a loop and an iterator \
+         * deleting some element could be problematic and "confusing" \
+         * for the iterator. Therefore, we need to somehow make sure it reaches \
+         * the next element properly. for ex, with this implementation (There are more elegant ways though): */
+        temp_iter = ++iter;
+        jobsDict.erase((--iter)->first);
+        iter = temp_iter;
+
+
         freeIdUpdate();
         return;
       }
-      bool last_iter = (++iter==jobsDict.end()) ? true : false;
-      iter--;  
-      jobsDict.erase(iter->first);
+      bool last_iter = (++iter==jobsDict.end()) ? true : false; // TO ASK: why is this necessary?
+      iter--;
+
+      /* same note from above* */
+      temp_iter = ++iter;
+      jobsDict.erase((--iter)->first);
+      iter = temp_iter;
+
       freeIdUpdate();
       if(last_iter){
         return;
@@ -741,8 +762,9 @@ JobsList::JobEntry *JobsList::getLastStoppedJob(int *jobId) {
 
 /////////////////////////////end of joblist//////////////////////
 
-SmallShell::SmallShell() : plastPwd(NULL), first_legal_cd(true), prompt("smash> "),
-                           job_list(JobsList()), curr_pid(NO_CURR_PID), curr_cmd("No Current cmd") {
+SmallShell::SmallShell() : plastPwd(NULL), legal_cd_made_before(false), prompt("smash> "),
+                           job_list(JobsList()), curr_pid(NO_CURR_PID),
+                           curr_cmd("No Current cmd"), curr_fg_from_jobs(false) {
     // TODO: add your implementation
     plastPwd = new char* ();
     *plastPwd = NULL;
@@ -792,31 +814,31 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
     else if (firstWord.compare("head") == 0) {
         return new HeadCommand(cmd_line);
     }
-    else if (firstWord.compare("chprompt") == 0) {
+    else if (firstWord.compare("chprompt") == 0 || firstWord.compare("chprompt&") == 0) {
         return new ChangePromptCommand(cmd_line, getPPrompt());
     }
-    else if (firstWord.compare("pwd") == 0) {
+    else if (firstWord.compare("pwd") == 0 || firstWord.compare("pwd&") == 0) {
         return new GetCurrDirCommand(cmd_line);
     }
-    else if (firstWord.compare("showpid") == 0) {
+    else if (firstWord.compare("showpid") == 0 || firstWord.compare("showpid&") == 0) {
         return new ShowPidCommand(cmd_line);
     }
-    else if (firstWord.compare("cd") == 0) {
+    else if (firstWord.compare("cd") == 0 || firstWord.compare("cd&") == 0) {
         return new ChangeDirCommand(cmd_line, plastPwd);
     }
-    else if (firstWord.compare("jobs") == 0) {
+    else if (firstWord.compare("jobs") == 0 || firstWord.compare("jobs&") == 0) {
         return new JobsCommand(cmd_line, &job_list);
     }
-    else if (firstWord.compare("kill") == 0) {
+    else if (firstWord.compare("kill") == 0 || firstWord.compare("kill&") == 0) {
         return new KillCommand(cmd_line, &job_list);
     }
-    else if (firstWord.compare("quit") == 0) {
+    else if (firstWord.compare("quit") == 0 || firstWord.compare("quit&") == 0) {
         return new QuitCommand(cmd_line, &job_list);
     }
-    else if (firstWord.compare("fg") == 0) {
+    else if (firstWord.compare("fg") == 0 || firstWord.compare("fg&") == 0) {
         return new ForegroundCommand(cmd_line, &job_list);
     }
-    else if (firstWord.compare("bg") == 0) {
+    else if (firstWord.compare("bg") == 0 || firstWord.compare("bg&") == 0) {
         return new BackgroundCommand(cmd_line, &job_list);
     }
 
@@ -835,11 +857,10 @@ void SmallShell::setPLastPwd(Command* cmd) {
         ChangeDirCommand* temp = (ChangeDirCommand*)cmd;
         if (temp->cd_succeeded)
         {
-            if (first_legal_cd)
+            if (!legal_cd_made_before) // upon first successful cd - entered once
             {
-                *plastPwd = NULL;
-                first_legal_cd = false;
-                delete[] temp->classPlastPwd;
+                *plastPwd = temp->classPlastPwd;
+                legal_cd_made_before = true;
             }
             else
             {
@@ -862,6 +883,19 @@ void SmallShell::setCurrCmd(std::string cmd) {
     curr_cmd = cmd;
 }
 
+void SmallShell::setCurrFgFromJobs(int job_id) {
+    curr_fg_from_jobs = true;
+    curr_fg_from_jobs_id = job_id;
+}
+
+int SmallShell::getCurrFgFromJobsListId() {
+    return curr_fg_from_jobs_id;
+}
+
+bool SmallShell::CurrFgIsFromJobsList() {
+    return curr_fg_from_jobs;
+}
+
 std::string SmallShell::getCurrCmd() {
     return curr_cmd;
 }
@@ -869,6 +903,8 @@ std::string SmallShell::getCurrCmd() {
 void SmallShell::resetCurrFgInfo() {
     curr_pid = NO_CURR_PID;
     curr_cmd = "No Current cmd";
+    curr_fg_from_jobs = false;
+    curr_fg_from_jobs_id = NO_CURR_JOB_ID;
 }
 
 JobsList* SmallShell::getJobs() {
@@ -879,13 +915,24 @@ static int setTimeoutDuration(char* duration_str) {
     int duration = 0;
     std::stringstream duration_ss(duration_str);
     duration_ss >> duration;
+    //ADD MORE CHECKING FOR LEGAL INT
+    if (duration < 1)
+        return ERROR;
     return duration;
 }
 
 static void getTrimmedCmdAndDuration(const char* cmd_line, std::string& new_cmd_line, int* duration) {
-    char** args = new char*[numberOfArgs(cmd_line) + 1]; //buffer of (+1) due to impl. of _parse command
+    int num_of_args = numberOfArgs(cmd_line);
+    if (num_of_args < 3)
+    {
+        *duration = ERROR;
+        return;
+    }
+    char** args = new char*[num_of_args + 1]; //buffer of (+1) due to impl. of _parse command
     int argv = _parseCommandLine(cmd_line, args);
     *duration = setTimeoutDuration(args[1]);
+    if (*duration == ERROR)
+        return;
     new_cmd_line = args[2];
     for (int i = 3; i < argv; i++)
     {
@@ -910,7 +957,13 @@ void SmallShell::executeCommand(const char* cmd_line) {
         std::string new_cmd_line("");
         int duration = 0;
         getTrimmedCmdAndDuration(cmd_line, new_cmd_line, &duration);
+        if (duration == ERROR)
+        {
+            fprintf(stderr, "smash error: timeout: invalid arguments\n");
+            return;
+        }
         cmd = CreateCommand(new_cmd_line.c_str());
+        //cmd->updateCmdForTimeout(cmd_line);
         TimedCommandEntry entry(time(NULL) + duration, cmd_line, NOT_SET); // should implement inst.
         //operator compares absulote alarm times
         if (timed_list.front() < entry)
@@ -932,6 +985,7 @@ void SmallShell::executeCommand(const char* cmd_line) {
 
     job_list.removeFinishedJobs();
     cmd->execute();
+    //cmd->updateCmdForTimeout(cmd_line); cout << cmd->getCmd() << endl;
     timed_list.sort();
     setPLastPwd(cmd);
     delete cmd;

@@ -7,20 +7,37 @@ using namespace std;
 
 void ctrlZHandler(int sig_num) {
 	cout << "smash: got ctrl-Z" << endl;
-	int pid = SmallShell::getInstance().getCurrPid();
-	if (pid == NOT_SET)
+	SmallShell& smash = SmallShell::getInstance();
+	int pid = smash.getCurrPid();
+
+	if (pid == NOT_SET) {
 		return;
-	std::string curr_cmd = SmallShell::getInstance().getCurrCmd();
+	}
+	std::string curr_cmd = smash.getCurrCmd();
+
 	if (pid != NO_CURR_PID)
 	{
-		SmallShell::getInstance().getJobs()->addJob(pid, curr_cmd, true);
+		if (!smash.CurrFgIsFromJobsList())
+			smash.getJobs()->addJob(pid, curr_cmd, true);
+		else
+		{
+			int job_id = smash.getCurrFgFromJobsListId();
+			JobsList::JobEntry* job_entry = smash.getJobs()->getJobById(job_id);
+			job_entry->insert = time(NULL);
+			if (job_entry->status == Background)
+			{
+				//TODO: check if it's req. to erase '&'
+				job_entry->status = Stopped;
+			}
+		}
+
 		if (kill(pid, SIGSTOP) == ERROR)
 		{
 			fprintf(stderr, "smash error: kill failed\n");
 			return;
 		}
 		cout << "smash: process " << pid << " was stopped" << endl;
-		SmallShell::getInstance().resetCurrFgInfo();
+		SmallShell::getInstance().resetCurrFgInfo(); // UPDATE FOR NEW FIELDS
 	}
 }
 
@@ -40,23 +57,33 @@ void ctrlCHandler(int sig_num) {
 }
 
 void alarmHandler(int sig_num, siginfo_t* info, void* context) {
-	cout << "smash: got an alarm" << endl;
+	
 	SmallShell& smash = SmallShell::getInstance();
+	smash.getJobs()->removeFinishedJobs();
 	std::string cmd = smash.timed_list.front().timeout_cmd;
 	int pid = smash.timed_list.front().pid_cmd;
-	std::string str("smash: ");
-	str.append(cmd).append(" timed out!\n");
-
-	if (kill(pid, SIGKILL) == ERROR)
-	{
-		fprintf(stderr, "smash error: kill failed\n");
-		return;
-	}
+	int alrm_time = smash.timed_list.front().alrm_time;
 	smash.timed_list.pop_front();
 	smash.timed_list.sort();
 	if (!smash.timed_list.empty())
 		alarm(difftime(smash.timed_list.front().alrm_time, time(NULL)));
 	
-	cout << str;
+	cout << "smash: got an alarm" << endl;
+	std::string str("smash: ");
+	str.append(cmd).append(" timed out!\n");
+
+	if (alrm_time != EXITED)
+	{
+		if (kill(pid, 0) != ERROR) // existence check
+		{
+			if (kill(pid, SIGKILL) == ERROR)
+			{
+				fprintf(stderr, "smash error: kill failed\n");
+				return;
+			}
+			cout << str;
+		}
+	}
+	smash.getJobs()->removeFinishedJobs();
 }
 

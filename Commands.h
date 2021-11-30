@@ -6,14 +6,19 @@
 #include <map>
 #include <list>
 #include <unistd.h>
+#include <fstream>
+
 
 #define COMMAND_ARGS_MAX_LENGTH (200)
 #define COMMAND_MAX_ARGS (20)
 #define MAX_CWD_LENGTH 256
 #define COMMAND_MAX_LENGTH (80)
 #define NO_CURR_PID (-1)
+#define NO_CURR_JOB_ID (-1)
 #define NOT_SET (-1)
 #define ERROR (-1)
+#define EXITED (-1)
+
 
 class TimedCommandEntry {
 public:
@@ -21,12 +26,14 @@ public:
     std::string timeout_cmd; // """"
     int pid_cmd;
     bool operator< (TimedCommandEntry const& entry2);
+    bool operator== (TimedCommandEntry const& entry2);
 
     TimedCommandEntry() = default;
     TimedCommandEntry(time_t alrm_time, std::string timeout_cmd, int pid_command);
     ~TimedCommandEntry() = default;
 
     void setTimeoutCmd(const char* cmd_line);
+    
 };
 
 class Command {
@@ -43,6 +50,7 @@ protected:
   virtual ~Command();
   virtual void execute() = 0;
   const char* getCmd();
+  void updateCmdForTimeout(const char* cmd_line);
 
   //virtual void prepare();
   //virtual void cleanup();
@@ -225,12 +233,15 @@ class SmallShell {
   // TODO: Add your data members
   SmallShell();
   char** plastPwd;
-  bool first_legal_cd;
+  bool legal_cd_made_before;
   std::string prompt;
   JobsList job_list;
+
   int curr_pid;
   std::string curr_cmd;
-  
+  bool curr_fg_from_jobs;
+  int curr_fg_from_jobs_id;
+
  public:
   Command *CreateCommand(const char* cmd_line);
   SmallShell(SmallShell const&)      = delete; // disable copy ctor
@@ -248,6 +259,9 @@ class SmallShell {
   void setCurrPid(int curr_pid);
   int getCurrPid();
   void setCurrCmd(std::string curr_cmd);
+  void setCurrFgFromJobs(int curr_fg_from_jobs_id);
+  int getCurrFgFromJobsListId();
+  bool CurrFgIsFromJobsList();
   std::string getCurrCmd();
   void resetCurrFgInfo();
   JobsList* getJobs();
