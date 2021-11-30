@@ -346,7 +346,7 @@ static bool killFormat(char** args,int argv) {
   double job_id = 0;
   id >> job_id;
   bool id_format = (job_id > 0) ? true : false;
-  return (sig_format && sig_int);
+  return (sig_format && sig_int && id_format);
 }
 
 static bool backAndForegroundFormat(char** args, int argv) {
