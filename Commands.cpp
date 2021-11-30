@@ -547,7 +547,7 @@ int HeadCommand::setLinesNum() {
 }
 
 static void resetBuffer(char* line) {
-    line[0] = '';
+    line[0] = 0;
     for (int i = 1; i < BUFFER_SIZE; i++)
         line[i] = 0;
 }
