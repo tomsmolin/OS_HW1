@@ -112,7 +112,7 @@ static int numberOfArgs(std::string cmd_line) {
 }
 
 // TODO: Add your implementation for classes in Commands.h 
-Command::Command(const char* cmd_line) : cmd(cmd_line), argv(0), timed_entry(NULL) {  
+Command::Command(const char* cmd_line) : cmd(cmd_line), argv(0), timed_entry(NULL), cmd_job_id(NOT_SET) {  
   args = new char*[numberOfArgs(cmd_line) + 1]; //buffer of (+1) due to impl. of _parse command
   argv = _parseCommandLine(cmd_line,args);
 }
@@ -132,10 +132,14 @@ const char* Command::getCmd() {
   return cmd;
 }
 
-//adding back the 'timeout %d' prefix
-void Command::updateCmdForTimeout(const char* timeout_cmd) {
-    cmd = timeout_cmd;
+int Command::getCmdJobId() {
+    return cmd_job_id;
 }
+
+void Command::cleanCmdJobId() {
+    cmd_job_id = NOT_SET;
+}
+
 TimedCommandEntry::TimedCommandEntry(time_t alrm_time, std::string timeout_cmd, int pid_cmd) 
 : alrm_time(alrm_time), timeout_cmd(timeout_cmd), pid_cmd(pid_cmd) {}
 
@@ -195,7 +199,7 @@ void ExternalCommand::execute() {
         std::string curr_cmd = cmd;
         if(_isBackgroundComamnd(curr_cmd))
         {
-            jobs->addJob(pid,curr_cmd);
+            cmd_job_id = jobs->addJob(pid,curr_cmd);
         }
         else
         {
@@ -631,13 +635,14 @@ void JobsList::removeJobById(int jobId){
   maxIdUpdate();
 }
 
-void JobsList::addJob(int pid,std::string cmd, bool isStopped) {
+int JobsList::addJob(int pid,std::string cmd, bool isStopped) {
   maxIdUpdate();
   removeFinishedJobs();
   JobStatus curr_status = (isStopped) ?  Stopped : Background;
   jobs_list_empty=false;
   max_id++;
   jobsDict[max_id] = JobEntry(pid, max_id,curr_status,time(NULL),cmd);
+  return max_id;
 }
 
 void JobsList::maxIdUpdate() {
@@ -986,7 +991,11 @@ void SmallShell::executeCommand(const char* cmd_line) {
 
     job_list.removeFinishedJobs();
     cmd->execute();
-    //cmd->updateCmdForTimeout(cmd_line); cout << cmd->getCmd() << endl;
+    if (cmd->getCmdJobId() != NOT_SET)
+    {
+        getJobs()->getJobById(cmd->getCmdJobId())->cmd = cmd_line; //update full cmd line for timeout commands
+        cmd->cleanCmdJobId(); // Safety measure
+    }
     timed_list.sort();
     setPLastPwd(cmd);
     delete cmd;
