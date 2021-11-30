@@ -356,14 +356,14 @@ static bool backAndForegroundFormat(char** args, int argv) {
 KillCommand::KillCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(cmd_line), jobs(jobs) {}
 
 void KillCommand::execute() {
-    if(argv!=3) {
-    fprintf(stderr,"smash error: kill: invalid arguments\n");
+    if((argv!=3) || (!killFormat(args,argv))) {
+    fprintf(stderr, "smash error: invalid arguments\n"); 
     return;
   }
-  if(!killFormat(args,argv)) { // as said in piazza invalid sig_num => syscall failed
-      fprintf(stderr, "smash error: kill failed\n"); 
-      return;
-  }
+  // if(!killFormat(args,argv)) { // as said in piazza invalid sig_num => syscall failed
+  //     fprintf(stderr, "smash error: kill failed\n"); 
+  //     return;
+  // }
   std::stringstream job_id(args[2]);
   int id = 0;
   job_id >> id;
@@ -386,7 +386,7 @@ void KillCommand::execute() {
     fprintf(stderr, "smash error: kill failed\n");
     return;
   }
-  printf("signal number 9 was sent to pid %d\n",pid);
+  printf("signal number %d was sent to pid %d\n",sig_num, pid);
 }
 
 QuitCommand::QuitCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(cmd_line), jobs(jobs) {}
