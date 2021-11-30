@@ -579,7 +579,14 @@ void HeadCommand::execute() {
         std::getline(ifs, str);
         if (ifs.eof())
         {
-            cout << "got to EOF, after reading " << str << endl;
+            if (str.compare("") != "")
+            {
+                if (write(1, str.c_str(), str.size()) == ERROR)
+                {
+                    fprintf(stderr, "smash error: write failed\n");
+                    return;
+                }
+            }
             break;
         }
         if (ifs.bad() || ifs.fail())
@@ -595,16 +602,6 @@ void HeadCommand::execute() {
         }
         lines_num--;
     }
-    //if (!ifs.eof() && lines_num > 0)
-    //{
-    //    ifs >> str;
-    //    w_result = write(1, str.c_str(), str.size());
-    //    if (w_result == ERROR) {
-    //        fprintf(stderr, "smash error: write failed\n");
-    //        return;
-    //    }
-    //}
-
     ifs.clear();
     ifs.close();
     if (ifs.fail())
