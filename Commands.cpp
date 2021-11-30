@@ -579,7 +579,7 @@ void HeadCommand::execute() {
         std::getline(ifs, str);
         if (ifs.eof())
         {
-            if (str.compare("") != "")
+            if (str.compare("") != 0)
             {
                 if (write(1, str.c_str(), str.size()) == ERROR)
                 {
