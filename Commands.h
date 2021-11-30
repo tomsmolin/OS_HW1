@@ -2,12 +2,11 @@
 #define SMASH_COMMAND_H_
 
 #include <vector>
-#include <string>
+#include <string.h>
 #include <map>
 #include <list>
 #include <unistd.h>
 #include <fstream>
-#include <iostream>
 
 
 #define COMMAND_ARGS_MAX_LENGTH (200)
