@@ -581,9 +581,15 @@ void HeadCommand::execute() {
         {
             if (str.compare("") != 0)
             {
-                if (write(1, str.c_str(), str.size()) == ERROR)
+                w_result = write(1, str.c_str(), str.size())
+                if (w_result == ERROR)
                 {
                     fprintf(stderr, "smash error: write failed\n");
+                    return;
+                }
+                if (w_result < str.size())
+                {
+                    fprintf(stderr, "write wasn't able to write all bytes\n");
                     return;
                 }
             }
@@ -598,6 +604,11 @@ void HeadCommand::execute() {
         w_result = write(1, str.c_str(), str.size());
         if (w_result == ERROR) {
             fprintf(stderr, "smash error: write failed\n");
+            return;
+        }
+        if (w_result < str.size())
+        {
+            fprintf(stderr, "write wasn't able to write all bytes\n");
             return;
         }
         lines_num--;
