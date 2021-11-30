@@ -620,7 +620,7 @@ void HeadCommand::execute() {
                 fprintf(stderr, "smash error: write failed\n");
                 return;
             }
-            if (w_result < BUFFER_SIZE - seeker)
+            if (w_result < (BUFFER_SIZE - 1) - seeker)
             {
                 fprintf(stderr, "write wasn't able to write all bytes\n");
                 return;
