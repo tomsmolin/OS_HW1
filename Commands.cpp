@@ -638,7 +638,8 @@ void HeadCommand::execute() {
             seeker = 0;
         }
     }
-    write(1, '\0', 1);
+    line[0] = '\0';
+    write(1, &line[0], 1);
     if (close(fd) == ERROR)
     {
         fprintf(stderr, "smash error: close failed\n");
