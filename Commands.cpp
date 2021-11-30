@@ -1027,7 +1027,7 @@ void RedirectionCommand::execute() {
   }
   int stdout_fd = dup(1);
   if(stdout_fd == ERROR) {
-    fprintf(stderr,"smash error: dup failed\n");
+    perror("smash error: dup failed\n");
     return;
   }
   int fd;
@@ -1045,18 +1045,18 @@ void RedirectionCommand::execute() {
 
   int result = dup2(fd,1);
   if(result == ERROR) {
-    fprintf(stderr,"smash error: dup2 failed\n");
+    perror("smash error: dup2 failed\n");
     return;
   }
   SmallShell::getInstance().executeCommand(command_cmd.c_str());
   result = dup2(stdout_fd,1); // back to normal
   if(result == ERROR) {
-    fprintf(stderr,"smash error: dup2 failed\n");
+    perror("smash error: dup2 failed");
     return;
   }
   result = close(fd);
   if (result == ERROR) {
-    fprintf(stderr,"smash error: close failed\n");
+    perror("smash error: close failed\n");
   }
 }
  
@@ -1071,7 +1071,7 @@ void PipeCommand::execute() {
   int fd[2];
   int result = pipe(fd);
   if(result == ERROR) {
-    fprintf(stderr,"smash error: pipe failed");
+    perror("smash error: pipe failed");
     return;
   }
    //close stdout('|') or stderr('|&')
@@ -1081,64 +1081,64 @@ void PipeCommand::execute() {
   }
   int pid_1 = fork();
   if(pid_1 ==ERROR) {
-    fprintf(stderr,"smash error: fork failed");
-    exit(0);
+    perror("smash error: fork failed");
+    return;
   }
   //first child
   if (pid_1 == 0) {
     if(setpgrp() == ERROR) {
-      fprintf(stderr,"smash error: setpgrp failed");
-      exit(0);
+      perror"smash error: setpgrp failed");
+      retrun;
     }
     if(dup2(fd[WR],fd_to_close) == ERROR) { // 1 or 2 -> write pipe
-      fprintf(stderr,"smash error: dup2 failed");
-      exit(0);
+      perror"smash error: dup2 failed");
+      return;
     }
     if(close(fd[RD]) == ERROR) {
-      fprintf(stderr,"smash error: close failed");
-      exit(0);
+      perror("smash error: close failed");
+      return;
     }
     if(close(fd[WR]) == ERROR) {
-      fprintf(stderr,"smash error: close failed");
-      exit(0);
+      perror("smash error: close failed");
+      return;
     }
     SmallShell::getInstance().executeCommand(first_command.c_str());
-    exit(0);
+    return;
   }
   int pid_2 = fork();
   if(pid_2 ==ERROR) {
-    fprintf(stderr,"smash error: fork failed");
-    exit(0);
+    perror("smash error: fork failed");
+    return;
   }
   // second child
   if (pid_2 == 0) {
     if(setpgrp() == ERROR) {
-      fprintf(stderr,"smash error: setpgrp failed");
-      exit(0);
+      perror("smash error: setpgrp failed");
+      return;
     }
     if(dup2(fd[RD],0) == ERROR) { //0 -> read pipe
-      fprintf(stderr,"smash error: dup2 failed");
-      exit(0);
+      perror("smash error: dup2 failed");
+      return;
     }
     if(close(fd[RD]) == ERROR) {
-      fprintf(stderr,"smash error: close failed");
-      exit(0);
+      perror("smash error: close failed");
+      return;
     }
     if(close(fd[WR]) == ERROR) {
-      fprintf(stderr,"smash error: close failed");
-      exit(0);
+      perror("smash error: close failed");
+      return;
     }
     SmallShell::getInstance().executeCommand(second_command.c_str());
-    exit(0);
+    return;
   }
   close(fd[RD]);
   close(fd[WR]);
   if(waitpid(pid_1, nullptr, 0) == ERROR) {
-    fprintf(stderr,"smash error: waitpid failed");
-    exit(0);
+    perror("smash error: waitpid failed");
+    return;
   }
   if(waitpid(pid_2, nullptr, 0) == ERROR) {
-    fprintf(stderr,"smash error: waitpid failed");
-    exit(0);
+    perror("smash error: waitpid failed");
+    return;
   }
 }
