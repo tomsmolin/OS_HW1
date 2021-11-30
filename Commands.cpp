@@ -573,6 +573,7 @@ void HeadCommand::execute() {
         return;
     }
     std::string str;
+    int w_result = 0;
     while (lines_num > 0)
     {
         std::getline(ifs, str);
@@ -584,13 +585,23 @@ void HeadCommand::execute() {
             return;
         }
         str.append("\n");
-        int w_result = write(1, str.c_str(), str.size());
+        w_result = write(1, str.c_str(), str.size());
         if (w_result == ERROR) {
             fprintf(stderr, "smash error: write failed\n");
             return;
         }
         lines_num--;
     }
+    if (!ifs.eof() && lines_num > 0)
+    {
+        ifs >> str;
+        w_result = write(1, str.c_str(), str.size());
+        if (w_result == ERROR) {
+            fprintf(stderr, "smash error: write failed\n");
+            return;
+        }
+    }
+
     ifs.clear();
     ifs.close();
     if (ifs.fail())
