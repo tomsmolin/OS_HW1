@@ -1133,6 +1133,7 @@ void PipeCommand::execute() {
     cout << "DGB2" << endl;
     exit(0);
   }
+  cout << "DGB5" << endl;
   close(fd[RD]);
   cout << "DGB3" << endl;
   close(fd[WR]);
