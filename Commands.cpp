@@ -598,7 +598,7 @@ void HeadCommand::execute() {
             str.erase(0, end_of_line + 1);
             seeker += end_of_line + 1;
             lines_num--;
-            if (seeker == BUFFER_SIZE)
+            if (seeker == BUFFER_SIZE - 1)
             {
                 resetBuffer(line);
                 r_result = read(fd, line, BUFFER_SIZE - 1);
