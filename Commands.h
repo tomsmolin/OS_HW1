@@ -41,7 +41,8 @@ class Command {
 protected:
   const char* cmd;
   int argv;
- 
+  int cmd_job_id; //relevant for timeout commands only! used to update the right entry in jobs list
+
  public:
   char** args; // move back to protected and add relevant get method --chprompt context
   TimedCommandEntry* timed_entry;
@@ -50,10 +51,9 @@ protected:
   virtual ~Command();
   virtual void execute() = 0;
   const char* getCmd();
-  void updateCmdForTimeout(const char* cmd_line);
-
-
-  int cmd_job_id;
+  int getCmdJobId();
+  void cleanCmdJobId(); // safety measure 
+  
   //virtual void prepare();
   //virtual void cleanup();
   // TODO: Add your extra methods if needed
@@ -64,7 +64,9 @@ class BuiltInCommand : public Command {
   BuiltInCommand(const char* cmd_line);
   virtual ~BuiltInCommand() {}
 };
+
 class JobsList;
+
 class ExternalCommand : public Command {
   JobsList* jobs;
  public:

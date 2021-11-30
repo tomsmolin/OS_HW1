@@ -132,10 +132,14 @@ const char* Command::getCmd() {
   return cmd;
 }
 
-//adding back the 'timeout %d' prefix
-void Command::updateCmdForTimeout(const char* timeout_cmd) {
-    cmd = timeout_cmd;
+int Command::getCmdJobId() {
+    return cmd_job_id;
 }
+
+void Command::cleanCmdJobId() {
+    cmd_job_id = NOT_SET;
+}
+
 TimedCommandEntry::TimedCommandEntry(time_t alrm_time, std::string timeout_cmd, int pid_cmd) 
 : alrm_time(alrm_time), timeout_cmd(timeout_cmd), pid_cmd(pid_cmd) {}
 
@@ -525,7 +529,7 @@ void BackgroundCommand::execute() {
         return;
     }
     jobs->removeJobById(curr_job->job_id);
-    cmd_job_id = jobs->addJob(pid, job_cmd);
+    jobs->addJob(pid, job_cmd);
 }
 
 HeadCommand::HeadCommand(const char* cmd_line) : BuiltInCommand(cmd_line) {}
@@ -986,12 +990,11 @@ void SmallShell::executeCommand(const char* cmd_line) {
 
     job_list.removeFinishedJobs();
     cmd->execute();
-    if (cmd->cmd_job_id != NOT_SET)
+    if (cmd->getCmdJobId() != NOT_SET)
     {
-        getJobs()->getJobById(cmd->cmd_job_id)->cmd = cmd_line;
-        cmd->cmd_job_id = NOT_SET;
+        getJobs()->getJobById(cmd->getCmdJobId())->cmd = cmd_line; //update full cmd line for timeout commands
+        cmd->cleanCmdJobId(); // Safety measure
     }
-    
     timed_list.sort();
     setPLastPwd(cmd);
     delete cmd;
