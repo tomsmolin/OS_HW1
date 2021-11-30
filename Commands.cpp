@@ -591,6 +591,7 @@ void HeadCommand::execute() {
         }
         lines_num--;
     }
+    ifs.clear();
     ifs.close();
     if (ifs.fail())
     {
