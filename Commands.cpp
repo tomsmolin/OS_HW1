@@ -305,7 +305,9 @@ void ChangeDirCommand::execute() {
         {
             classPlastPwd = cwd;
             fprintf(stderr, "smash error: cd: OLDPWD not set\n");
+            cout << "delete" << endl;
             delete[] cwd; //No old pwd is set - therefore the smash won't rec. this mem.
+            cout << "delete succsess" << endl;
             return;
         }
         else
@@ -881,9 +883,11 @@ void SmallShell::setPLastPwd(Command* cmd) {
             }
             else
             {
-                if (*plastPwd)
-                    delete[] * plastPwd;
-
+                if (*plastPwd) {
+                   cout << "delete1" << endl;
+                  delete[] * plastPwd;
+                   cout << "delete1 success" << endl;
+                }
                 *plastPwd = (temp->classPlastPwd);
             }
         }
@@ -1128,24 +1132,19 @@ void PipeCommand::execute() {
       perror("smash error: close failed");
       exit(0);
     }
-    cout << "DGB1" << endl;
+  
     SmallShell::getInstance().executeCommand(second_command.c_str());
-    cout << "DGB2" << endl;
     exit(0);
   }
-  cout << "DGB5" << endl;
+  
   close(fd[RD]);
-  cout << "DGB3" << endl;
   close(fd[WR]);
-  cout << "DGB4" << endl;
   if(waitpid(pid_1, nullptr, 0) == ERROR) {
     perror("smash error: waitpid failed");
     exit(0);
   }
-  cout << "DGB6" << endl;
   if(waitpid(pid_2, nullptr, 0) == ERROR) {
     perror("smash error: waitpid failed");
     exit(0);
   }
-  cout << "DGB7" << endl;
 }
