@@ -340,9 +340,9 @@ static bool killFormat(char** args,int argv) {
   double sig_number=0;
   sig_num >> sig_number;
   bool sig_int = (std::floor(sig_number) == sig_number) ? true : false;
-  bool sig_format = (sig_number < MAX_SIG) ? true : false;
-  bool sig_exist = (sig_number > MIN_SIG) ? true : false;
-  return (sig_format && sig_exist && sig_int);
+  bool sig_format = (sig_number <= MAX_SIG) ? true : false;
+  // bool sig_exist = (sig_number > MIN_SIG) ? true : false;
+  return (sig_format && sig_int);
 }
 
 static bool backAndForegroundFormat(char** args, int argv) {
