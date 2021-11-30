@@ -571,6 +571,7 @@ void HeadCommand::execute() {
     while (lines_num > 0)
     {
         std::getline(ifs, str);
+        str.append("\n");
         int w_result = write(1, str.c_str(), str.size());
         if (w_result == ERROR) {
             fprintf(stderr, "smash error: write failed\n");
