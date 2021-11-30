@@ -2,6 +2,7 @@
 #include <stdexcept> 
 #include <vector>
 #include <sstream>
+#include <regex>
 #include <math.h>
 #include <sys/wait.h>
 #include <sys/types.h>
@@ -335,6 +336,11 @@ void JobsCommand::execute() {
   jobs->printJobsList();
 }
 
+static bool isNumber(std::string x){
+    std::regex e ("^-?\\d+");
+    if (std::regex_match (x,e)) return true;
+    else return false;}
+
 static bool killFormat(char** args,int argv) {
   std::stringstream sig_num(args[1]);
   double sig_number=0;
@@ -342,12 +348,12 @@ static bool killFormat(char** args,int argv) {
   bool sig_int = (std::floor(sig_number) == sig_number) ? true : false;
   bool sig_format = (sig_number <= MAX_SIG) ? true : false;
   // bool sig_exist = (sig_number > MIN_SIG) ? true : false;
-  std::stringstream id(args[2]);
-  string job_id = EMPTY_STRING;
-  id >> job_id;
-  cout << job_id << endl;
+  // std::stringstream id(args[2]);
+  // string job_id = EMPTY_STRING;
+  // id >> job_id;
+  // cout << job_id << endl;
   // bool id_format = (job_id > 0) ? true : false;
-  return (sig_format && sig_int );
+  return (sig_format && sig_int && isNumber(args[2]));
 }
 
 static bool backAndForegroundFormat(char** args, int argv) {
