@@ -565,88 +565,123 @@ void HeadCommand::execute() {
     if (argv == 2)
         file_index = 1;
 
-    int fd = open(args[file_index], O_RDONLY);
-    if (fd == ERROR) {
-        fprintf(stderr, "smash error: open failed\n");
-        return;
-    }
-    char* line = new char[BUFFER_SIZE] /* {0}*/;
-    int r_result = read(fd, line, BUFFER_SIZE /* - 1*/);
-    if (r_result == ERROR) {
-        fprintf(stderr, "smash error: read failed\n");
-        return;
-    }
-    //line[BUFFER_SIZE - 1] = '\0'; // str excepts a c string type, otherwise invalid read recieved in valgrind
-    std::string str(line);
-    int seeker = 0;
-    int w_result = 0;
+    std::ifstream ifs;
+    ifs.open(args[file_index], std::ifstream::in);
+    std::string str;
     while (lines_num > 0)
     {
-        size_t end_of_line = str.find_first_of("\n");
-        if (end_of_line != std::string::npos)
-        {
-            w_result = write(1, &line[seeker], end_of_line + 1);
-            if (w_result == ERROR) {
-                fprintf(stderr, "smash error: write failed\n");
-                return;
-            }
-            if (w_result < end_of_line + 1)
-            {
-                fprintf(stderr, "write wasn't able to write all bytes\n");
-                return;
-            }
-            str.erase(0, end_of_line + 1);
-            seeker += end_of_line + 1;
-            lines_num--;
-            if (seeker == BUFFER_SIZE/* - 1*/)
-            {
-                //resetBuffer(line);
-                r_result = read(fd, line, BUFFER_SIZE/* - 1*/);
-                if (r_result == ERROR) {
-                    fprintf(stderr, "smash error: read failed\n");
-                    return;
-                }
-                //line[BUFFER_SIZE - 1] = '\0';
-                if (r_result == 0) //EOF
-                    break;
-                str = line;
-                seeker = 0;
-            }
+        std::getline(ifs, str);
+        int w_result = write(1, str.c_str, str.size());
+        if (w_result == ERROR) {
+            fprintf(stderr, "smash error: write failed\n");
+            return;
         }
-        else
-        {
-            w_result = write(1, &line[seeker], (BUFFER_SIZE/* - 1*/) - seeker);
-            if (w_result == ERROR) {
-                fprintf(stderr, "smash error: write failed\n");
-                return;
-            }
-            if (w_result < (BUFFER_SIZE/* - 1*/) - seeker)
-            {
-                fprintf(stderr, "write wasn't able to write all bytes\n");
-                return;
-            }
-            //resetBuffer(line);
-            r_result = read(fd, line, BUFFER_SIZE/* - 1*/);
-            if (r_result == ERROR) {
-                fprintf(stderr, "smash error: read failed\n");
-                return;
-            }
-            //line[BUFFER_SIZE - 1] = '\0';
-            if (r_result == 0) //EOF
-                break;
-            str = line;
-            seeker = 0;
-        }
+        lines_num--;
     }
-    if (close(fd) == ERROR)
-    {
-        fprintf(stderr, "smash error: close failed\n");
-        return;
-    }
-
-    delete[] line;
-    line = NULL;// VALGRIND
+    ifs.close();
 }
+
+
+
+// Old implementation
+
+//void HeadCommand::execute() {
+//    if (argv == 1) {
+//        fprintf(stderr, "smash error: head: not enough arguments\n");
+//        return;
+//    }
+//    int lines_num = setLinesNum();
+//    if (lines_num == ERROR)
+//        return;
+//
+//    int file_index = 2;
+//    if (argv == 2)
+//        file_index = 1;
+//
+//    int fd = open(args[file_index], O_RDONLY);
+//    if (fd == ERROR) {
+//        fprintf(stderr, "smash error: open failed\n");
+//        return;
+//    }
+//    char* line = new char[BUFFER_SIZE] /* {0}*/;
+//    int r_result = read(fd, line, BUFFER_SIZE /* - 1*/);
+//    if (r_result == ERROR) {
+//        fprintf(stderr, "smash error: read failed\n");
+//        return;
+//    }
+//    //line[BUFFER_SIZE - 1] = '\0'; // str excepts a c string type, otherwise invalid read recieved in valgrind
+//    std::string str(line);
+//    int seeker = 0;
+//    int w_result = 0;
+//    while (lines_num > 0)
+//    {
+//        size_t end_of_line = str.find_first_of("\n");
+//        if (end_of_line != std::string::npos)
+//        {
+//            w_result = write(1, &line[seeker], end_of_line + 1);
+//            if (w_result == ERROR) {
+//                fprintf(stderr, "smash error: write failed\n");
+//                return;
+//            }
+//            if (w_result < end_of_line + 1)
+//            {
+//                fprintf(stderr, "write wasn't able to write all bytes\n");
+//                return;
+//            }
+//            str.erase(0, end_of_line + 1);
+//            seeker += end_of_line + 1;
+//            lines_num--;
+//            if (seeker == BUFFER_SIZE/* - 1*/)
+//            {
+//                //resetBuffer(line);
+//                r_result = read(fd, line, BUFFER_SIZE/* - 1*/);
+//                if (r_result == ERROR) {
+//                    fprintf(stderr, "smash error: read failed\n");
+//                    return;
+//                }
+//                //line[BUFFER_SIZE - 1] = '\0';
+//                if (r_result == 0) //EOF
+//                    break;
+//                str = line;
+//                seeker = 0;
+//            }
+//        }
+//        else
+//        {
+//            w_result = write(1, &line[seeker], (BUFFER_SIZE/* - 1*/) - seeker);
+//            if (w_result == ERROR) {
+//                fprintf(stderr, "smash error: write failed\n");
+//                return;
+//            }
+//            if (w_result < (BUFFER_SIZE/* - 1*/) - seeker)
+//            {
+//                fprintf(stderr, "write wasn't able to write all bytes\n");
+//                return;
+//            }
+//            //resetBuffer(line);
+//            r_result = read(fd, line, BUFFER_SIZE/* - 1*/);
+//            if (r_result == ERROR) {
+//                fprintf(stderr, "smash error: read failed\n");
+//                return;
+//            }
+//            //line[BUFFER_SIZE - 1] = '\0';
+//            if (r_result == 0) //EOF
+//                break;
+//            str = line;
+//            seeker = 0;
+//        }
+//    }
+//    if (close(fd) == ERROR)
+//    {
+//        fprintf(stderr, "smash error: close failed\n");
+//        return;
+//    }
+//
+//    delete[] line;
+//    line = NULL;// VALGRIND
+//}
+
+
 
 /////////////////////////////joblist//////////////////////
 
