@@ -10,7 +10,7 @@ void ctrlZHandler(int sig_num) {
 	SmallShell& smash = SmallShell::getInstance();
 	int pid = smash.getCurrPid();
 
-	if (pid == NOT_SET) {
+	if (pid == NO_CURR_PID) {
 		return;
 	}
 	std::string curr_cmd = smash.getCurrCmd();
