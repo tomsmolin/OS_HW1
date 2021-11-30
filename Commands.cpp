@@ -342,10 +342,10 @@ static bool killFormat(char** args,int argv) {
   bool sig_int = (std::floor(sig_number) == sig_number) ? true : false;
   bool sig_format = (sig_number <= MAX_SIG) ? true : false;
   // bool sig_exist = (sig_number > MIN_SIG) ? true : false;
-  // std::stringstream id(args[1]);
-  // double job_id = 0;
-  // id >> job_id;
-  // bool id_format = (job_id > 0) ? true : false;
+  std::stringstream id(args[2]);
+  double job_id = 0;
+  id >> job_id;
+  bool id_format = (job_id > 0) ? true : false;
   return (sig_format && sig_int);
 }
 
