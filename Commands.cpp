@@ -1082,7 +1082,7 @@ void PipeCommand::execute() {
   int pid_1 = fork();
   if(pid_1 ==ERROR) {
     perror("smash error: fork failed");
-    exit(0)
+    exit(0);
   }
   //first child
   if (pid_1 == 0) {
