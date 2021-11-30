@@ -571,12 +571,12 @@ void HeadCommand::execute() {
         return;
     }
     char* line = new char[BUFFER_SIZE] /* {0}*/;
-    int r_result = read(fd, line, BUFFER_SIZE - 1);
+    int r_result = read(fd, line, BUFFER_SIZE /* - 1*/);
     if (r_result == ERROR) {
         fprintf(stderr, "smash error: read failed\n");
         return;
     }
-    line[BUFFER_SIZE - 1] = '\0'; // str excepts a c string type, otherwise invalid read recieved in valgrind
+    //line[BUFFER_SIZE - 1] = '\0'; // str excepts a c string type, otherwise invalid read recieved in valgrind
     std::string str(line);
     int seeker = 0;
     int w_result = 0;
@@ -598,15 +598,15 @@ void HeadCommand::execute() {
             str.erase(0, end_of_line + 1);
             seeker += end_of_line + 1;
             lines_num--;
-            if (seeker == BUFFER_SIZE - 1)
+            if (seeker == BUFFER_SIZE/* - 1*/)
             {
                 //resetBuffer(line);
-                r_result = read(fd, line, BUFFER_SIZE - 1);
+                r_result = read(fd, line, BUFFER_SIZE/* - 1*/);
                 if (r_result == ERROR) {
                     fprintf(stderr, "smash error: read failed\n");
                     return;
                 }
-                line[BUFFER_SIZE - 1] = '\0';
+                //line[BUFFER_SIZE - 1] = '\0';
                 if (r_result == 0) //EOF
                     break;
                 str = line;
@@ -615,23 +615,23 @@ void HeadCommand::execute() {
         }
         else
         {
-            w_result = write(1, &line[seeker], (BUFFER_SIZE - 1) - seeker);
+            w_result = write(1, &line[seeker], (BUFFER_SIZE/* - 1*/) - seeker);
             if (w_result == ERROR) {
                 fprintf(stderr, "smash error: write failed\n");
                 return;
             }
-            if (w_result < (BUFFER_SIZE - 1) - seeker)
+            if (w_result < (BUFFER_SIZE/* - 1*/) - seeker)
             {
                 fprintf(stderr, "write wasn't able to write all bytes\n");
                 return;
             }
             //resetBuffer(line);
-            r_result = read(fd, line, BUFFER_SIZE - 1);
+            r_result = read(fd, line, BUFFER_SIZE/* - 1*/);
             if (r_result == ERROR) {
                 fprintf(stderr, "smash error: read failed\n");
                 return;
             }
-            line[BUFFER_SIZE - 1] = '\0';
+            //line[BUFFER_SIZE - 1] = '\0';
             if (r_result == 0) //EOF
                 break;
             str = line;
