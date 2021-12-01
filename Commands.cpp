@@ -791,7 +791,7 @@ SmallShell::SmallShell() : plastPwd(NULL), legal_cd_made_before(false), prompt("
 
 SmallShell::~SmallShell() {
     if (*plastPwd)
-        delete  *plastPwd;
+        delete[]  *plastPwd;
 
     delete plastPwd;
 }
@@ -882,11 +882,11 @@ void SmallShell::setPLastPwd(Command* cmd) {
             }
             else
             {
-                if (*plastPwd) {
-                  // cout << "delete1" << endl;
-                  delete *plastPwd;
-                  // cout << "delete1 success" << endl;
-                }
+                // if (*plastPwd) {
+                //   // cout << "delete1" << endl;
+                //   // // delete *plastPwd;
+                //   // cout << "delete1 success" << endl;
+                // }
                 *plastPwd = (temp->classPlastPwd);
             }
         }
