@@ -324,9 +324,7 @@ void ChangeDirCommand::execute() {
         {
             classPlastPwd = cwd;
             fprintf(stderr, "smash error: cd: OLDPWD not set\n");
-            cout << "delete" << endl;
             delete[] cwd; //No old pwd is set - therefore the smash won't rec. this mem.
-            cout << "delete succsess" << endl;
             return;
         }
         else
@@ -429,12 +427,13 @@ QuitCommand::QuitCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(
 
 void QuitCommand::execute() {
   if (argv<2) {
-    delete this;
+    // cout << "quit" << endl;
+    // delete this;
     exit(1);
   }
   std::cout << "smash: sending SIGKILL signal to " << jobs->jobsDict.size()<< " jobs:\n";
   jobs->printKilledJobList();
-  delete this;
+  // delete this;
   exit(1);
 }
 
@@ -812,7 +811,7 @@ SmallShell::SmallShell() : plastPwd(NULL), legal_cd_made_before(false), prompt("
 
 SmallShell::~SmallShell() {
     if (*plastPwd)
-        delete[] * plastPwd;
+        delete[]  *plastPwd;
 
     delete plastPwd;
 }
@@ -897,11 +896,13 @@ void SmallShell::setPLastPwd(Command* cmd) {
             }
             else
             {
-                if (*plastPwd) {
-                  cout << "delete1" << endl;
-                  delete[] *plastPwd;
-                  cout << "delete1 success" << endl;
-                }
+
+                // if (*plastPwd) {
+                //   // cout << "delete1" << endl;
+                //   // // delete *plastPwd;
+                //   // cout << "delete1 success" << endl;
+                // }
+
                 *plastPwd = (temp->classPlastPwd);
             }
         }
