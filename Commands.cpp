@@ -541,8 +541,9 @@ void BackgroundCommand::execute() {
         perror("smash error: kill failed");
         return;
     }
-    jobs->removeJobById(curr_job->job_id);
-    jobs->addJob(pid, job_cmd);
+    //jobs->removeJobById(curr_job->job_id);
+    //jobs->addJob(pid, job_cmd);
+    curr_job->status = Background;
 }
 
 HeadCommand::HeadCommand(const char* cmd_line) : BuiltInCommand(cmd_line) {}
