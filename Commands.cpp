@@ -410,7 +410,7 @@ QuitCommand::QuitCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(
 
 void QuitCommand::execute() {
   if (argv<2) {
-    cout << "quit" << endl
+    cout << "quit" << endl;
     delete this;
     exit(1);
   }
