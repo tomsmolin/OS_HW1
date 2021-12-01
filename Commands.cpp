@@ -303,8 +303,12 @@ void ChangeDirCommand::execute() {
     }
     if (argv > 2)
     {
-        fprintf(stderr, "smash error: cd: too many arguments\n");
-        return;
+        str = args[2];
+        if (!(argv == 3 && str.compare("&") == 0))
+        {
+            fprintf(stderr, "smash error: cd: too many arguments\n");
+            return;
+        }
     }
     _removeBackgroundSign(args[1]);
     char* cwd = getCurrPwd();
