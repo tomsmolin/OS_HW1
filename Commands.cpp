@@ -887,6 +887,8 @@ void SmallShell::setPLastPwd(Command* cmd) {
     if (strcmp(cmd->args[0], "cd") == 0)
     {
         ChangeDirCommand* temp = (ChangeDirCommand*)cmd;
+        if (temp->getCmd() == NULL)
+            return;
         if (temp->cd_succeeded)
         {
             if (!legal_cd_made_before) // upon first successful cd - entered once
@@ -1081,7 +1083,8 @@ void RedirectionCommand::execute() {
  
 PipeCommand::PipeCommand(const char* cmd_line) : Command(cmd_line), first_command(EMPTY_STRING), second_command(EMPTY_STRING) {
   is_stderr = pipeParse(cmd_line,first_command,second_command);
-  cmd = first_command.c_str();
+  //cmd = first_command.c_str();
+  cmd = NULL;
 }
 
 enum {RD,WR};
