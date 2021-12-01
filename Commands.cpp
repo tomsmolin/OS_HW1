@@ -1071,6 +1071,84 @@ PipeCommand::PipeCommand(const char* cmd_line) : Command(cmd_line), first_comman
 
 enum {RD,WR};
 
+// void PipeCommand::execute() {
+//   int fd[2];
+//   int result = pipe(fd);
+//   if(result == ERROR) {
+//     perror("smash error: pipe failed");
+//     return;
+//   }
+//    //close stdout('|') or stderr('|&')
+//   int fd_to_close=1;
+//   if(is_stderr) {
+//     fd_to_close=2;
+//   }
+//   int pid_1 = fork();
+//   if(pid_1 ==ERROR) {
+//     perror("smash error: fork failed");
+//     exit(0);
+//   }
+//   //first child
+//   if (pid_1 == 0) {
+//     if(setpgrp() == ERROR) {
+//       perror("smash error: setpgrp failed");
+//       return;
+//     }
+//     if(dup2(fd[WR],fd_to_close) == ERROR) { // 1 or 2 -> write pipe
+//       perror("smash error: dup2 failed");
+//       exit(0);
+//     }
+//     if(close(fd[RD]) == ERROR) {
+//       perror("smash error: close failed");
+//       exit(0);
+//     }
+//     if(close(fd[WR]) == ERROR) {
+//       perror("smash error: close failed");
+//       exit(0);
+//     }
+//     SmallShell::getInstance().executeCommand(first_command.c_str());
+//     exit(0);
+//   }
+//   int pid_2 = fork();
+//   if(pid_2 ==ERROR) {
+//     perror("smash error: fork failed");
+//     exit(0);
+//   }
+//   // second child
+//   if (pid_2 == 0) {
+//     if(setpgrp() == ERROR) {
+//       perror("smash error: setpgrp failed");
+//       return;
+//     }
+//     if(dup2(fd[RD],0) == ERROR) { //0 -> read pipe
+//       perror("smash error: dup2 failed");
+//       exit(0);
+//     }
+//     if(close(fd[RD]) == ERROR) {
+//       perror("smash error: close failed");
+//       exit(0);
+//     }
+//     if(close(fd[WR]) == ERROR) {
+//       perror("smash error: close failed");
+//       exit(0);
+//     }
+  
+//     SmallShell::getInstance().executeCommand(second_command.c_str());
+//     exit(0);
+//   }
+  
+//   close(fd[RD]);
+//   close(fd[WR]);
+//   if(waitpid(pid_1, nullptr, 0) == ERROR) {
+//     perror("smash error: waitpid failed");
+//     exit(0);
+//   }
+//   if(waitpid(pid_2, nullptr, 0) == ERROR) {
+//     perror("smash error: waitpid failed");
+//     exit(0);
+//   }
+// }
+
 void PipeCommand::execute() {
   int fd[2];
   int result = pipe(fd);
@@ -1078,43 +1156,43 @@ void PipeCommand::execute() {
     perror("smash error: pipe failed");
     return;
   }
-   //close stdout('|') or stderr('|&')
+  //  close stdout('|') or stderr('|&')
   int fd_to_close=1;
   if(is_stderr) {
     fd_to_close=2;
   }
-  int pid_1 = fork();
-  if(pid_1 ==ERROR) {
-    perror("smash error: fork failed");
+  // int pid_1 = fork();
+  // if(pid_1 ==ERROR) {
+  //   perror("smash error: fork failed");
+  //   exit(0);
+  // }
+  // //first child
+  // if (pid_1 == 0) {
+  if(setpgrp() == ERROR) {
+    perror("smash error: setpgrp failed");
+    return;
+  }
+  if(dup2(fd[WR],fd_to_close) == ERROR) { // 1 or 2 -> write pipe
+    perror("smash error: dup2 failed");
     exit(0);
   }
-  //first child
-  if (pid_1 == 0) {
-    if(setpgrp() == ERROR) {
-      perror("smash error: setpgrp failed");
-      return;
-    }
-    if(dup2(fd[WR],fd_to_close) == ERROR) { // 1 or 2 -> write pipe
-      perror("smash error: dup2 failed");
-      exit(0);
-    }
-    if(close(fd[RD]) == ERROR) {
-      perror("smash error: close failed");
-      exit(0);
-    }
-    if(close(fd[WR]) == ERROR) {
-      perror("smash error: close failed");
-      exit(0);
-    }
-    SmallShell::getInstance().executeCommand(first_command.c_str());
+  if(close(fd[RD]) == ERROR) {
+    perror("smash error: close failed");
     exit(0);
   }
+  if(close(fd[WR]) == ERROR) {
+    perror("smash error: close failed");
+    exit(0);
+  }
+  SmallShell::getInstance().executeCommand(first_command.c_str());
+  //   exit(0);
+  // }
   int pid_2 = fork();
   if(pid_2 ==ERROR) {
     perror("smash error: fork failed");
     exit(0);
   }
-  // second child
+  second child
   if (pid_2 == 0) {
     if(setpgrp() == ERROR) {
       perror("smash error: setpgrp failed");
@@ -1137,6 +1215,8 @@ void PipeCommand::execute() {
     exit(0);
   }
   
+
+
   close(fd[RD]);
   close(fd[WR]);
   if(waitpid(pid_1, nullptr, 0) == ERROR) {
