@@ -368,12 +368,6 @@ static bool killFormat(char** args,int argv) {
   sig_num >> sig_number;
   bool sig_int = (std::floor(sig_number) == sig_number) ? true : false;
   bool sig_format = (sig_number <= MAX_SIG) ? true : false;
-  // bool sig_exist = (sig_number > MIN_SIG) ? true : false;
-  // std::stringstream id(args[2]);
-  // string job_id = EMPTY_STRING;
-  // id >> job_id;
-  // cout << job_id << endl;
-  // bool id_format = (job_id > 0) ? true : false;
   return (sig_format && sig_int && isNumber(args[2]));
 }
 
@@ -385,8 +379,8 @@ static bool backAndForegroundFormat(char** args, int argv) {
     double job_id = 0;
     id >> job_id;
     bool id_int = (std::floor(job_id) == job_id) ? true : false;
-    bool id_format = (job_id > 0) ? true : false;
-    return (id_format && id_int);
+    // bool id_format = (job_id > 0) ? true : false;
+    return (id_int);
 }
 
 KillCommand::KillCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(cmd_line), jobs(jobs) {}
