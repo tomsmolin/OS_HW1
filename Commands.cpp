@@ -253,7 +253,9 @@ void ChangePromptCommand::execute() {
         }
         _removeBackgroundSign(args[1]);
         str = args[1];
-        str.erase(str.find_last_of(' '));
+        size_t space_index = str.find_last_of(' ');
+        if (space_index != std::string::npos)
+            str.erase(space_index);
         *prompt = str;
         (*prompt).append("> ");
     }
@@ -428,12 +430,12 @@ QuitCommand::QuitCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(
 void QuitCommand::execute() {
   if (argv<2) {
     // cout << "quit" << endl;
-    // delete this;
+    delete this;
     exit(1);
   }
   std::cout << "smash: sending SIGKILL signal to " << jobs->jobsDict.size()<< " jobs:\n";
   jobs->printKilledJobList();
-  // delete this;
+  delete this;
   exit(1);
 }
 
@@ -887,6 +889,8 @@ void SmallShell::setPLastPwd(Command* cmd) {
     if (strcmp(cmd->args[0], "cd") == 0)
     {
         ChangeDirCommand* temp = (ChangeDirCommand*)cmd;
+        if (temp->getCmd() == NULL) // In case it's a pipe command (father process on his exiting from smash::execute)
+            return;
         if (temp->cd_succeeded)
         {
             if (!legal_cd_made_before) // upon first successful cd - entered once
@@ -896,13 +900,9 @@ void SmallShell::setPLastPwd(Command* cmd) {
             }
             else
             {
-
-                // if (*plastPwd) {
-                //   // cout << "delete1" << endl;
-                //   // // delete *plastPwd;
-                //   // cout << "delete1 success" << endl;
-                // }
-
+                 if (*plastPwd) {
+                   delete[] *plastPwd;
+                 }
                 *plastPwd = (temp->classPlastPwd);
             }
         }
@@ -1081,7 +1081,8 @@ void RedirectionCommand::execute() {
  
 PipeCommand::PipeCommand(const char* cmd_line) : Command(cmd_line), first_command(EMPTY_STRING), second_command(EMPTY_STRING) {
   is_stderr = pipeParse(cmd_line,first_command,second_command);
-  cmd = first_command.c_str();
+  //cmd = first_command.c_str();
+  cmd = NULL;
 }
 
 enum {RD,WR};
