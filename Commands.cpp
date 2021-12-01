@@ -318,7 +318,6 @@ void ChangeDirCommand::execute() {
     }
 
     char* path = args[1];
-    cout << path << endl;
     if (strcmp(path, "-") == 0)
     {
         if (classPlastPwd == NULL) // When last working directory isn't set on smash
