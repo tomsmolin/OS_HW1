@@ -295,12 +295,18 @@ void ChangeDirCommand::execute() {
     if(argv <2 ){ // for cd without arguments
       return;
     }
+    std::string str(args[0]);
+    if (str.compare("cd") != 0)
+    {
+        fprintf(stderr, "smash error: invalid arguments\n")
+        return;
+    }
     if (argv > 2)
     {
         fprintf(stderr, "smash error: cd: too many arguments\n");
         return;
     }
-
+    _removeBackgroundSign(args[1]);
     char* cwd = getCurrPwd();
     if (cwd == NULL)
     {
@@ -852,7 +858,7 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
     else if (firstWord.compare("showpid") == 0 || firstWord.compare("showpid&") == 0) {
         return new ShowPidCommand(cmd_line);
     }
-    else if (firstWord.compare("cd") == 0 /*|| firstWord.compare("cd&") == 0*/) {
+    else if (firstWord.compare("cd") == 0 || firstWord.compare("cd&") == 0) {
         return new ChangeDirCommand(cmd_line, plastPwd);
     }
     else if (firstWord.compare("jobs") == 0 || firstWord.compare("jobs&") == 0) {
