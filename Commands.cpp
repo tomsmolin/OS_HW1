@@ -248,7 +248,7 @@ void ChangePromptCommand::execute() {
         string str(args[0]);
         if (str.compare("chprompt") != 0)
         {
-            fprintf(stderr, "smash error: chprompt: invalid arguments\n");
+            fprintf(stderr, "smash error: invalid arguments\n");
             return;
         }
         _removeBackgroundSign(args[1]);
