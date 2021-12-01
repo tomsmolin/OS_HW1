@@ -885,7 +885,7 @@ void SmallShell::setPLastPwd(Command* cmd) {
             {
                 if (*plastPwd) {
                   cout << "delete1" << endl;
-                  delete *plastPwd;
+                  // delete *plastPwd;
                   cout << "delete1 success" << endl;
                 }
                 *plastPwd = (temp->classPlastPwd);
