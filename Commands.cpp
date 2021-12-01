@@ -1192,7 +1192,7 @@ void PipeCommand::execute() {
     perror("smash error: fork failed");
     exit(0);
   }
-  second child
+  // second child
   if (pid_2 == 0) {
     if(setpgrp() == ERROR) {
       perror("smash error: setpgrp failed");
@@ -1219,10 +1219,10 @@ void PipeCommand::execute() {
 
   close(fd[RD]);
   close(fd[WR]);
-  if(waitpid(pid_1, nullptr, 0) == ERROR) {
-    perror("smash error: waitpid failed");
-    exit(0);
-  }
+  // if(waitpid(pid_1, nullptr, 0) == ERROR) {
+  //   perror("smash error: waitpid failed");
+  //   exit(0);
+  // }
   if(waitpid(pid_2, nullptr, 0) == ERROR) {
     perror("smash error: waitpid failed");
     exit(0);
