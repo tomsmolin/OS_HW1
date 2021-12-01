@@ -899,7 +899,7 @@ void SmallShell::setPLastPwd(Command* cmd) {
             else
             {
                  if (*plastPwd) {
-                   delete *plastPwd;
+                   delete[] *plastPwd;
                  }
                 *plastPwd = (temp->classPlastPwd);
             }
