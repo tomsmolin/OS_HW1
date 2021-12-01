@@ -410,6 +410,7 @@ QuitCommand::QuitCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(
 
 void QuitCommand::execute() {
   if (argv<2) {
+    cout << "quit" << endl
     delete this;
     exit(1);
   }
@@ -883,11 +884,11 @@ void SmallShell::setPLastPwd(Command* cmd) {
             }
             else
             {
-                if (*plastPwd) {
-                  cout << "delete1" << endl;
-                  // delete *plastPwd;
-                  cout << "delete1 success" << endl;
-                }
+                // if (*plastPwd) {
+                //   // cout << "delete1" << endl;
+                //   // // delete *plastPwd;
+                //   // cout << "delete1 success" << endl;
+                // }
                 *plastPwd = (temp->classPlastPwd);
             }
         }
