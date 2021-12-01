@@ -311,7 +311,6 @@ void ChangeDirCommand::execute() {
         }
     }
     _removeBackgroundSign(args[1]);
-    cout << args[1] << endl;
     char* cwd = getCurrPwd();
     if (cwd == NULL)
     {
