@@ -245,7 +245,16 @@ void ChangePromptCommand::execute() {
         *prompt = def;
     else
     {
-        *prompt = args[1];
+        string str(args[0]);
+        if (str.compare("chprompt") != 0)
+        {
+            fprintf(stderr, "smash error: invalid arguments\n");
+            return;
+        }
+        _removeBackgroundSign(args[1]);
+        str = args[1];
+        str.erase(str.find_last_of(' '));
+        *prompt = str;
         (*prompt).append("> ");
     }
 }
@@ -286,12 +295,22 @@ void ChangeDirCommand::execute() {
     if(argv <2 ){ // for cd without arguments
       return;
     }
-    if (argv > 2)
+    std::string str(args[0]);
+    if (str.compare("cd") != 0)
     {
-        fprintf(stderr, "smash error: cd: too many arguments\n");
+        fprintf(stderr, "smash error: invalid arguments\n");
         return;
     }
-
+    if (argv > 2)
+    {
+        str = args[2];
+        if (!(argv == 3 && str.compare("&") == 0))
+        {
+            fprintf(stderr, "smash error: cd: too many arguments\n");
+            return;
+        }
+    }
+    _removeBackgroundSign(args[1]);
     char* cwd = getCurrPwd();
     if (cwd == NULL)
     {
@@ -540,8 +559,9 @@ void BackgroundCommand::execute() {
         perror("smash error: kill failed");
         return;
     }
-    jobs->removeJobById(curr_job->job_id);
-    jobs->addJob(pid, job_cmd);
+    //jobs->removeJobById(curr_job->job_id);
+    //jobs->addJob(pid, job_cmd);
+    curr_job->status = Background;
 }
 
 HeadCommand::HeadCommand(const char* cmd_line) : BuiltInCommand(cmd_line) {}
@@ -847,26 +867,20 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
     else if (firstWord.compare("jobs") == 0 || firstWord.compare("jobs&") == 0) {
         return new JobsCommand(cmd_line, &job_list);
     }
-    else if (firstWord.compare("kill") == 0 || firstWord.compare("kill&") == 0) {
+    else if (firstWord.compare("kill") == 0 /*|| firstWord.compare("kill&") == 0*/) {
         return new KillCommand(cmd_line, &job_list);
     }
     else if (firstWord.compare("quit") == 0 || firstWord.compare("quit&") == 0) {
         return new QuitCommand(cmd_line, &job_list);
     }
-    else if (firstWord.compare("fg") == 0 || firstWord.compare("fg&") == 0) {
+    else if (firstWord.compare("fg") == 0 /*|| firstWord.compare("fg&") == 0 */) {
         return new ForegroundCommand(cmd_line, &job_list);
     }
-    else if (firstWord.compare("bg") == 0 || firstWord.compare("bg&") == 0) {
+    else if (firstWord.compare("bg") == 0 /*|| firstWord.compare("bg&") == 0 */) {
         return new BackgroundCommand(cmd_line, &job_list);
     }
 
      return new ExternalCommand(cmd_line, &job_list);
-
-    // else {
-    //   return new ExternalCommand(cmd_line);
-    // }
-    /////external commands:
-    return nullptr; // should it be here?
 }
 
 void SmallShell::setPLastPwd(Command* cmd) {
@@ -882,11 +896,13 @@ void SmallShell::setPLastPwd(Command* cmd) {
             }
             else
             {
+
                 // if (*plastPwd) {
                 //   // cout << "delete1" << endl;
                 //   // // delete *plastPwd;
                 //   // cout << "delete1 success" << endl;
                 // }
+
                 *plastPwd = (temp->classPlastPwd);
             }
         }
