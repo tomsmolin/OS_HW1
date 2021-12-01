@@ -411,12 +411,12 @@ QuitCommand::QuitCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(
 void QuitCommand::execute() {
   if (argv<2) {
     cout << "quit" << endl;
-    delete this;
+    // delete this;
     exit(1);
   }
   std::cout << "smash: sending SIGKILL signal to " << jobs->jobsDict.size()<< " jobs:\n";
   jobs->printKilledJobList();
-  delete this;
+  // delete this;
   exit(1);
 }
 
