@@ -1100,10 +1100,10 @@ void PipeCommand::execute() {
   }
   //first child
   if (pid_1 == 0) {
-    // if(setpgrp() == ERROR) {
-    //   perror("smash error: setpgrp failed");
-    //   return;
-    // }
+    if(setpgrp() == ERROR) {
+      perror("smash error: setpgrp failed");
+      return;
+    }
     if(dup2(fd[WR],fd_to_close) == ERROR) { // 1 or 2 -> write pipe
       perror("smash error: dup2 failed");
       exit(0);
@@ -1126,10 +1126,10 @@ void PipeCommand::execute() {
   }
   // second child
   if (pid_2 == 0) {
-    // if(setpgrp() == ERROR) {
-    //   perror("smash error: setpgrp failed");
-    //   return;
-    // }
+    if(setpgrp() == ERROR) {
+      perror("smash error: setpgrp failed");
+      return;
+    }
     if(dup2(fd[RD],0) == ERROR) { //0 -> read pipe
       perror("smash error: dup2 failed");
       exit(0);
