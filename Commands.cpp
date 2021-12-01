@@ -835,7 +835,7 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
     else if (firstWord.compare("head") == 0) {
         return new HeadCommand(cmd_line);
     }
-    else if (firstWord.compare("chprompt") == 0 ||/* firstWord.compare("chprompt&") == 0 */ ) {
+    else if (firstWord.compare("chprompt") == 0 /*|| firstWord.compare("chprompt&") == 0 */ ) {
         return new ChangePromptCommand(cmd_line, getPPrompt());
     }
     else if (firstWord.compare("pwd") == 0 || firstWord.compare("pwd&") == 0) {
@@ -844,32 +844,26 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
     else if (firstWord.compare("showpid") == 0 || firstWord.compare("showpid&") == 0) {
         return new ShowPidCommand(cmd_line);
     }
-    else if (firstWord.compare("cd") == 0 ||/* firstWord.compare("cd&") == 0*/) {
+    else if (firstWord.compare("cd") == 0 /*|| firstWord.compare("cd&") == 0*/) {
         return new ChangeDirCommand(cmd_line, plastPwd);
     }
     else if (firstWord.compare("jobs") == 0 || firstWord.compare("jobs&") == 0) {
         return new JobsCommand(cmd_line, &job_list);
     }
-    else if (firstWord.compare("kill") == 0 ||/* firstWord.compare("kill&") == 0*/) {
+    else if (firstWord.compare("kill") == 0 /*|| firstWord.compare("kill&") == 0*/) {
         return new KillCommand(cmd_line, &job_list);
     }
     else if (firstWord.compare("quit") == 0 || firstWord.compare("quit&") == 0) {
         return new QuitCommand(cmd_line, &job_list);
     }
-    else if (firstWord.compare("fg") == 0 ||/* firstWord.compare("fg&") == 0 */) {
+    else if (firstWord.compare("fg") == 0 /*|| firstWord.compare("fg&") == 0 */) {
         return new ForegroundCommand(cmd_line, &job_list);
     }
-    else if (firstWord.compare("bg") == 0 ||/* firstWord.compare("bg&") == 0 */) {
+    else if (firstWord.compare("bg") == 0 /*|| firstWord.compare("bg&") == 0 */) {
         return new BackgroundCommand(cmd_line, &job_list);
     }
 
      return new ExternalCommand(cmd_line, &job_list);
-
-    // else {
-    //   return new ExternalCommand(cmd_line);
-    // }
-    /////external commands:
-    return nullptr; // should it be here?
 }
 
 void SmallShell::setPLastPwd(Command* cmd) {
