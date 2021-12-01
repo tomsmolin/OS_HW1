@@ -298,7 +298,7 @@ void ChangeDirCommand::execute() {
     std::string str(args[0]);
     if (str.compare("cd") != 0)
     {
-        fprintf(stderr, "smash error: invalid arguments\n")
+        fprintf(stderr, "smash error: invalid arguments\n");
         return;
     }
     if (argv > 2)
