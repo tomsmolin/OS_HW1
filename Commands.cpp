@@ -305,9 +305,7 @@ void ChangeDirCommand::execute() {
         {
             classPlastPwd = cwd;
             fprintf(stderr, "smash error: cd: OLDPWD not set\n");
-            cout << "delete" << endl;
             delete[] cwd; //No old pwd is set - therefore the smash won't rec. this mem.
-            cout << "delete succsess" << endl;
             return;
         }
         else
@@ -410,7 +408,7 @@ QuitCommand::QuitCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(
 
 void QuitCommand::execute() {
   if (argv<2) {
-    cout << "quit" << endl;
+    // cout << "quit" << endl;
     // delete this;
     exit(1);
   }
