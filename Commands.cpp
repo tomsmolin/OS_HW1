@@ -245,7 +245,7 @@ void ChangePromptCommand::execute() {
         *prompt = def;
     else
     {
-        string str(arg[0]);
+        string str(args[0]);
         if (str.compare("chprompt") != 0)
         {
             fprintf(stderr, "smash error: chprompt: invalid arguments\n");
