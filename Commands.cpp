@@ -253,7 +253,9 @@ void ChangePromptCommand::execute() {
         }
         _removeBackgroundSign(args[1]);
         str = args[1];
-        str.erase(str.find_last_of(' '));
+        size_t space_index = str.find_last_of(' ');
+        if (space_index != std::string::npos)
+            str.erase(space_index);
         *prompt = str;
         (*prompt).append("> ");
     }
