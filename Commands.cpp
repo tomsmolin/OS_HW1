@@ -245,8 +245,16 @@ void ChangePromptCommand::execute() {
         *prompt = def;
     else
     {
+        string str(arg[0]);
+        if (str.compare("chprompt") != 0)
+        {
+            fprintf(stderr, "smash error: chprompt: invalid arguments\n");
+            return;
+        }
         _removeBackgroundSign(args[1]);
-        *prompt = args[1];
+        str = args[1];
+        str.erase(str.find_last_of(' '));
+        *prompt = str;
         (*prompt).append("> ");
     }
 }
@@ -835,7 +843,7 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
     else if (firstWord.compare("head") == 0) {
         return new HeadCommand(cmd_line);
     }
-    else if (firstWord.compare("chprompt") == 0 /*|| firstWord.compare("chprompt&") == 0 */ ) {
+    else if (firstWord.compare("chprompt") == 0 || firstWord.compare("chprompt&") == 0) {
         return new ChangePromptCommand(cmd_line, getPPrompt());
     }
     else if (firstWord.compare("pwd") == 0 || firstWord.compare("pwd&") == 0) {
