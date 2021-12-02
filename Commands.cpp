@@ -382,10 +382,14 @@ static bool killFormat(char** args,int argv) {
   return (sig_format && sig_int && isNumber(args[2]));
 }
 
+// calling this function only when argv != 1
 static bool backAndForegroundFormat(char** args, int argv) {
-    if (argv != 2) {
-        return false;
-    }
+    // in case we got for example fg& 5
+    if (args[0][LEN_OF_BG_FG] != '\0') return false; 
+    // in case we have 3 args, check if the third is '&' only
+    if (argv == 3 && (args[3][0] != '&' || args[3][1] != '\0')) return false; 
+    if (argv != 2) return false;
+ 
     std::stringstream id(args[1]);
     double job_id = 0;
     id >> job_id;
@@ -880,10 +884,10 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
     else if (firstWord.compare("quit") == 0 || firstWord.compare("quit&") == 0) {
         return new QuitCommand(cmd_line, &job_list);
     }
-    else if (firstWord.compare("fg") == 0 /*|| firstWord.compare("fg&") == 0 */) {
+    else if (firstWord.compare("fg") == 0 || firstWord.compare("fg&") == 0 ) {
         return new ForegroundCommand(cmd_line, &job_list);
     }
-    else if (firstWord.compare("bg") == 0 /*|| firstWord.compare("bg&") == 0 */) {
+    else if (firstWord.compare("bg") == 0 || firstWord.compare("bg&") == 0 ) {
         return new BackgroundCommand(cmd_line, &job_list);
     }
 

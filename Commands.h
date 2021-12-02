@@ -18,6 +18,7 @@
 #define NOT_SET (-1)
 #define ERROR (-1)
 #define EXITED (-1)
+#define LEN_OF_BG_FG (2)
 
 
 class TimedCommandEntry {
