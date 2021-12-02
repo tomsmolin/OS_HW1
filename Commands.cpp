@@ -369,16 +369,17 @@ static bool isNumber(std::string x){
     else return false;}
 
 static bool killFormat(char** args,int argv) {
+  if(argv == 4 && (args[3][0] != '&' || args[3][1] != '\0'))
+    return false;         
+  if (argv != 3)
+    return false;
   std::stringstream sig_num(args[1]);
   double sig_number=0;
   sig_num >> sig_number;
   bool sig_int = (std::floor(sig_number) == sig_number) ? true : false;
   bool sig_format = (sig_number <= MAX_SIG) ? true : false;
-  bool legal_background_use = true;
-  if (argv == 4 && (args[3][0] != '&' || args[3][1] != '\0'))
-      legal_background_use = false;
 
-  return (sig_format && sig_int && isNumber(args[2]) && legal_background_use);
+  return (sig_format && sig_int && isNumber(args[2]));
 }
 
 static bool backAndForegroundFormat(char** args, int argv) {
@@ -396,7 +397,7 @@ static bool backAndForegroundFormat(char** args, int argv) {
 KillCommand::KillCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(cmd_line), jobs(jobs) {}
 
 void KillCommand::execute() {
-    if((argv!=3) || (!killFormat(args,argv))) {
+    if(/*(argv != 3) || */(!killFormat(args, argv))) {
         fprintf(stderr, "smash error: kill: invalid arguments\n");
         return;
     }
