@@ -384,10 +384,10 @@ static bool killFormat(char** args,int argv) {
 
 // calling this function only when argv != 1
 static bool backAndForegroundFormat(char** args, int argv) {
-    //// in case we got for example fg& 5
-    //if (args[0][LEN_OF_BG_FG] != '\0') return false; 
-    //// in case we have 3 args, check if the third is '&' only
-    //if (argv == 3 && (args[3][0] != '&' || args[3][1] != '\0')) return false; 
+    // in case we got for example fg& 5
+    if (args[0][LEN_OF_BG_FG] != '\0') return false; 
+    // in case we have 3 args, check if the third is '&' only
+    if (argv == 3 && (args[2][0] != '&' || args[2][1] != '\0')) return false; 
     if (argv != 2) return false;
  
     std::stringstream id(args[1]);
