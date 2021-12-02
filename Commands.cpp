@@ -397,7 +397,7 @@ static bool backAndForegroundFormat(char** args, int argv) {
 KillCommand::KillCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(cmd_line), jobs(jobs) {}
 
 void KillCommand::execute() {
-    if(/*(argv != 3) || */(!killFormat(args, argv))) {
+    if(!killFormat(args, argv)) {
         fprintf(stderr, "smash error: kill: invalid arguments\n");
         return;
     }
