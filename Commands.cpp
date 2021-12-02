@@ -601,7 +601,7 @@ void HeadCommand::execute() {
     std::ifstream ifs(args[file_index], std::ifstream::in); //Constructor opens the file
     if (ifs.fail())
     {
-        fprintf(stderr, "smash error: open failed: No such file or directory\n");
+        perror(stderr, "smash error: open failed");
         return;
     }
     std::string str;
