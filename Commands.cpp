@@ -371,7 +371,7 @@ static bool isNumber(std::string x){
 static bool killFormat(char** args,int argv) {
   if(argv == 4 && (args[3][0] != '&' || args[3][1] != '\0'))
     return false;         
-  if (argv != 3)
+  if (argv < 3 || argv > 4)
     return false;
   std::stringstream sig_num(args[1]);
   double sig_number=0;
