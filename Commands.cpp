@@ -313,6 +313,11 @@ void ChangeDirCommand::execute() {
         }
     }
     _removeBackgroundSign(args[1]);
+    std::string str(args[1]);
+    size_t space_index = str.find_last_of(' ');
+    if (space_index != std::string::npos)
+        args[space_index] = '\0';
+        
     char* cwd = getCurrPwd();
     if (cwd == NULL)
     {
