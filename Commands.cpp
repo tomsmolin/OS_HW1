@@ -374,7 +374,11 @@ static bool killFormat(char** args,int argv) {
   sig_num >> sig_number;
   bool sig_int = (std::floor(sig_number) == sig_number) ? true : false;
   bool sig_format = (sig_number <= MAX_SIG) ? true : false;
-  return (sig_format && sig_int && isNumber(args[2]));
+  bool legal_background_use = true;
+  if (argv == 4 && (args[3][0] != '&' || args[3][1] != '\0'))
+      legal_background_use = false;
+
+  return (sig_format && sig_int && isNumber(args[2]) && legal_background_use);
 }
 
 static bool backAndForegroundFormat(char** args, int argv) {
@@ -393,9 +397,10 @@ KillCommand::KillCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(
 
 void KillCommand::execute() {
     if((argv!=3) || (!killFormat(args,argv))) {
-    fprintf(stderr, "smash error: kill: invalid arguments\n"); 
-    return;
-  }
+        fprintf(stderr, "smash error: kill: invalid arguments\n");
+        return;
+        }
+    }
   // if(!killFormat(args,argv)) { // as said in piazza invalid sig_num => syscall failed
   //     fprintf(stderr, "smash error: kill failed\n"); 
   //     return;
@@ -869,7 +874,7 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
     else if (firstWord.compare("jobs") == 0 || firstWord.compare("jobs&") == 0) {
         return new JobsCommand(cmd_line, &job_list);
     }
-    else if (firstWord.compare("kill") == 0 /*|| firstWord.compare("kill&") == 0*/) {
+    else if (firstWord.compare("kill") == 0) {
         return new KillCommand(cmd_line, &job_list);
     }
     else if (firstWord.compare("quit") == 0 || firstWord.compare("quit&") == 0) {
