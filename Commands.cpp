@@ -312,9 +312,10 @@ void ChangeDirCommand::execute() {
             return;
         }
     }
+    // & in the end of the path support
     _removeBackgroundSign(args[1]);
-    std::string str(args[1]);
-    size_t space_index = str.find_last_of(' ');
+    std::string path_str(args[1]);
+    size_t space_index = path_str.find_last_of(' ');
     if (space_index != std::string::npos)
         args[1][space_index] = '\0';
         
