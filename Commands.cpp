@@ -857,7 +857,7 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
     else if (firstWord.compare("showpid") == 0 || firstWord.compare("showpid&") == 0) {
         return new ShowPidCommand(cmd_line);
     }
-    else if (firstWord.compare("cd") == 0 || firstWord.compare("cd&") == 0) {
+    else if (firstWord.compare("cd") == 0) {
         return new ChangeDirCommand(cmd_line, plastPwd);
     }
     else if (firstWord.compare("jobs") == 0 || firstWord.compare("jobs&") == 0) {
