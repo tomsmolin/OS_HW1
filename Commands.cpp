@@ -217,18 +217,8 @@ void ExternalCommand::execute() {
                 std::list<TimedCommandEntry>::iterator it;
                 it = find(list.begin(), list.end(), TimedCommandEntry(0, "", pid));
                 if (it != list.end())
-                { //timeout 6 ../os1-tests-master/./my_sleep 4
-
-//                    list.erase(it);
-//                    if (list.empty())
-//                        alarm(0);
-//                    else
-//                    {
-//                        int next_alrm = list.front().alrm_time;
-//                        alarm(difftime(next_alrm, time(NULL)));
-//                    }
-                       it->alrm_time = EXITED;
-                }
+                    it->alrm_time = EXITED;
+           
             }
             SmallShell::getInstance().resetCurrFgInfo();
         }
@@ -312,7 +302,13 @@ void ChangeDirCommand::execute() {
             return;
         }
     }
+    // & in the end of the path support
     _removeBackgroundSign(args[1]);
+    std::string path_str(args[1]);
+    size_t space_index = path_str.find_last_of(' ');
+    if (space_index != std::string::npos)
+        args[1][space_index] = '\0';
+        
     char* cwd = getCurrPwd();
     if (cwd == NULL)
     {
@@ -363,18 +359,29 @@ static bool isNumber(std::string x){
     else return false;}
 
 static bool killFormat(char** args,int argv) {
+  if(argv == 4 && (args[3][0] != '&' || args[3][1] != '\0'))
+    return false;         
+  if (argv < 3 || argv > 4)
+    return false;
+  //if (argv != 3) return false;
   std::stringstream sig_num(args[1]);
   double sig_number=0;
   sig_num >> sig_number;
   bool sig_int = (std::floor(sig_number) == sig_number) ? true : false;
   bool sig_format = (sig_number <= MAX_SIG) ? true : false;
+
   return (sig_format && sig_int && isNumber(args[2]));
 }
 
+// calling this function only when argv != 1
 static bool backAndForegroundFormat(char** args, int argv) {
-    if (argv != 2) {
-        return false;
-    }
+    // in case we got for example fg& 5
+    if (args[0][LEN_OF_BG_FG] != '\0') return false; 
+    // in case we have 3 args, check if the third is '&' only
+    if (argv == 3 && (args[2][0] != '&' || args[2][1] != '\0')) return false; 
+    if (argv < 2 || argv > 3) return false;
+    //if (argv != 2) return false;
+
     std::stringstream id(args[1]);
     double job_id = 0;
     id >> job_id;
@@ -386,10 +393,10 @@ static bool backAndForegroundFormat(char** args, int argv) {
 KillCommand::KillCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(cmd_line), jobs(jobs) {}
 
 void KillCommand::execute() {
-    if((argv!=3) || (!killFormat(args,argv))) {
-    fprintf(stderr, "smash error: kill: invalid arguments\n"); 
-    return;
-  }
+    if(!killFormat(args, argv)) {
+        fprintf(stderr, "smash error: kill: invalid arguments\n");
+        return;
+    }
   // if(!killFormat(args,argv)) { // as said in piazza invalid sig_num => syscall failed
   //     fprintf(stderr, "smash error: kill failed\n"); 
   //     return;
@@ -594,7 +601,7 @@ void HeadCommand::execute() {
     std::ifstream ifs(args[file_index], std::ifstream::in); //Constructor opens the file
     if (ifs.fail())
     {
-        fprintf(stderr, "smash error: open failed: No such file or directory\n");
+        perror(stderr, "smash error: open failed");
         return;
     }
     std::string str;
@@ -857,22 +864,22 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
     else if (firstWord.compare("showpid") == 0 || firstWord.compare("showpid&") == 0) {
         return new ShowPidCommand(cmd_line);
     }
-    else if (firstWord.compare("cd") == 0 || firstWord.compare("cd&") == 0) {
+    else if (firstWord.compare("cd") == 0) {
         return new ChangeDirCommand(cmd_line, plastPwd);
     }
     else if (firstWord.compare("jobs") == 0 || firstWord.compare("jobs&") == 0) {
         return new JobsCommand(cmd_line, &job_list);
     }
-    else if (firstWord.compare("kill") == 0 /*|| firstWord.compare("kill&") == 0*/) {
+    else if (firstWord.compare("kill") == 0) {
         return new KillCommand(cmd_line, &job_list);
     }
     else if (firstWord.compare("quit") == 0 || firstWord.compare("quit&") == 0) {
         return new QuitCommand(cmd_line, &job_list);
     }
-    else if (firstWord.compare("fg") == 0 /*|| firstWord.compare("fg&") == 0 */) {
+    else if (firstWord.compare("fg") == 0 || firstWord.compare("fg&") == 0 ) {
         return new ForegroundCommand(cmd_line, &job_list);
     }
-    else if (firstWord.compare("bg") == 0 /*|| firstWord.compare("bg&") == 0 */) {
+    else if (firstWord.compare("bg") == 0 || firstWord.compare("bg&") == 0 ) {
         return new BackgroundCommand(cmd_line, &job_list);
     }
 
