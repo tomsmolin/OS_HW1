@@ -388,7 +388,7 @@ static bool backAndForegroundFormat(char** args, int argv) {
     if (args[0][LEN_OF_BG_FG] != '\0') return false; 
     // in case we have 3 args, check if the third is '&' only
     if (argv == 3 && (args[2][0] != '&' || args[2][1] != '\0')) return false; 
-    if (argv != 2) return false;
+    if (argv < 2 || argv > 3) return false;
  
     std::stringstream id(args[1]);
     double job_id = 0;
