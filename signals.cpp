@@ -61,6 +61,12 @@ void alarmHandler(int sig_num, siginfo_t* info, void* context) {
 	SmallShell& smash = SmallShell::getInstance();
 	smash.getJobs()->removeFinishedJobs();
 	std::string cmd = smash.timed_list.front().timeout_cmd;
+
+	// printing is here only to "fit" the python test structure
+	cout << "smash: got an alarm" << endl;
+	std::string str("smash: ");
+	str.append(cmd).append(" timed out!\n");
+
 	int pid = smash.timed_list.front().pid_cmd;
 	int alrm_time = smash.timed_list.front().alrm_time;
 	smash.timed_list.pop_front();
@@ -68,9 +74,7 @@ void alarmHandler(int sig_num, siginfo_t* info, void* context) {
 	if (!smash.timed_list.empty())
 		alarm(difftime(smash.timed_list.front().alrm_time, time(NULL)));
 	
-	cout << "smash: got an alarm" << endl;
-	std::string str("smash: ");
-	str.append(cmd).append(" timed out!\n");
+	
 
 	if (alrm_time != EXITED)
 	{
