@@ -313,11 +313,11 @@ void ChangeDirCommand::execute() {
         }
     }
     // & in the end of the path support
-   /* _removeBackgroundSign(args[1]);
+    _removeBackgroundSign(args[1]);
     std::string path_str(args[1]);
     size_t space_index = path_str.find_last_of(' ');
     if (space_index != std::string::npos)
-        args[1][space_index] = '\0';*/
+        args[1][space_index] = '\0';
         
     char* cwd = getCurrPwd();
     if (cwd == NULL)
