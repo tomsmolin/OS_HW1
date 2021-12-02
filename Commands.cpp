@@ -369,11 +369,11 @@ static bool isNumber(std::string x){
     else return false;}
 
 static bool killFormat(char** args,int argv) {
-  //if(argv == 4 && (args[3][0] != '&' || args[3][1] != '\0'))
-  //  return false;         
-  //if (argv < 3 || argv > 4)
-  //  return false;
-    if (argv != 3) return false;
+  if(argv == 4 && (args[3][0] != '&' || args[3][1] != '\0'))
+    return false;         
+  if (argv < 3 || argv > 4)
+    return false;
+  //if (argv != 3) return false;
   std::stringstream sig_num(args[1]);
   double sig_number=0;
   sig_num >> sig_number;
