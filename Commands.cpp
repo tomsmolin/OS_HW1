@@ -192,14 +192,12 @@ void ExternalCommand::execute() {
     }
     /////father
     else {
-        std::string curr_cmd = cmd;
         if (this->timed_entry != NULL)
         {
             this->timed_entry->pid_cmd = pid;
-            this->timed_entry->timeout_cmd = cmd;
             this->timed_entry = NULL;
         }
-        
+        std::string curr_cmd = cmd;
         if(_isBackgroundComamnd(curr_cmd))
         {
             cmd_job_id = jobs->addJob(pid,curr_cmd);
@@ -207,7 +205,10 @@ void ExternalCommand::execute() {
         else
         {
             SmallShell::getInstance().setCurrPid(pid);
-            SmallShell::getInstance().setCurrCmd(curr_cmd);
+            if (this->timed_entry == NULL)
+                SmallShell::getInstance().setCurrCmd(curr_cmd);
+            else
+                SmallShell::getInstance().setCurrCmd(this->timed_entry->timeout_cmd);
             int status = 0;
             int result = waitpid(pid, &status, WUNTRACED);
             if(result == ERROR) {
@@ -1017,7 +1018,7 @@ void SmallShell::executeCommand(const char* cmd_line) {
         }
         alarm(difftime(timed_list.front().alrm_time, time(NULL)));
 
-        cmd->getCmd() = cmd_line;
+        //cmd->getCmd() = cmd_line;
     }
     else
     {
