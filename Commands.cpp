@@ -163,7 +163,16 @@ void TimedCommandEntry::setTimeoutCmd(const char* cmd_line) {
 ExternalCommand::ExternalCommand(const char* cmd_line, JobsList* jobs) : Command(cmd_line), jobs(jobs) {}
 
 void ExternalCommand::execute() {
-  int pid = fork();
+    std::string curr_cmd = cmd;
+    if (!_isBackgroundComamnd(curr_cmd))
+    {
+        if (this->timed_entry != NULL)
+            SmallShell::getInstance().setCurrCmd(this->timed_entry->timeout_cmd);
+        else
+            SmallShell::getInstance().setCurrCmd(curr_cmd);
+    }
+    
+    int pid = fork();
     if (pid == ERROR)
     {
         perror("smash error: fork failed");
@@ -197,7 +206,6 @@ void ExternalCommand::execute() {
             this->timed_entry->pid_cmd = pid;
             this->timed_entry = NULL;
         }
-        std::string curr_cmd = cmd;
         if(_isBackgroundComamnd(curr_cmd))
         {
             cmd_job_id = jobs->addJob(pid,curr_cmd);
@@ -205,7 +213,14 @@ void ExternalCommand::execute() {
         else
         {
             SmallShell::getInstance().setCurrPid(pid);
-            SmallShell::getInstance().setCurrCmd(curr_cmd);
+            //if (this->timed_entry == NULL)
+            //{
+            //    SmallShell::getInstance().setCurrCmd(curr_cmd);
+            //}
+            //else
+            //{
+            //    SmallShell::getInstance().setCurrCmd(this->timed_entry->timeout_cmd);
+            //}
             int status = 0;
             int result = waitpid(pid, &status, WUNTRACED);
             if(result == ERROR) {
@@ -601,7 +616,7 @@ void HeadCommand::execute() {
     std::ifstream ifs(args[file_index], std::ifstream::in); //Constructor opens the file
     if (ifs.fail())
     {
-        perror(stderr, "smash error: open failed");
+        perror("smash error: open failed");
         return;
     }
     std::string str;
@@ -1014,6 +1029,8 @@ void SmallShell::executeCommand(const char* cmd_line) {
             cmd->timed_entry = &timed_list.front();
         }
         alarm(difftime(timed_list.front().alrm_time, time(NULL)));
+
+        //cmd->getCmd() = cmd_line;
     }
     else
     {
