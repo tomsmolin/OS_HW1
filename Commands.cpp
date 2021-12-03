@@ -166,6 +166,7 @@ void ExternalCommand::execute() {
     std::string curr_cmd = cmd;
     if (!_isBackgroundComamnd(curr_cmd))
     {
+        cout << this->timed_entry->timeout_cmd << endl;
         if (this->timed_entry != NULL)
             SmallShell::getInstance().setCurrCmd(this->timed_entry->timeout_cmd);
     }
