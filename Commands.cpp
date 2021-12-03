@@ -163,7 +163,13 @@ void TimedCommandEntry::setTimeoutCmd(const char* cmd_line) {
 ExternalCommand::ExternalCommand(const char* cmd_line, JobsList* jobs) : Command(cmd_line), jobs(jobs) {}
 
 void ExternalCommand::execute() {
-  int pid = fork();
+    if (!_isBackgroundComamnd(curr_cmd))
+    {
+        if (this->timed_entry != NULL)
+            SmallShell::getInstance().setCurrCmd(this->timed_entry->timeout_cmd);
+    }
+    
+    int pid = fork();
     if (pid == ERROR)
     {
         perror("smash error: fork failed");
