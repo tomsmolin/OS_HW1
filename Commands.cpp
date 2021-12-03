@@ -208,7 +208,10 @@ void ExternalCommand::execute() {
             if (this->timed_entry == NULL)
                 SmallShell::getInstance().setCurrCmd(curr_cmd);
             else
+            {
+                cout << this->timed_entry->timeout_cmd) << endl;
                 SmallShell::getInstance().setCurrCmd(this->timed_entry->timeout_cmd);
+            }
             int status = 0;
             int result = waitpid(pid, &status, WUNTRACED);
             if(result == ERROR) {
