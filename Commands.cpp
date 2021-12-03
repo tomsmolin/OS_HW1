@@ -163,6 +163,7 @@ void TimedCommandEntry::setTimeoutCmd(const char* cmd_line) {
 ExternalCommand::ExternalCommand(const char* cmd_line, JobsList* jobs) : Command(cmd_line), jobs(jobs) {}
 
 void ExternalCommand::execute() {
+    std::string curr_cmd = cmd;
     if (!_isBackgroundComamnd(curr_cmd))
     {
         if (this->timed_entry != NULL)
@@ -203,7 +204,6 @@ void ExternalCommand::execute() {
             this->timed_entry->pid_cmd = pid;
             this->timed_entry = NULL;
         }
-        std::string curr_cmd = cmd;
         if(_isBackgroundComamnd(curr_cmd))
         {
             cmd_job_id = jobs->addJob(pid,curr_cmd);
