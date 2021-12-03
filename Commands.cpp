@@ -604,7 +604,7 @@ void HeadCommand::execute() {
     std::ifstream ifs(args[file_index], std::ifstream::in); //Constructor opens the file
     if (ifs.fail())
     {
-        perror(stderr, "smash error: open failed");
+        perror("smash error: open failed");
         return;
     }
     std::string str;
