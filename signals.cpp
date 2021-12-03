@@ -70,9 +70,10 @@ void alarmHandler(int sig_num, siginfo_t* info, void* context) {
 	cout << "smash: got an alarm" << endl;
 	std::string str("smash: ");
 	str.append(cmd).append(" timed out!\n");
-	cout << str;
+	
 	if (alrm_time != EXITED)
 	{
+		cout << str;
 		if (kill(pid, 0) != ERROR) // existence check
 		{
 			if (kill(pid, SIGKILL) == ERROR)
