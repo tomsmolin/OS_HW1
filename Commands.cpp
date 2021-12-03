@@ -168,7 +168,8 @@ void ExternalCommand::execute() {
     {
         if (this->timed_entry != NULL)
             SmallShell::getInstance().setCurrCmd(this->timed_entry->timeout_cmd);
-        cout << SmallShell::getInstance().getCurrCmd() << endl;
+        else
+            SmallShell::getInstance().setCurrCmd(curr_cmd);
     }
     
     int pid = fork();
@@ -202,7 +203,6 @@ void ExternalCommand::execute() {
     else {
         if (this->timed_entry != NULL)
         {
-            cout << "got here1" << endl;
             this->timed_entry->pid_cmd = pid;
             this->timed_entry = NULL;
         }
@@ -213,16 +213,14 @@ void ExternalCommand::execute() {
         else
         {
             SmallShell::getInstance().setCurrPid(pid);
-            if (this->timed_entry == NULL)
-            {
-                cout << "got here2" << endl;
-                SmallShell::getInstance().setCurrCmd(curr_cmd);
-            }
-            else
-            {
-                //cout << this->timed_entry->timeout_cmd << endl;
-                SmallShell::getInstance().setCurrCmd(this->timed_entry->timeout_cmd);
-            }
+            //if (this->timed_entry == NULL)
+            //{
+            //    SmallShell::getInstance().setCurrCmd(curr_cmd);
+            //}
+            //else
+            //{
+            //    SmallShell::getInstance().setCurrCmd(this->timed_entry->timeout_cmd);
+            //}
             int status = 0;
             int result = waitpid(pid, &status, WUNTRACED);
             if(result == ERROR) {

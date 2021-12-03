@@ -14,7 +14,6 @@ void ctrlZHandler(int sig_num) {
 		return;
 	}
 	std::string curr_cmd = smash.getCurrCmd();
-	cout << curr_cmd << endl;
 	if (pid != NO_CURR_PID)
 	{
 		if (!smash.CurrFgIsFromJobsList())
