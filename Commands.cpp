@@ -1016,6 +1016,8 @@ void SmallShell::executeCommand(const char* cmd_line) {
             cmd->timed_entry = &timed_list.front();
         }
         alarm(difftime(timed_list.front().alrm_time, time(NULL)));
+
+        cmd->getCmd() = cmd_line;
     }
     else
     {
