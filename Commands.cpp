@@ -202,6 +202,7 @@ void ExternalCommand::execute() {
     else {
         if (this->timed_entry != NULL)
         {
+            cout << "got here1" << endl;
             this->timed_entry->pid_cmd = pid;
             this->timed_entry = NULL;
         }
@@ -214,7 +215,7 @@ void ExternalCommand::execute() {
             SmallShell::getInstance().setCurrPid(pid);
             if (this->timed_entry == NULL)
             {
-                cout << "got here" << endl;
+                cout << "got here2" << endl;
                 SmallShell::getInstance().setCurrCmd(curr_cmd);
             }
             else
