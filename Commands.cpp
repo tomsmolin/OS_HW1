@@ -192,12 +192,14 @@ void ExternalCommand::execute() {
     }
     /////father
     else {
+        std::string curr_cmd = cmd;
         if (this->timed_entry != NULL)
         {
             this->timed_entry->pid_cmd = pid;
+            this->timed_entry->timeout_cmd = cmd;
             this->timed_entry = NULL;
         }
-        std::string curr_cmd = cmd;
+        
         if(_isBackgroundComamnd(curr_cmd))
         {
             cmd_job_id = jobs->addJob(pid,curr_cmd);
