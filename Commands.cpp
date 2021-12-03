@@ -216,7 +216,7 @@ void ExternalCommand::execute() {
                 SmallShell::getInstance().setCurrCmd(curr_cmd);
             else
             {
-                cout << this->timed_entry->timeout_cmd << endl;
+                //cout << this->timed_entry->timeout_cmd << endl;
                 SmallShell::getInstance().setCurrCmd(this->timed_entry->timeout_cmd);
             }
             int status = 0;
