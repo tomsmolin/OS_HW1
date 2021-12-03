@@ -73,7 +73,6 @@ void alarmHandler(int sig_num, siginfo_t* info, void* context) {
 	
 	if (alrm_time != EXITED)
 	{
-		cout << str;
 		if (kill(pid, 0) != ERROR) // existence check
 		{
 			if (kill(pid, SIGKILL) == ERROR)
@@ -81,7 +80,7 @@ void alarmHandler(int sig_num, siginfo_t* info, void* context) {
 				fprintf(stderr, "smash error: kill failed\n");
 				return;
 			}
-			//cout << str;
+			cout << str;
 		}
 	}
 	smash.getJobs()->removeFinishedJobs();
