@@ -1082,6 +1082,7 @@ void PipeCommand::execute() {
     perror("smash error: pipe failed");
     return;
   }
+  int curr_pid = getpid();
    //close stdout('|') or stderr('|&')
   int fd_to_close=1;
   if(is_stderr) {
@@ -1113,7 +1114,7 @@ void PipeCommand::execute() {
     std::string cmd_s = _trim(string(first_command));
     std::string firstWord = cmd_s.substr(0, cmd_s.find_first_of(" \n")); 
     if (firstWord.compare("showpid") == 0 || firstWord.compare("showpid&") == 0) {
-      cout << "DGB" << endl;
+      cout << "smash pid is " << curr_pid << endl;
       exit(0);
     }
     SmallShell::getInstance().executeCommand(first_command.c_str());
