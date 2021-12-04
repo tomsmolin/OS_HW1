@@ -18,12 +18,13 @@
 #define NOT_SET (-1)
 #define ERROR (-1)
 #define EXITED (-1)
+#define LEN_OF_BG_FG (2)
 
 
 class TimedCommandEntry {
 public:
-    time_t alrm_time; //set method
-    std::string timeout_cmd; // """"
+    time_t alrm_time; 
+    std::string timeout_cmd;
     int pid_cmd;
     bool operator< (TimedCommandEntry const& entry2);
     bool operator== (TimedCommandEntry const& entry2);
@@ -37,7 +38,6 @@ public:
 };
 
 class Command {
-// TODO: Add your data members
 protected:
   const char* cmd;
   int argv;
@@ -56,7 +56,6 @@ protected:
   
   //virtual void prepare();
   //virtual void cleanup();
-  // TODO: Add your extra methods if needed
 };
 
 class BuiltInCommand : public Command {
@@ -76,7 +75,6 @@ class ExternalCommand : public Command {
 };
 
 class PipeCommand : public Command {
-  // TODO: Add your data members
   std::string first_command;
   std::string second_command;
   bool is_stderr;
@@ -87,7 +85,6 @@ class PipeCommand : public Command {
 };
 
 class RedirectionCommand : public Command {
- // TODO: Add your data members
   std::string command_cmd;
   std::string file_name;
   bool append;
@@ -108,12 +105,11 @@ public:
 };
 
 class ChangeDirCommand : public BuiltInCommand {
-// TODO: Add your data members public:
  public:
   bool cd_succeeded;
   char* classPlastPwd;
   ChangeDirCommand(const char* cmd_line, char** plastPwd);
-  virtual ~ChangeDirCommand(); // ============ implement this destructor??
+  virtual ~ChangeDirCommand();
   void execute() override;
 
 };
@@ -134,7 +130,6 @@ class ShowPidCommand : public BuiltInCommand {
 
 class JobsList;
 class QuitCommand : public BuiltInCommand {
-// TODO: Add your data members public:
   JobsList* jobs;
  public:
   QuitCommand(const char* cmd_line, JobsList* jobs);
@@ -156,13 +151,10 @@ class JobsList {
       std::string cmd;
       JobEntry()=default;
       JobEntry(int pid, int job_id,JobStatus status,time_t insert,std::string cmd);
-   // TODO: Add your data members
   };
   bool jobs_list_empty;
   int max_id;
   std::map<int, JobEntry> jobsDict;
- // TODO: Add your data members
-
  
  public:
   JobsList();
@@ -175,13 +167,11 @@ class JobsList {
   void removeJobById(int jobId);
   JobEntry * getLastJob(int* lastJobId);
   JobEntry *getLastStoppedJob(int *jobId);
-  // TODO: Add extra methods or modify exisitng ones as needed
   void maxIdUpdate();
   void printKilledJobList();
 };
 
 class JobsCommand : public BuiltInCommand {
- // TODO: Add your data members
   JobsList* jobs;
  public:
   JobsCommand(const char* cmd_line, JobsList* jobs);
@@ -190,7 +180,6 @@ class JobsCommand : public BuiltInCommand {
 };
 
 class KillCommand : public BuiltInCommand {
- // TODO: Add your data members
   JobsList* jobs;
  public:
   KillCommand(const char* cmd_line, JobsList* jobs);
@@ -199,7 +188,6 @@ class KillCommand : public BuiltInCommand {
 };
 
 class ForegroundCommand : public BuiltInCommand {
- // TODO: Add your data members
     JobsList* jobs;
  public:
   ForegroundCommand(const char* cmd_line, JobsList* jobs);
@@ -209,7 +197,6 @@ class ForegroundCommand : public BuiltInCommand {
 };
 
 class BackgroundCommand : public BuiltInCommand {
- // TODO: Add your data members
     JobsList* jobs;
  public:
   BackgroundCommand(const char* cmd_line, JobsList* jobs);
@@ -234,7 +221,6 @@ public:
 };
 
 class SmallShell {
-  // TODO: Add your data members
   SmallShell();
   char** plastPwd;
   bool legal_cd_made_before;
@@ -258,7 +244,6 @@ class SmallShell {
   }
   ~SmallShell();
   void executeCommand(const char* cmd_line);
-  // TODO: add extra methods as needed
   void setPLastPwd(Command* cmd);
   void setCurrPid(int curr_pid);
   int getCurrPid();

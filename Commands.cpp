@@ -112,8 +112,7 @@ static int numberOfArgs(std::string cmd_line) {
     return cnt;
 }
 
-// TODO: Add your implementation for classes in Commands.h 
-Command::Command(const char* cmd_line) : cmd(cmd_line), argv(0), timed_entry(NULL), cmd_job_id(NOT_SET) {  
+Command::Command(const char* cmd_line) : cmd(cmd_line), argv(0), cmd_job_id(NOT_SET), timed_entry(NULL) {
   args = new char*[numberOfArgs(cmd_line) + 1]; //buffer of (+1) due to impl. of _parse command
   argv = _parseCommandLine(cmd_line,args);
 }
@@ -125,8 +124,7 @@ Command::~Command() {
     args[i] = NULL;
   }
   delete[] args;
-  args = NULL; //VALGRIND
-  //cmd = NULL; //VALGRIND
+  args = NULL;
 }
 
 const char* Command::getCmd() {
@@ -145,10 +143,6 @@ TimedCommandEntry::TimedCommandEntry(time_t alrm_time, std::string timeout_cmd, 
 : alrm_time(alrm_time), timeout_cmd(timeout_cmd), pid_cmd(pid_cmd) {}
 
 bool TimedCommandEntry::operator<(TimedCommandEntry const& entry2) {
-    /*if (alrm_time < entry2.alrm_time)
-        return true;
-    else
-        return false;*/
     return alrm_time < entry2.alrm_time;
 }
 
@@ -163,7 +157,16 @@ void TimedCommandEntry::setTimeoutCmd(const char* cmd_line) {
 ExternalCommand::ExternalCommand(const char* cmd_line, JobsList* jobs) : Command(cmd_line), jobs(jobs) {}
 
 void ExternalCommand::execute() {
-  int pid = fork();
+    std::string curr_cmd = cmd;
+    if (!_isBackgroundComamnd(curr_cmd))
+    {
+        if (this->timed_entry != NULL)
+            SmallShell::getInstance().setCurrCmd(this->timed_entry->timeout_cmd);
+        else
+            SmallShell::getInstance().setCurrCmd(curr_cmd);
+    }
+    
+    int pid = fork();
     if (pid == ERROR)
     {
         perror("smash error: fork failed");
@@ -197,7 +200,6 @@ void ExternalCommand::execute() {
             this->timed_entry->pid_cmd = pid;
             this->timed_entry = NULL;
         }
-        std::string curr_cmd = cmd;
         if(_isBackgroundComamnd(curr_cmd))
         {
             cmd_job_id = jobs->addJob(pid,curr_cmd);
@@ -205,7 +207,6 @@ void ExternalCommand::execute() {
         else
         {
             SmallShell::getInstance().setCurrPid(pid);
-            SmallShell::getInstance().setCurrCmd(curr_cmd);
             int status = 0;
             int result = waitpid(pid, &status, WUNTRACED);
             if(result == ERROR) {
@@ -217,18 +218,8 @@ void ExternalCommand::execute() {
                 std::list<TimedCommandEntry>::iterator it;
                 it = find(list.begin(), list.end(), TimedCommandEntry(0, "", pid));
                 if (it != list.end())
-                { //timeout 6 ../os1-tests-master/./my_sleep 4
-
-//                    list.erase(it);
-//                    if (list.empty())
-//                        alarm(0);
-//                    else
-//                    {
-//                        int next_alrm = list.front().alrm_time;
-//                        alarm(difftime(next_alrm, time(NULL)));
-//                    }
-                       it->alrm_time = EXITED;
-                }
+                    it->alrm_time = EXITED;
+           
             }
             SmallShell::getInstance().resetCurrFgInfo();
         }
@@ -312,7 +303,13 @@ void ChangeDirCommand::execute() {
             return;
         }
     }
+    // & in the end of the path support
     _removeBackgroundSign(args[1]);
+    std::string path_str(args[1]);
+    size_t space_index = path_str.find_last_of(' ');
+    if (space_index != std::string::npos)
+        args[1][space_index] = '\0';
+        
     char* cwd = getCurrPwd();
     if (cwd == NULL)
     {
@@ -363,33 +360,42 @@ static bool isNumber(std::string x){
     else return false;}
 
 static bool killFormat(char** args,int argv) {
+  if(argv == 4 && (args[3][0] != '&' || args[3][1] != '\0'))
+    return false;         
+  if (argv < 3 || argv > 4)
+    return false;
+  //if (argv != 3) return false;
   std::stringstream sig_num(args[1]);
   double sig_number=0;
   sig_num >> sig_number;
   bool sig_int = (std::floor(sig_number) == sig_number) ? true : false;
   bool sig_format = (sig_number <= MAX_SIG) ? true : false;
+
   return (sig_format && sig_int && isNumber(args[2]));
 }
 
+// calling this function only when argv != 1
 static bool backAndForegroundFormat(char** args, int argv) {
-    if (argv != 2) {
-        return false;
-    }
+    // in case we got for example fg& 5
+    if (args[0][LEN_OF_BG_FG] != '\0') return false; 
+    // in case we have 3 args, check if the third is '&' only
+    if (argv == 3 && (args[2][0] != '&' || args[2][1] != '\0')) return false; 
+    if (argv < 2 || argv > 3) return false;
+
     std::stringstream id(args[1]);
     double job_id = 0;
     id >> job_id;
     bool id_int = (std::floor(job_id) == job_id) ? true : false;
-    // bool id_format = (job_id > 0) ? true : false;
     return (id_int);
 }
 
 KillCommand::KillCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(cmd_line), jobs(jobs) {}
 
 void KillCommand::execute() {
-    if((argv!=3) || (!killFormat(args,argv))) {
-    fprintf(stderr, "smash error: kill: invalid arguments\n"); 
-    return;
-  }
+    if(!killFormat(args, argv)) {
+        fprintf(stderr, "smash error: kill: invalid arguments\n");
+        return;
+    }
   // if(!killFormat(args,argv)) { // as said in piazza invalid sig_num => syscall failed
   //     fprintf(stderr, "smash error: kill failed\n"); 
   //     return;
@@ -423,7 +429,6 @@ QuitCommand::QuitCommand(const char* cmd_line, JobsList* jobs) : BuiltInCommand(
 
 void QuitCommand::execute() {
   if (argv<2) {
-    // cout << "quit" << endl;
     delete this;
     exit(1);
   }
@@ -555,8 +560,6 @@ void BackgroundCommand::execute() {
         perror("smash error: kill failed");
         return;
     }
-    //jobs->removeJobById(curr_job->job_id);
-    //jobs->addJob(pid, job_cmd);
     curr_job->status = Background;
 }
 
@@ -594,7 +597,7 @@ void HeadCommand::execute() {
     std::ifstream ifs(args[file_index], std::ifstream::in); //Constructor opens the file
     if (ifs.fail())
     {
-        fprintf(stderr, "smash error: open failed: No such file or directory\n");
+        perror("smash error: open failed");
         return;
     }
     std::string str;
@@ -745,10 +748,7 @@ void JobsList::removeFinishedJobs() {
   for (iter = jobsDict.begin(); iter != jobsDict.end(); iter++) {
     int status;
     int status_2 = waitpid(iter->second.pid, &status, WNOHANG | WUNTRACED | WCONTINUED);
-    // cout << "dgb" << iter->second.pid << endl;
-    // cout << "dgb2 " << status_2 << endl;
     if(((WIFEXITED(status) || WIFSIGNALED(status)) && status_2 == iter->second.pid) || kill(iter->second.pid, 0) != 0) { //the procces terminated normally or terminated by a signal.
-      // cout << "DGB" << endl;
       if(jobsDict.size()== 1){
         jobs_list_empty=true;
 
@@ -777,9 +777,7 @@ void JobsList::removeFinishedJobs() {
         return;
       }
     }
-    // cout << "endll" << endl;
   }
-  // cout << "end" << endl;
 }
 
 JobsList::JobEntry *JobsList::getLastStoppedJob(int *jobId) {
@@ -799,7 +797,6 @@ JobsList::JobEntry *JobsList::getLastStoppedJob(int *jobId) {
 SmallShell::SmallShell() : plastPwd(NULL), legal_cd_made_before(false), prompt("smash> "),
                            job_list(JobsList()), curr_pid(NO_CURR_PID),
                            curr_cmd("No Current cmd"), curr_fg_from_jobs(false) {
-    // TODO: add your implementation
     plastPwd = new char* ();
     *plastPwd = NULL;
 }
@@ -857,26 +854,26 @@ Command * SmallShell::CreateCommand(const char* cmd_line) {
     else if (firstWord.compare("showpid") == 0 || firstWord.compare("showpid&") == 0) {
         return new ShowPidCommand(cmd_line);
     }
-    else if (firstWord.compare("cd") == 0 || firstWord.compare("cd&") == 0) {
+    else if (firstWord.compare("cd") == 0) {
         return new ChangeDirCommand(cmd_line, plastPwd);
     }
     else if (firstWord.compare("jobs") == 0 || firstWord.compare("jobs&") == 0) {
         return new JobsCommand(cmd_line, &job_list);
     }
-    else if (firstWord.compare("kill") == 0 /*|| firstWord.compare("kill&") == 0*/) {
+    else if (firstWord.compare("kill") == 0) {
         return new KillCommand(cmd_line, &job_list);
     }
     else if (firstWord.compare("quit") == 0 || firstWord.compare("quit&") == 0) {
         return new QuitCommand(cmd_line, &job_list);
     }
-    else if (firstWord.compare("fg") == 0 /*|| firstWord.compare("fg&") == 0 */) {
+    else if (firstWord.compare("fg") == 0 || firstWord.compare("fg&") == 0 ) {
         return new ForegroundCommand(cmd_line, &job_list);
     }
-    else if (firstWord.compare("bg") == 0 /*|| firstWord.compare("bg&") == 0 */) {
+    else if (firstWord.compare("bg") == 0 || firstWord.compare("bg&") == 0 ) {
         return new BackgroundCommand(cmd_line, &job_list);
     }
 
-     return new ExternalCommand(cmd_line, &job_list);
+    return new ExternalCommand(cmd_line, &job_list);
 }
 
 void SmallShell::setPLastPwd(Command* cmd) {
@@ -945,7 +942,6 @@ static int setTimeoutDuration(char* duration_str) {
     int duration = 0;
     std::stringstream duration_ss(duration_str);
     duration_ss >> duration;
-    //ADD MORE CHECKING FOR LEGAL INT
     if (duration < 1)
         return ERROR;
     return duration;
@@ -993,7 +989,6 @@ void SmallShell::executeCommand(const char* cmd_line) {
             return;
         }
         cmd = CreateCommand(new_cmd_line.c_str());
-        //cmd->updateCmdForTimeout(cmd_line);
         TimedCommandEntry entry(time(NULL) + duration, cmd_line, NOT_SET); // should implement inst.
         //operator compares absulote alarm times
         if (timed_list.front() < entry)
@@ -1023,7 +1018,7 @@ void SmallShell::executeCommand(const char* cmd_line) {
     timed_list.sort();
     setPLastPwd(cmd);
     delete cmd;
-    cmd = NULL; // VALGRIND
+    cmd = NULL; 
 }
 
 //////////pipes and redirections////////////
@@ -1075,7 +1070,6 @@ void RedirectionCommand::execute() {
  
 PipeCommand::PipeCommand(const char* cmd_line) : Command(cmd_line), first_command(EMPTY_STRING), second_command(EMPTY_STRING) {
   is_stderr = pipeParse(cmd_line,first_command,second_command);
-  //cmd = first_command.c_str();
   cmd = NULL;
 }
 

@@ -14,7 +14,6 @@ void ctrlZHandler(int sig_num) {
 		return;
 	}
 	std::string curr_cmd = smash.getCurrCmd();
-
 	if (pid != NO_CURR_PID)
 	{
 		if (!smash.CurrFgIsFromJobsList())
@@ -71,7 +70,7 @@ void alarmHandler(int sig_num, siginfo_t* info, void* context) {
 	cout << "smash: got an alarm" << endl;
 	std::string str("smash: ");
 	str.append(cmd).append(" timed out!\n");
-
+	
 	if (alrm_time != EXITED)
 	{
 		if (kill(pid, 0) != ERROR) // existence check
