@@ -1116,6 +1116,12 @@ void PipeCommand::execute() {
       perror("smash error: close failed");
       exit(0);
     }
+    std::string cmd_s = _trim(string(cmd_line));
+    std::string firstWord = cmd_s.substr(0, cmd_s.find_first_of(" \n")); 
+    if (firstWord.compare("showpid") == 0 || firstWord.compare("showpid&") == 0) {
+      cout << "DGB" << endl;
+      exit(0);
+    }
     SmallShell::getInstance().executeCommand(first_command.c_str());
     exit(0);
   }
