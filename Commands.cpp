@@ -112,7 +112,7 @@ static int numberOfArgs(std::string cmd_line) {
     return cnt;
 }
 
-Command::Command(const char* cmd_line) : cmd(cmd_line), argv(0), timed_entry(NULL), cmd_job_id(NOT_SET) {  
+Command::Command(const char* cmd_line) : cmd(cmd_line), argv(0), cmd_job_id(NOT_SET), timed_entry(NULL) {
   args = new char*[numberOfArgs(cmd_line) + 1]; //buffer of (+1) due to impl. of _parse command
   argv = _parseCommandLine(cmd_line,args);
 }
