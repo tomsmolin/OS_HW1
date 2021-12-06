@@ -210,6 +210,7 @@ void ExternalCommand::execute() {
             SmallShell::getInstance().setCurrPid(pid);
             int status = 0;
             int result = waitpid(pid, &status, WUNTRACED);
+            cout << "process of " << curr_cmd << " terminated" << endl;
             if(result == ERROR) {
                 perror("smash error: waitpid failed");
             }
