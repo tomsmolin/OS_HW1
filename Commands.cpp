@@ -743,7 +743,7 @@ void JobsList::removeFinishedJobs() {
   if(jobs_list_empty) {
     return;
   }
-  
+  cout << "DGB" << endl;
   map<int, JobEntry>::iterator iter;
   map<int, JobEntry>::iterator temp_iter;
   for (iter = jobsDict.begin(); iter != jobsDict.end(); iter++) {
