@@ -157,6 +157,7 @@ void TimedCommandEntry::setTimeoutCmd(const char* cmd_line) {
 ExternalCommand::ExternalCommand(const char* cmd_line, JobsList* jobs) : Command(cmd_line), jobs(jobs) {}
 
 void ExternalCommand::execute() {
+    jobs->removeFinishedJobs();
     std::string curr_cmd = cmd;
     if (!_isBackgroundComamnd(curr_cmd))
     {
