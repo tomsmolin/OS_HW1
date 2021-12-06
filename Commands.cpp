@@ -752,7 +752,7 @@ void JobsList::removeFinishedJobs() {
     if(((WIFEXITED(status) || WIFSIGNALED(status)) && status_2 == iter->second.pid) || kill(iter->second.pid, 0) != 0) { //the procces terminated normally or terminated by a signal.
       if(jobsDict.size()== 1){
         jobs_list_empty=true;
-
+        cout << "process of " << iter->second.cmd << " terminated" << endl;
         /* When we're traversing a map with a loop and an iterator \
          * deleting some element could be problematic and "confusing" \
          * for the iterator. Therefore, we need to somehow make sure it reaches \
