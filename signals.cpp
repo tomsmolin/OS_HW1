@@ -25,7 +25,6 @@ void ctrlZHandler(int sig_num) {
 			job_entry->insert = time(NULL);
 			if (job_entry->status == Background)
 			{
-				//TODO: check if it's req. to erase '&'
 				job_entry->status = Stopped;
 			}
 		}

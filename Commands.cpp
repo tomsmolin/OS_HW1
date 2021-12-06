@@ -617,7 +617,7 @@ void HeadCommand::execute() {
                 }
                 if (w_result < str.size())
                 {
-                    fprintf(stderr, "write wasn't able to write all bytes\n");
+                    perror("smash error : write failed");
                     return;
                 }
             }
@@ -636,7 +636,7 @@ void HeadCommand::execute() {
         }
         if (w_result < str.size())
         {
-            fprintf(stderr, "write wasn't able to write all bytes\n");
+            perror("smash error : write failed");
             return;
         }
         lines_num--;
@@ -1035,7 +1035,7 @@ void RedirectionCommand::execute() {
   }
   int stdout_fd = dup(1);
   if(stdout_fd == ERROR) {
-    perror("smash error: dup failed\n");
+    perror("smash error: dup failed");
     return;
   }
   int fd;
@@ -1053,7 +1053,7 @@ void RedirectionCommand::execute() {
 
   int result = dup2(fd,1);
   if(result == ERROR) {
-    perror("smash error: dup2 failed\n");
+    perror("smash error: dup2 failed");
     return;
   }
   SmallShell::getInstance().executeCommand(command_cmd.c_str());
@@ -1064,7 +1064,7 @@ void RedirectionCommand::execute() {
   }
   result = close(fd);
   if (result == ERROR) {
-    perror("smash error: close failed\n");
+    perror("smash error: close failed");
   }
 }
  
